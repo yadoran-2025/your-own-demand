@@ -1,104 +1,101 @@
 import Link from "next/link";
 import {
-  ArrowRight,
   BarChart3,
   ClipboardList,
   GraduationCap,
   LineChart,
-  MousePointerClick,
   Settings2,
 } from "lucide-react";
-import { LandingStatusPanel } from "@/components/LandingStatusPanel";
 
 export default function Home() {
-  const guideCards = [
+  const classroomFlow = [
     {
-      title: "학생",
-      body: "학년, 반, 번호를 입력하고 가격별 구매량을 제출합니다.",
-      icon: GraduationCap,
+      title: "교사가 상품과 가격표를 준비합니다",
+      body: "수업에 맞는 상품, 가격 구간, 가격 설명을 먼저 정리합니다.",
     },
     {
-      title: "교사",
-      body: "상품과 가격표를 만들고 수업 전에 조사 구조를 확정합니다.",
-      icon: ClipboardList,
+      title: "학생이 가격별 구매량을 제출합니다",
+      body: "각 가격에서 사고 싶은 개수를 입력하면 응답이 바로 모입니다.",
     },
     {
-      title: "결과",
-      body: "우리 반 평균과 전체 평균을 비교하며 수요곡선을 읽습니다.",
-      icon: LineChart,
+      title: "우리 반의 수요곡선을 비교합니다",
+      body: "반 평균과 전체 평균을 함께 보며 가격 변화에 따른 선택을 읽습니다.",
     },
   ];
 
   return (
-    <main className="app-shell landing-page">
-      <section className="landing-hero mx-auto grid max-w-7xl gap-8 px-5 py-6 md:px-10 md:py-8 lg:grid-cols-[minmax(0,1.02fr)_minmax(24rem,0.98fr)]">
-        <div className="flex min-h-[calc(100dvh-11rem)] flex-col justify-center gap-7 py-5">
-          <div className="inline-flex w-fit items-center gap-2 rounded-md border border-[var(--border)] bg-[var(--bg)] px-3 py-2 text-sm font-black text-[var(--brand)]">
+    <main className="app-shell px-5 py-6 md:px-10 md:py-8">
+      <section className="mx-auto grid min-h-[calc(100dvh-9rem)] max-w-6xl content-center gap-8 pb-8 lg:grid-cols-[1.05fr_0.95fr]">
+        <div className="space-y-7">
+          <div className="inline-flex items-center gap-2 rounded-md border border-[var(--border)] bg-[var(--bg)] px-3 py-2 text-sm font-bold text-[var(--brand)]">
             <BarChart3 size={18} />
             경제학 수요곡선 활동
           </div>
-
-          <div className="grid gap-4">
-            <h1 className="max-w-4xl text-4xl font-black leading-tight md:text-6xl">
-              수업을 시작할 준비가 되면, 내 역할을 고르세요
+          <div className="space-y-4">
+            <h1 className="max-w-3xl text-4xl font-black leading-tight md:text-6xl">
+              가격이 바뀔 때 우리 반의 선택을 수요곡선으로 확인해요
             </h1>
-            <p className="max-w-2xl text-lg font-bold leading-8 text-[var(--text-muted)]">
-              가격이 바뀔 때 학생들의 선택이 어떻게 움직이는지 바로 모으고,
-              우리 반의 수요곡선을 함께 확인합니다.
+            <p className="max-w-2xl text-lg leading-8 text-[var(--text-muted)]">
+              수업 중이라면 내 역할에 맞는 화면으로 바로 들어가세요. 학생은
+              응답을 제출하고, 교사는 조사를 준비하거나 결과를 확인할 수
+              있습니다.
             </p>
           </div>
-
-          <div className="grid gap-3">
-            <Link className="launch-card launch-card--student" href="/student">
-              <span className="launch-card__icon">
-                <GraduationCap size={30} />
-              </span>
-              <span className="min-w-0">
-                <strong>학생 응답 시작</strong>
-                <small>가격별로 내가 살 개수를 입력합니다</small>
-              </span>
-              <ArrowRight className="launch-card__arrow" size={24} />
+          <div className="grid gap-3 sm:grid-cols-[1.2fr_1fr_1fr]">
+            <Link className="primary-button" href="/student">
+              <GraduationCap size={20} />
+              학생 응답하기
             </Link>
-
-            <div className="grid gap-3 sm:grid-cols-2">
-              <Link className="launch-card launch-card--teacher" href="/teacher/setup">
-                <span className="launch-card__icon">
-                  <Settings2 size={24} />
-                </span>
-                <span className="min-w-0">
-                  <strong>조사 만들기</strong>
-                  <small>상품과 가격표 준비</small>
-                </span>
-              </Link>
-              <Link className="launch-card launch-card--teacher" href="/teacher/results">
-                <span className="launch-card__icon">
-                  <LineChart size={24} />
-                </span>
-                <span className="min-w-0">
-                  <strong>결과 보기</strong>
-                  <small>반 평균과 전체 평균 비교</small>
-                </span>
-              </Link>
-            </div>
+            <Link className="secondary-button" href="/teacher/setup">
+              <Settings2 size={20} />
+              조사 세팅
+            </Link>
+            <Link className="secondary-button" href="/teacher/results">
+              <LineChart size={20} />
+              결과 확인
+            </Link>
           </div>
-
-          <p className="flex items-center gap-2 text-sm font-bold text-[var(--text-muted)]">
-            <MousePointerClick size={17} />
-            학생에게는 첫 번째 버튼만 안내하면 충분합니다.
-          </p>
         </div>
 
-        <LandingStatusPanel />
+        <div className="surface rounded-lg p-5 md:p-6">
+          <div className="flex items-center gap-3 border-b border-[var(--border)] pb-4">
+            <ClipboardList className="text-[var(--brand)]" size={28} />
+            <div>
+              <h2 className="text-xl font-black">수업 흐름 미리보기</h2>
+              <p className="mt-1 text-sm font-bold text-[var(--text-muted)]">
+                준비부터 비교까지 한 화면 흐름으로 이어집니다.
+              </p>
+            </div>
+          </div>
+          <ol className="mt-5 grid gap-5">
+            {classroomFlow.map((step, index) => (
+              <li key={step.title} className="grid grid-cols-[2.5rem_1fr] gap-4">
+                <span className="flex h-10 w-10 items-center justify-center rounded-md bg-[var(--brand-soft)] text-sm font-black text-[var(--brand)]">
+                  {index + 1}
+                </span>
+                <div>
+                  <h3 className="font-black">{step.title}</h3>
+                  <p className="mt-1 leading-7 text-[var(--text-muted)]">
+                    {step.body}
+                  </p>
+                </div>
+              </li>
+            ))}
+          </ol>
+        </div>
       </section>
 
-      <section className="mx-auto max-w-7xl px-5 pb-8 md:px-10">
-        <div className="grid gap-4 border-t border-[var(--border)] pt-6 md:grid-cols-3">
-          {guideCards.map(({ title, body, icon: Icon }) => (
-            <article className="landing-guide" key={title}>
-              <Icon className="text-[var(--brand)]" size={24} />
-              <h2>{title}</h2>
-              <p>{body}</p>
-            </article>
+      <section className="mx-auto max-w-6xl border-t border-[var(--border)] py-7">
+        <div className="grid gap-4 md:grid-cols-3">
+          {[
+            ["학생", "가격별 구매량을 빠르게 입력"],
+            ["교사", "조사 세팅과 결과 확인을 분리"],
+            ["차트", "가격별 응답 분포와 평균 비교"],
+          ].map(([title, body]) => (
+            <div key={title} className="min-h-24 rounded-lg bg-[var(--bg)] p-4">
+              <h2 className="text-sm font-black text-[var(--brand)]">{title}</h2>
+              <p className="mt-2 font-bold leading-7">{body}</p>
+            </div>
           ))}
         </div>
       </section>

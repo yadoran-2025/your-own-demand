@@ -56,6 +56,35 @@ function distribution(values: number[]) {
   }));
 }
 
+function respondentsFor(
+  responses: StudentResponse[],
+  product: Product,
+  pricePoint: PricePoint,
+) {
+  return responses
+    .map((response) => {
+      const item = response.response_items.find(
+        (responseItem) =>
+          responseItem.product_id === product.id &&
+          responseItem.price_point_id === pricePoint.id,
+      );
+
+      if (!item) {
+        return null;
+      }
+
+      return {
+        grade: response.grade,
+        classNumber: response.class_number,
+        studentName: response.student_name,
+        quantity: item.quantity,
+      };
+    })
+    .filter(Boolean)
+    .sort((a, b) => b!.quantity - a!.quantity || a!.classNumber - b!.classNumber)
+    .map((row) => row!);
+}
+
 export function buildDemandData(
   product: Product,
   responses: StudentResponse[],
@@ -70,6 +99,8 @@ export function buildDemandData(
     .map((pricePoint) => {
       const classValues = quantitiesFor(filteredResponses, product, pricePoint);
       const overallValues = quantitiesFor(responses, product, pricePoint);
+      const classRespondents = respondentsFor(filteredResponses, product, pricePoint);
+      const overallRespondents = respondentsFor(responses, product, pricePoint);
 
       return {
         price: pricePoint.price,
@@ -80,6 +111,8 @@ export function buildDemandData(
         overallCount: overallValues.length,
         classDistribution: distribution(classValues),
         overallDistribution: distribution(overallValues),
+        classRespondents,
+        overallRespondents,
       };
     });
 }

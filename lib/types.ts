@@ -68,6 +68,13 @@ export type DistributionBin = {
   count: number;
 };
 
+export type DemandRespondent = {
+  grade: number;
+  classNumber: number;
+  studentName: string;
+  quantity: number;
+};
+
 export type DemandPoint = {
   price: number;
   pricePointId: string;
@@ -77,4 +84,6 @@ export type DemandPoint = {
   overallCount: number;
   classDistribution: DistributionBin[];
   overallDistribution: DistributionBin[];
+  classRespondents: DemandRespondent[];
+  overallRespondents: DemandRespondent[];
 };

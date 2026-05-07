@@ -13,6 +13,11 @@ create table if not exists public.products (
   sort_order integer not null default 0
 );
 
+comment on table public.products is
+  '조사에 포함되는 상황 단위입니다. UI에서는 "상황과 상품 가격"으로 표시합니다.';
+comment on column public.products.name is
+  '학생에게 제시할 상황과 상품 가격 설명입니다. 예: 아침을 먹지 않고 나왔는데 갓 구운 빵의 향이 난다.';
+
 create table if not exists public.price_points (
   id uuid primary key default gen_random_uuid(),
   product_id uuid not null references public.products(id) on delete cascade,
@@ -20,6 +25,9 @@ create table if not exists public.price_points (
   price integer not null check (price > 0),
   sort_order integer not null default 0
 );
+
+comment on column public.price_points.description is
+  '상황별 가격 구성입니다. 예: 소형 빵 1개, 세트 구성, 할인 이벤트.';
 
 alter table public.price_points
   add column if not exists description text not null default '';

@@ -1,8 +1,12 @@
-﻿"use client";
+"use client";
 
-import Link from "next/link";
-import { ArrowLeft, Plus, RefreshCw, Trash2 } from "lucide-react";
+import { Plus, RefreshCw, Trash2 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import {
+  StatusBadge,
+  TeacherPageHeader,
+  TeacherShell,
+} from "@/components/TeacherShell";
 import { SurveyEditor } from "@/components/SurveyEditor";
 import {
   deleteSurvey,
@@ -78,91 +82,105 @@ export default function TeacherSetupPage() {
   }
 
   return (
-    <main className="app-shell px-4 py-5 md:px-8">
-      <div className="mx-auto grid max-w-4xl gap-5">
-        <header className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
-          <div>
-            <Link
-              className="mb-3 inline-flex items-center gap-2 text-sm font-bold text-[var(--brand)]"
-              href="/teacher"
-            >
-              <ArrowLeft size={17} />
-              교사 대시보드
-            </Link>
-            <h1 className="text-3xl font-black">조사 세팅</h1>
-            <p className="mt-2 text-[var(--text-muted)]">
-              조사 제목, 상품, 가격 정책 설명과 가격을 설정합니다.
-            </p>
-          </div>
-          <div className="flex flex-wrap gap-2">
+    <TeacherShell active="setup">
+      <TeacherPageHeader
+        actions={
+          <>
             <button
-              className="secondary-button"
+              className="secondary-button compact-button"
               onClick={() => void loadSurveys(selectedSurvey?.id)}
               type="button"
             >
-              <RefreshCw size={18} />
+              <RefreshCw size={16} />
               새로고침
             </button>
             <button
-              className="primary-button"
+              className="primary-button compact-button"
               onClick={() => {
                 setSelectedSurveyId("");
                 setMessage("새 조사를 작성합니다. 저장하면 조사 목록에 추가됩니다.");
               }}
               type="button"
             >
-              <Plus size={18} />
+              <Plus size={16} />
               새 조사
             </button>
+          </>
+        }
+        description="상황과 상품 가격, 상황별 가격 구성을 관리하고 조사를 저장하세요."
+        eyebrow="대시보드 / 조사 세팅"
+        title="조사 세팅"
+      />
+
+      {!hasRemoteDatabase ? (
+        <div className="teacher-alert" data-tone="warn">
+          Supabase 환경변수가 없어서 localStorage 데모 모드로 동작합니다.
+        </div>
+      ) : null}
+      {message ? <div className="teacher-alert">{message}</div> : null}
+      {loading ? <div className="teacher-alert">조사를 불러오는 중입니다.</div> : null}
+
+      <div className="setup-layout">
+        <section className="teacher-card survey-list-panel">
+          <div className="survey-list-header">
+            <h2>저장된 조사</h2>
             <button
-              className="secondary-button"
+              className="primary-button compact-button"
+              onClick={() => {
+                setSelectedSurveyId("");
+                setMessage("새 조사를 작성합니다. 저장하면 조사 목록에 추가됩니다.");
+              }}
+              type="button"
+            >
+              <Plus size={14} />
+              새 조사
+            </button>
+          </div>
+          <div className="survey-list">
+            {surveys.map((survey, index) => (
+              <button
+                className="survey-list-item"
+                data-active={survey.id === selectedSurveyId}
+                key={survey.id}
+                onClick={() => setSelectedSurveyId(survey.id)}
+                type="button"
+              >
+                <span className="survey-item-dot" />
+                <span>{survey.title}</span>
+                {index === 0 ? <StatusBadge>활성</StatusBadge> : null}
+              </button>
+            ))}
+            {!surveys.length ? (
+              <div className="empty-state compact-empty">
+                <p>저장된 조사가 없습니다.</p>
+              </div>
+            ) : null}
+          </div>
+        </section>
+
+        <section className="teacher-card editor-panel">
+          <div className="editor-header">
+            <div>
+              <span>편집 중</span>
+              <h2>{selectedSurvey?.title ?? "새 조사"}</h2>
+            </div>
+            <button
+              className="danger-button compact-button"
               disabled={!selectedSurvey}
               onClick={() => void handleDeleteSurvey()}
               type="button"
             >
-              <Trash2 size={18} />
+              <Trash2 size={16} />
               조사 삭제
             </button>
           </div>
-        </header>
-
-        {!hasRemoteDatabase ? (
-          <p className="rounded-lg border border-[var(--border)] bg-[var(--bg)] p-3 text-sm font-bold text-[var(--text-muted)]">
-            Supabase 환경변수가 없어서 localStorage 데모 모드로 동작합니다.
-          </p>
-        ) : null}
-
-        {message ? <p className="font-bold text-[var(--brand)]">{message}</p> : null}
-        {loading ? <p className="font-bold">조사를 불러오는 중입니다.</p> : null}
-
-        <section className="surface rounded-lg p-5">
-          <label>
-            <span className="field-label">저장된 조사 선택</span>
-            <select
-              className="input"
-              value={selectedSurveyId}
-              onChange={(event) => setSelectedSurveyId(event.target.value)}
-            >
-              {surveys.map((survey) => (
-                <option key={survey.id} value={survey.id}>
-                  {survey.title}
-                </option>
-              ))}
-            </select>
-          </label>
-          {!selectedSurvey ? (
-            <p className="mt-2 text-sm font-bold text-[var(--brand)]">새 조사 작성 중</p>
-          ) : null}
+          <SurveyEditor
+            initialDraft={editorDraft}
+            key={selectedSurvey?.id ?? "new-survey"}
+            onSave={handleSaveSurvey}
+          />
         </section>
-
-        <SurveyEditor
-          initialDraft={editorDraft}
-          key={selectedSurvey?.id ?? "new-survey"}
-          onSave={handleSaveSurvey}
-        />
       </div>
-    </main>
+    </TeacherShell>
   );
 }
-
-

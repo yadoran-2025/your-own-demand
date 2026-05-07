@@ -76,43 +76,43 @@ function normalizeSurvey(survey: DbSurvey): Survey {
       .sort((a, b) => a.sort_order - b.sort_order)
       .map((product) => ({
         ...product,
-        price_points: [...(product.price_points ?? [])].sort(
-          (a, b) => a.sort_order - b.sort_order || a.price - b.price,
-        ).map((pricePoint) => ({
-          ...pricePoint,
-          description: pricePoint.description ?? "",
-        })),
+        price_points: [...(product.price_points ?? [])]
+          .sort((a, b) => a.sort_order - b.sort_order || a.price - b.price)
+          .map((pricePoint) => ({
+            ...pricePoint,
+            description: pricePoint.description ?? "",
+          })),
       })),
   };
 }
 
 export function createDefaultDraft(): SurveyDraft {
   return {
-    title: "2026 경제학 수요조사",
+    title: "2026 경제 수요조사",
     products: [
       {
-        name: "햄버거",
+        name: "아침을 먹지 않고 나왔는데 뚜레쥬르에서 갓 구운 빵의 향이 난다.",
         pricePoints: [
-          { description: "기본 가격", price: 5000 },
-          { description: "세트 구성 가격", price: 10000 },
-          { description: "프리미엄 메뉴 가격", price: 15000 },
-          { description: "행사 종료 후 가격", price: 20000 },
+          { description: "소형 빵 1개", price: 2000 },
+          { description: "소형 빵 2개 묶음", price: 4000 },
+          { description: "샌드위치와 음료 세트", price: 8000 },
+          { description: "프리미엄 브런치 세트", price: 12000 },
         ],
       },
       {
-        name: "콜라",
+        name: "체육대회가 끝나고 목이 마른데 편의점 앞 냉장고에 차가운 음료가 보인다.",
         pricePoints: [
-          { description: "소형 컵", price: 1000 },
-          { description: "중형 컵", price: 2000 },
-          { description: "대형 컵", price: 3000 },
+          { description: "소형 캔", price: 1000 },
+          { description: "중형 페트병", price: 1800 },
+          { description: "대형 페트병", price: 3000 },
         ],
       },
       {
-        name: "아이스크림",
+        name: "점심시간이 짧은 날, 학교 매점에 바로 먹을 수 있는 간식이 놓여 있다.",
         pricePoints: [
-          { description: "1개 가격", price: 1500 },
-          { description: "2개 묶음 가격", price: 3000 },
-          { description: "3개 묶음 가격", price: 4500 },
+          { description: "삼각김밥 1개", price: 1200 },
+          { description: "김밥과 음료 구성", price: 3500 },
+          { description: "도시락 세트", price: 6500 },
         ],
       },
     ],
@@ -167,7 +167,7 @@ export async function saveSurvey(draft: SurveyDraft): Promise<Survey> {
     .filter((product) => product.name && product.pricePoints.length);
 
   if (!cleanProducts.length) {
-    throw new Error("상품과 가격을 1개 이상 입력해 주세요.");
+    throw new Error("상황과 가격 구성을 1개 이상 입력해 주세요.");
   }
 
   if (!supabase) {
@@ -175,7 +175,7 @@ export async function saveSurvey(draft: SurveyDraft): Promise<Survey> {
     const surveyId = draft.id ?? makeId("survey");
     const survey: Survey = {
       id: surveyId,
-      title: draft.title.trim() || "경제학 수요조사",
+      title: draft.title.trim() || "경제 수요조사",
       created_at:
         surveys.find((item) => item.id === surveyId)?.created_at ??
         new Date().toISOString(),
@@ -205,7 +205,7 @@ export async function saveSurvey(draft: SurveyDraft): Promise<Survey> {
   }
 
   const surveyPayload = {
-    title: draft.title.trim() || "경제학 수요조사",
+    title: draft.title.trim() || "경제 수요조사",
   };
 
   const { data: surveyData, error: surveyError } = draft.id
@@ -247,13 +247,14 @@ export async function saveSurvey(draft: SurveyDraft): Promise<Survey> {
     throw productError;
   }
 
-  const priceRows = (insertedProducts as Product[]).flatMap((product, index) =>
-    cleanProducts[index].pricePoints.map((pricePoint, priceIndex) => ({
-      product_id: product.id,
-      description: pricePoint.description,
-      price: pricePoint.price,
-      sort_order: priceIndex,
-    })),
+  const priceRows = (insertedProducts as Pick<Product, "id">[]).flatMap(
+    (product, index) =>
+      cleanProducts[index].pricePoints.map((pricePoint, priceIndex) => ({
+        product_id: product.id,
+        description: pricePoint.description,
+        price: pricePoint.price,
+        sort_order: priceIndex,
+      })),
   );
 
   const { error: priceError } = await supabase.from("price_points").insert(priceRows);
@@ -315,13 +316,22 @@ export async function submitResponse(
   profile: StudentProfile,
   quantities: QuantityMap,
 ) {
+  const hasAssignedQuantity = (pricePointId: string) =>
+    Object.prototype.hasOwnProperty.call(quantities, pricePointId);
+
   const items = survey.products.flatMap((product) =>
-    product.price_points.map((pricePoint) => ({
-      product_id: product.id,
-      price_point_id: pricePoint.id,
-      quantity: quantities[pricePoint.id] ?? 0,
-    })),
+    product.price_points
+      .filter((pricePoint) => hasAssignedQuantity(pricePoint.id))
+      .map((pricePoint) => ({
+        product_id: product.id,
+        price_point_id: pricePoint.id,
+        quantity: quantities[pricePoint.id] ?? 0,
+      })),
   );
+
+  if (!items.length) {
+    throw new Error("응답할 상황별 가격 구성이 없습니다.");
+  }
 
   if (!supabase) {
     const responseId = makeId("response");

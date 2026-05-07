@@ -1,11 +1,11 @@
-﻿"use client";
+"use client";
 
 import Link from "next/link";
 import { ArrowLeft, RefreshCw } from "lucide-react";
 import { useEffect, useState } from "react";
+import { StudentResponseForm } from "@/components/StudentResponseForm";
 import { fetchSurveys, hasRemoteDatabase } from "@/lib/data";
 import type { Survey } from "@/lib/types";
-import { StudentResponseForm } from "@/components/StudentResponseForm";
 
 export default function StudentPage() {
   const [surveys, setSurveys] = useState<Survey[]>([]);
@@ -38,74 +38,81 @@ export default function StudentPage() {
   const selectedSurvey =
     surveys.find((survey) => survey.id === selectedSurveyId) ?? surveys[0];
 
-  return (
-    <main className="app-shell px-4 py-5 md:px-8">
-      <div className="mx-auto max-w-4xl">
-        <header className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <Link
-              className="mb-3 inline-flex items-center gap-2 text-sm font-bold text-[var(--brand)]"
-              href="/"
-            >
-              <ArrowLeft size={17} />
-              처음으로
-            </Link>
-            <h1 className="text-3xl font-black">학생 응답 제출</h1>
-            <p className="mt-2 text-[var(--text-muted)]">
-              각 가격에서 내가 살 것 같은 개수를 0부터 100까지 입력하세요.
-            </p>
-          </div>
-          <button className="secondary-button" onClick={load} type="button">
-            <RefreshCw size={18} />
+  if (!loading && !selectedSurvey) {
+    return (
+      <main className="student-empty-shell">
+        <div className="student-empty-icon">?</div>
+        <h1>아직 조사가 없어요</h1>
+        <p>
+          선생님이 조사를 아직 준비 중이에요.
+          <br />
+          잠시 기다렸다가 새로고침해 보세요.
+        </p>
+        <div className="student-empty-actions">
+          <button className="student-retry-btn" onClick={load} type="button">
+            <RefreshCw size={16} />
             새로고침
           </button>
+          <Link className="student-ghost-link" href="/teacher">
+            교사 화면
+          </Link>
+        </div>
+      </main>
+    );
+  }
+
+  return (
+    <main className="student-page">
+      <div className="student-shell">
+        <header className="student-header">
+          <Link className="student-back-link" href="/">
+            <ArrowLeft size={16} />
+            처음으로
+          </Link>
+          <div className="student-header-title">
+            <div className="survey-eyebrow">
+              <span className="survey-eyebrow-dot" />
+              진행 중인 조사
+            </div>
+            <h1 className="survey-title">
+              {selectedSurvey?.title ?? "학생 응답 제출"}
+            </h1>
+          </div>
         </header>
 
         {!hasRemoteDatabase ? (
-          <p className="mb-4 rounded-lg border border-[var(--border)] bg-[var(--bg)] p-3 text-sm font-bold text-[var(--text-muted)]">
+          <div className="student-notice">
             Supabase 환경변수가 없어서 이 브라우저의 localStorage에 저장됩니다.
-          </p>
+          </div>
         ) : null}
 
-        {loading ? <p className="font-bold">조사를 불러오는 중입니다.</p> : null}
-        {error ? <p className="font-bold text-[var(--color-error-text)]">{error}</p> : null}
-
-        {!loading && !selectedSurvey ? (
-          <section className="surface rounded-lg p-5">
-            <h2 className="text-xl font-black">아직 조사가 없습니다.</h2>
-            <p className="mt-2 text-[var(--text-muted)]">
-              교사 대시보드에서 조사와 가격 구간을 먼저 저장해 주세요.
-            </p>
-            <Link className="primary-button mt-4" href="/teacher">
-              교사 대시보드로 이동
-            </Link>
-          </section>
-        ) : null}
+        {loading ? <div className="student-notice">조사를 불러오는 중입니다.</div> : null}
+        {error ? <div className="student-notice" data-tone="error">{error}</div> : null}
 
         {selectedSurvey ? (
-          <div className="grid gap-5">
-            <section className="surface rounded-lg p-5">
-              <label>
-                <span className="field-label">조사 선택</span>
-                <select
-                  className="input"
-                  value={selectedSurvey.id}
-                  onChange={(event) => setSelectedSurveyId(event.target.value)}
-                >
-                  {surveys.map((survey) => (
-                    <option key={survey.id} value={survey.id}>
-                      {survey.title}
-                    </option>
-                  ))}
-                </select>
-              </label>
-            </section>
+          <>
+            {surveys.length > 1 ? (
+              <section className="student-select-section">
+                <label>
+                  <span className="field-label">조사 선택</span>
+                  <select
+                    className="input"
+                    value={selectedSurvey.id}
+                    onChange={(event) => setSelectedSurveyId(event.target.value)}
+                  >
+                    {surveys.map((survey) => (
+                      <option key={survey.id} value={survey.id}>
+                        {survey.title}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              </section>
+            ) : null}
             <StudentResponseForm survey={selectedSurvey} />
-          </div>
+          </>
         ) : null}
       </div>
     </main>
   );
 }
-
-

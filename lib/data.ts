@@ -1,7 +1,8 @@
-"use client";
+﻿"use client";
 
 import { supabase } from "./supabase";
 import type {
+  ClassBudget,
   Product,
   QuantityMap,
   StudentProfile,
@@ -30,10 +31,17 @@ type DbProduct = {
   price_points: DbPricePoint[];
 };
 
+type DbClassBudget = ClassBudget & {
+  id: string;
+  survey_id: string;
+};
+
 type DbSurvey = {
   id: string;
   title: string;
+  teacher_pin: string | null;
   created_at: string;
+  class_budgets?: DbClassBudget[] | null;
   products: DbProduct[];
 };
 
@@ -72,6 +80,7 @@ function writeLocal<T>(key: string, value: T) {
 function normalizeSurvey(survey: DbSurvey): Survey {
   return {
     ...survey,
+    class_budgets: normalizeClassBudgets(survey.class_budgets ?? []),
     products: [...(survey.products ?? [])]
       .sort((a, b) => a.sort_order - b.sort_order)
       .map((product) => ({
@@ -86,9 +95,62 @@ function normalizeSurvey(survey: DbSurvey): Survey {
   };
 }
 
+function normalizeClassBudgets(classBudgets: ClassBudget[]) {
+  const budgetMap = new Map<string, ClassBudget>();
+
+  for (const classBudget of classBudgets) {
+    const grade = Number(classBudget.grade);
+    const classNumber = Number(classBudget.class_number);
+    const budget = Number(classBudget.budget);
+
+    if (
+      !Number.isInteger(grade) ||
+      grade <= 0 ||
+      !Number.isInteger(classNumber) ||
+      classNumber <= 0 ||
+      !Number.isFinite(budget) ||
+      budget <= 0
+    ) {
+      continue;
+    }
+
+    budgetMap.set(`${grade}-${classNumber}`, {
+      grade,
+      class_number: classNumber,
+      budget: Math.round(budget),
+    });
+  }
+
+  return Array.from(budgetMap.values()).sort(
+    (a, b) => a.grade - b.grade || a.class_number - b.class_number,
+  );
+}
+
+function findClassBudget(survey: Survey, profile: StudentProfile) {
+  return (survey.class_budgets ?? []).find(
+    (classBudget) =>
+      classBudget.grade === profile.grade &&
+      classBudget.class_number === profile.class_number,
+  );
+}
+
+function calculateSpentAmount(survey: Survey, quantities: QuantityMap) {
+  const priceById = new Map(
+    survey.products.flatMap((product) =>
+      product.price_points.map((pricePoint) => [pricePoint.id, pricePoint.price]),
+    ),
+  );
+
+  return Object.entries(quantities).reduce((sum, [pricePointId, quantity]) => {
+    const price = priceById.get(pricePointId) ?? 0;
+    return sum + price * (Number(quantity) || 0);
+  }, 0);
+}
+
 export function createDefaultDraft(): SurveyDraft {
   return {
-    title: "2026 경제 수요조사",
+    title: "2026 경제 수요설문",
+    classBudgets: [],
     products: [
       {
         name: "아침을 먹지 않고 나왔는데 뚜레쥬르에서 갓 구운 빵의 향이 난다.",
@@ -123,6 +185,7 @@ export function surveyToDraft(survey: Survey): SurveyDraft {
   return {
     id: survey.id,
     title: survey.title,
+    classBudgets: survey.class_budgets ?? [],
     products: survey.products.map((product) => ({
       id: product.id,
       name: product.name,
@@ -134,17 +197,28 @@ export function surveyToDraft(survey: Survey): SurveyDraft {
   };
 }
 
-export async function fetchSurveys(): Promise<Survey[]> {
+export async function fetchSurveys(roomName?: string): Promise<Survey[]> {
+  const normalizedRoomName = roomName?.trim();
+
   if (!supabase) {
-    return readLocal<Survey[]>(SURVEYS_KEY, []);
+    const surveys = readLocal<DbSurvey[]>(SURVEYS_KEY, []).map(normalizeSurvey);
+    return normalizedRoomName
+      ? surveys.filter((survey) => survey.teacher_pin === normalizedRoomName)
+      : surveys;
   }
 
-  const { data, error } = await supabase
+  let query = supabase
     .from("surveys")
     .select(
-      "id,title,created_at,products(id,survey_id,name,sort_order,price_points(id,product_id,description,price,sort_order))",
+      "id,title,teacher_pin,created_at,class_budgets:survey_class_budgets(id,survey_id,grade,class_number,budget),products(id,survey_id,name,sort_order,price_points(id,product_id,description,price,sort_order))",
     )
     .order("created_at", { ascending: false });
+
+  if (normalizedRoomName) {
+    query = query.eq("teacher_pin", normalizedRoomName);
+  }
+
+  const { data, error } = await query;
 
   if (error) {
     throw error;
@@ -153,7 +227,13 @@ export async function fetchSurveys(): Promise<Survey[]> {
   return ((data ?? []) as DbSurvey[]).map(normalizeSurvey);
 }
 
-export async function saveSurvey(draft: SurveyDraft): Promise<Survey> {
+export async function saveSurvey(draft: SurveyDraft, roomName?: string): Promise<Survey> {
+  const normalizedRoomName = roomName?.trim();
+
+  if (!normalizedRoomName) {
+    throw new Error("방 이름을 먼저 입력해 주세요.");
+  }
+
   const cleanProducts = draft.products
     .map((product) => ({
       name: product.name.trim(),
@@ -170,15 +250,19 @@ export async function saveSurvey(draft: SurveyDraft): Promise<Survey> {
     throw new Error("상황과 가격 구성을 1개 이상 입력해 주세요.");
   }
 
+  const cleanClassBudgets = normalizeClassBudgets(draft.classBudgets ?? []);
+
   if (!supabase) {
     const surveys = readLocal<Survey[]>(SURVEYS_KEY, []);
     const surveyId = draft.id ?? makeId("survey");
     const survey: Survey = {
       id: surveyId,
-      title: draft.title.trim() || "경제 수요조사",
+      title: draft.title.trim() || "경제 수요설문",
+      teacher_pin: normalizedRoomName,
       created_at:
         surveys.find((item) => item.id === surveyId)?.created_at ??
         new Date().toISOString(),
+      class_budgets: cleanClassBudgets,
       products: cleanProducts.map((product, productIndex) => {
         const productId = makeId("product");
         return {
@@ -205,7 +289,8 @@ export async function saveSurvey(draft: SurveyDraft): Promise<Survey> {
   }
 
   const surveyPayload = {
-    title: draft.title.trim() || "경제 수요조사",
+    title: draft.title.trim() || "경제 수요설문",
+    teacher_pin: normalizedRoomName,
   };
 
   const { data: surveyData, error: surveyError } = draft.id
@@ -213,12 +298,13 @@ export async function saveSurvey(draft: SurveyDraft): Promise<Survey> {
         .from("surveys")
         .update(surveyPayload)
         .eq("id", draft.id)
-        .select("id,title,created_at")
+        .eq("teacher_pin", normalizedRoomName)
+        .select("id,title,teacher_pin,created_at")
         .single()
     : await supabase
         .from("surveys")
         .insert(surveyPayload)
-        .select("id,title,created_at")
+        .select("id,title,teacher_pin,created_at")
         .single();
 
   if (surveyError) {
@@ -229,7 +315,25 @@ export async function saveSurvey(draft: SurveyDraft): Promise<Survey> {
 
   if (draft.id) {
     await supabase.from("responses").delete().eq("survey_id", surveyId);
+    await supabase.from("survey_class_budgets").delete().eq("survey_id", surveyId);
     await supabase.from("products").delete().eq("survey_id", surveyId);
+  }
+
+  if (cleanClassBudgets.length) {
+    const { error: budgetError } = await supabase
+      .from("survey_class_budgets")
+      .insert(
+        cleanClassBudgets.map((classBudget) => ({
+          survey_id: surveyId,
+          grade: classBudget.grade,
+          class_number: classBudget.class_number,
+          budget: classBudget.budget,
+        })),
+      );
+
+    if (budgetError) {
+      throw budgetError;
+    }
   }
 
   const productRows = cleanProducts.map((product, index) => ({
@@ -263,7 +367,7 @@ export async function saveSurvey(draft: SurveyDraft): Promise<Survey> {
     throw priceError;
   }
 
-  return (await fetchSurveys()).find((survey) => survey.id === surveyId)!;
+  return (await fetchSurveys(normalizedRoomName)).find((survey) => survey.id === surveyId)!;
 }
 
 export async function deleteSurvey(surveyId: string) {
@@ -333,6 +437,18 @@ export async function submitResponse(
     throw new Error("응답할 상황별 가격 구성이 없습니다.");
   }
 
+  const classBudget = findClassBudget(survey, profile);
+
+  if (classBudget) {
+    const spentAmount = calculateSpentAmount(survey, quantities);
+
+    if (spentAmount > classBudget.budget) {
+      throw new Error(
+        `예산을 ${(spentAmount - classBudget.budget).toLocaleString("ko-KR")}원 초과했습니다.`,
+      );
+    }
+  }
+
   if (!supabase) {
     const responseId = makeId("response");
     const stored = readLocal<StudentResponse[]>(RESPONSES_KEY, []);
@@ -379,3 +495,4 @@ export async function submitResponse(
     throw itemError;
   }
 }
+

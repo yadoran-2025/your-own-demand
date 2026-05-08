@@ -4,6 +4,8 @@ import Link from "next/link";
 import { RefreshCw } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { DemandChart } from "@/components/DemandChart";
+import { DemandScopeToggle, SituationTabs } from "@/components/ResultControls";
+import { RoomBadge, RoomGate } from "@/components/RoomGate";
 import {
   StatusBadge,
   TeacherPageHeader,
@@ -11,11 +13,12 @@ import {
 } from "@/components/TeacherShell";
 import { buildDemandData, getAvailableClasses, getAvailableGrades } from "@/lib/aggregation";
 import { fetchResponses, fetchSurveys, hasRemoteDatabase } from "@/lib/data";
+import { TEACHER_ROOM_KEY, useStoredRoomName } from "@/lib/roomName";
 import { supabase } from "@/lib/supabase";
-import type { FilterState, StudentResponse, Survey } from "@/lib/types";
-import { formatWon } from "@/lib/utils";
+import type { DemandScope, FilterState, StudentResponse, Survey } from "@/lib/types";
 
 export default function TeacherResultsPage() {
+  const { roomName, ready, setRoomName } = useStoredRoomName(TEACHER_ROOM_KEY);
   const [surveys, setSurveys] = useState<Survey[]>([]);
   const [responses, setResponses] = useState<StudentResponse[]>([]);
   const [selectedSurveyId, setSelectedSurveyId] = useState("");
@@ -24,6 +27,7 @@ export default function TeacherResultsPage() {
     grade: "all",
     classNumber: "all",
   });
+  const [scope, setScope] = useState<DemandScope>("class");
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
 
@@ -34,9 +38,13 @@ export default function TeacherResultsPage() {
     selectedSurvey?.products[0];
 
   const loadSurveys = useCallback(async (preferredSurveyId?: string) => {
+    if (!roomName) {
+      return;
+    }
+
     setLoading(true);
     try {
-      const nextSurveys = await fetchSurveys();
+      const nextSurveys = await fetchSurveys(roomName);
       setSurveys(nextSurveys);
       const nextSurvey =
         nextSurveys.find((survey) => survey.id === preferredSurveyId) ??
@@ -44,11 +52,11 @@ export default function TeacherResultsPage() {
       setSelectedSurveyId(nextSurvey?.id ?? "");
       setSelectedProductId(nextSurvey?.products[0]?.id ?? "");
     } catch (error) {
-      setMessage(error instanceof Error ? error.message : "조사를 불러오지 못했습니다.");
+      setMessage(error instanceof Error ? error.message : "설문을 불러오지 못했습니다.");
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [roomName]);
 
   const loadResponses = useCallback(async (surveyId: string) => {
     if (!surveyId) {
@@ -64,8 +72,10 @@ export default function TeacherResultsPage() {
   }, []);
 
   useEffect(() => {
-    void loadSurveys();
-  }, [loadSurveys]);
+    if (ready && roomName) {
+      void loadSurveys();
+    }
+  }, [loadSurveys, roomName, ready]);
 
   useEffect(() => {
     void loadResponses(selectedSurvey?.id ?? "");
@@ -119,31 +129,28 @@ export default function TeacherResultsPage() {
     [selectedProduct, responses, filter],
   );
 
-  const filterLabel =
-    filter.grade === "all"
-      ? "전체 학생과 전체 평균 비교"
-      : `${filter.grade}학년 ${
-          filter.classNumber === "all" ? "전체 반" : `${filter.classNumber}반`
-        }과 전체 평균 비교`;
-
-  const classCount = useMemo(
-    () =>
-      new Set(
-        responses.map(
-          (response) => `${response.grade}-${response.class_number}`,
-        ),
-      ).size,
-    [responses],
-  );
-
-  const firstPoint = demandData[0];
-  const lastPoint = demandData[demandData.length - 1];
+  const selectedProductIndex = selectedSurvey?.products.findIndex(
+    (product) => product.id === selectedProduct?.id,
+  ) ?? -1;
+  const situationNumber = selectedProductIndex >= 0 ? selectedProductIndex + 1 : 1;
+  const respondentCount =
+    scope === "class"
+      ? demandData[0]?.classCount ?? 0
+      : demandData[0]?.overallCount ?? 0;
 
   return (
-    <TeacherShell active="results">
+    <RoomGate
+      description="교사용 방 이름을 입력하면 그 방 이름으로 만든 설문 결과만 볼 수 있습니다."
+      roomName={roomName}
+      ready={ready}
+      setRoomName={setRoomName}
+      title="교사용 방 열기"
+    >
+    <TeacherShell active="results" roomName={roomName}>
       <TeacherPageHeader
         actions={
           <>
+            <RoomBadge roomName={roomName} onReset={() => setRoomName("")} />
             <StatusBadge tone="green">
               <span className="live-dot" />
               실시간
@@ -158,7 +165,7 @@ export default function TeacherResultsPage() {
             </button>
           </>
         }
-        description="반별 수요곡선과 전체 평균을 비교합니다. 응답은 실시간으로 업데이트됩니다."
+        description="반별 또는 학교 전체 수요곡선을 선택해 확인합니다. 응답은 실시간으로 업데이트됩니다."
         eyebrow="대시보드 / 결과 확인"
         title="결과 확인"
       />
@@ -170,45 +177,10 @@ export default function TeacherResultsPage() {
       ) : null}
       {message ? <div className="teacher-alert">{message}</div> : null}
 
-      <section className="response-summary" aria-label="응답 요약">
-        <article className="summary-card">
-          <strong>{responses.length}</strong>
-          <span>총 응답 수</span>
-          <p>{loading ? "불러오는 중" : "현재 조사 기준"}</p>
-        </article>
-        <article className="summary-card">
-          <strong>{classCount}</strong>
-          <span>참여 학급</span>
-          <p>{classCount ? "응답 기준 집계" : "응답 대기 중"}</p>
-        </article>
-        <article className="summary-card">
-          <strong>
-            {firstPoint ? `${firstPoint.classAverage.toFixed(1)}개` : "0개"}
-          </strong>
-          <span>
-            {selectedProduct?.price_points[0]
-              ? `${formatWon(selectedProduct.price_points[0].price)} 평균 수요`
-              : "첫 가격 평균 수요"}
-          </span>
-          <p>선택 필터 기준</p>
-        </article>
-        <article className="summary-card">
-          <strong>
-            {lastPoint ? `${lastPoint.classAverage.toFixed(1)}개` : "0개"}
-          </strong>
-          <span>
-            {selectedProduct?.price_points.at(-1)
-              ? `${formatWon(selectedProduct.price_points.at(-1)!.price)} 평균 수요`
-              : "마지막 가격 평균 수요"}
-          </span>
-          <p>선택 필터 기준</p>
-        </article>
-      </section>
-
       <section className="teacher-card filter-card">
         <div className="results-filter-bar">
           <label>
-            <span className="field-label">조사</span>
+            <span className="field-label">설문</span>
             <select
               className="input"
               value={selectedSurvey?.id ?? ""}
@@ -268,40 +240,38 @@ export default function TeacherResultsPage() {
       </section>
 
       {selectedSurvey ? (
-        <section className="product-tabs-card">
-          <div className="product-tabs">
-            {selectedSurvey.products.map((product) => (
-              <button
-                className="product-tab"
-                data-active={product.id === selectedProduct?.id}
-                key={product.id}
-                onClick={() => setSelectedProductId(product.id)}
-                type="button"
-              >
-                {product.name}
-              </button>
-            ))}
-          </div>
-        </section>
+        <SituationTabs
+          products={selectedSurvey.products}
+          selectedProductId={selectedProduct?.id}
+          onSelect={setSelectedProductId}
+        />
       ) : null}
 
       {loading ? <div className="teacher-alert">결과를 불러오는 중입니다.</div> : null}
 
       {selectedProduct ? (
-        <DemandChart
-          data={demandData}
-          filterLabel={filterLabel}
-          title={selectedProduct.name}
-        />
+        <>
+          <DemandScopeToggle value={scope} onChange={setScope} />
+          <DemandChart
+            data={demandData}
+            respondentCount={respondentCount}
+            scope={scope}
+            situationNumber={situationNumber}
+          />
+        </>
       ) : (
         <section className="teacher-card empty-state">
-          <h2>확인할 조사가 없습니다.</h2>
-          <p>조사 세팅에서 상품과 가격을 만든 뒤 저장하면 결과가 표시됩니다.</p>
+          <h2>확인할 설문이 없습니다.</h2>
+          <p>설문 세팅에서 상품과 가격을 만든 뒤 저장하면 결과가 표시됩니다.</p>
           <Link className="primary-button compact-button" href="/teacher/setup">
-            조사 세팅으로 이동
+            설문 세팅으로 이동
           </Link>
         </section>
       )}
     </TeacherShell>
+    </RoomGate>
   );
 }
+
+
+

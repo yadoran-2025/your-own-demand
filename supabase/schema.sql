@@ -3,7 +3,20 @@ create extension if not exists "pgcrypto";
 create table if not exists public.surveys (
   id uuid primary key default gen_random_uuid(),
   title text not null,
+  teacher_pin text,
   created_at timestamptz not null default now()
+);
+
+alter table public.surveys
+  add column if not exists teacher_pin text;
+
+create table if not exists public.survey_class_budgets (
+  id uuid primary key default gen_random_uuid(),
+  survey_id uuid not null references public.surveys(id) on delete cascade,
+  grade integer not null check (grade > 0),
+  class_number integer not null check (class_number > 0),
+  budget integer not null check (budget > 0),
+  unique (survey_id, grade, class_number)
 );
 
 create table if not exists public.products (
@@ -51,6 +64,8 @@ create table if not exists public.response_items (
 );
 
 create index if not exists products_survey_id_idx on public.products(survey_id);
+create index if not exists surveys_teacher_pin_idx on public.surveys(teacher_pin);
+create index if not exists survey_class_budgets_survey_id_idx on public.survey_class_budgets(survey_id);
 create index if not exists price_points_product_id_idx on public.price_points(product_id);
 create index if not exists responses_survey_id_idx on public.responses(survey_id);
 create index if not exists responses_class_filter_idx on public.responses(survey_id, grade, class_number);
@@ -58,6 +73,7 @@ create index if not exists response_items_response_id_idx on public.response_ite
 create index if not exists response_items_product_price_idx on public.response_items(product_id, price_point_id);
 
 alter table public.surveys enable row level security;
+alter table public.survey_class_budgets enable row level security;
 alter table public.products enable row level security;
 alter table public.price_points enable row level security;
 alter table public.responses enable row level security;
@@ -65,6 +81,8 @@ alter table public.response_items enable row level security;
 
 drop policy if exists "classroom read surveys" on public.surveys;
 drop policy if exists "classroom write surveys" on public.surveys;
+drop policy if exists "classroom read survey class budgets" on public.survey_class_budgets;
+drop policy if exists "classroom write survey class budgets" on public.survey_class_budgets;
 drop policy if exists "classroom read products" on public.products;
 drop policy if exists "classroom write products" on public.products;
 drop policy if exists "classroom read price points" on public.price_points;
@@ -77,6 +95,11 @@ drop policy if exists "classroom write response items" on public.response_items;
 create policy "classroom read surveys" on public.surveys
   for select using (true);
 create policy "classroom write surveys" on public.surveys
+  for all using (true) with check (true);
+
+create policy "classroom read survey class budgets" on public.survey_class_budgets
+  for select using (true);
+create policy "classroom write survey class budgets" on public.survey_class_budgets
   for all using (true) with check (true);
 
 create policy "classroom read products" on public.products

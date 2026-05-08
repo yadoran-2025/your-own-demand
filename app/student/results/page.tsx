@@ -1,0 +1,213 @@
+"use client";
+
+import { BarChart3, RefreshCw } from "lucide-react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { DemandChart } from "@/components/DemandChart";
+import { DemandScopeToggle, SituationTabs } from "@/components/ResultControls";
+import { RoomBadge, RoomGate } from "@/components/RoomGate";
+import { buildDemandData } from "@/lib/aggregation";
+import { fetchResponses, fetchSurveys, hasRemoteDatabase } from "@/lib/data";
+import { STUDENT_ROOM_KEY, useStoredRoomName } from "@/lib/roomName";
+import { readStoredStudentResultProfile } from "@/lib/studentResultProfile";
+import type { DemandScope, FilterState, StudentResponse, Survey } from "@/lib/types";
+
+export default function StudentResultsPage() {
+  const { roomName, ready, setRoomName } = useStoredRoomName(STUDENT_ROOM_KEY);
+  const [surveys, setSurveys] = useState<Survey[]>([]);
+  const [responses, setResponses] = useState<StudentResponse[]>([]);
+  const [selectedSurveyId, setSelectedSurveyId] = useState("");
+  const [selectedProductId, setSelectedProductId] = useState("");
+  const [filter, setFilter] = useState<FilterState>({
+    grade: "all",
+    classNumber: "all",
+  });
+  const [scope, setScope] = useState<DemandScope>("class");
+  const [loading, setLoading] = useState(true);
+  const [message, setMessage] = useState("");
+
+  const selectedSurvey =
+    surveys.find((survey) => survey.id === selectedSurveyId) ?? surveys[0];
+  const selectedProduct =
+    selectedSurvey?.products.find((product) => product.id === selectedProductId) ??
+    selectedSurvey?.products[0];
+
+  const loadSurveys = useCallback(async () => {
+    if (!roomName) {
+      return;
+    }
+
+    setLoading(true);
+    setMessage("");
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const requestedSurveyId = params.get("survey") ?? "";
+      const requestedGrade = params.get("grade");
+      const requestedClassNumber = params.get("classNumber");
+      const storedProfile = readStoredStudentResultProfile();
+      const nextSurveys = await fetchSurveys(roomName);
+      const nextSurvey =
+        nextSurveys.find((survey) => survey.id === requestedSurveyId) ??
+        nextSurveys[0];
+      const nextGrade = requestedGrade ?? storedProfile?.grade.toString() ?? "all";
+      const nextClassNumber =
+        requestedClassNumber ?? storedProfile?.classNumber.toString() ?? "all";
+
+      setSurveys(nextSurveys);
+      setSelectedSurveyId(nextSurvey?.id ?? "");
+      setSelectedProductId(nextSurvey?.products[0]?.id ?? "");
+      setFilter({
+        grade: nextGrade,
+        classNumber: nextClassNumber,
+      });
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "설문 결과를 불러오지 못했습니다.");
+    } finally {
+      setLoading(false);
+    }
+  }, [roomName]);
+
+  const loadResponses = useCallback(async (surveyId: string) => {
+    if (!surveyId) {
+      setResponses([]);
+      return;
+    }
+
+    try {
+      setResponses(await fetchResponses(surveyId));
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "응답을 불러오지 못했습니다.");
+    }
+  }, []);
+
+  useEffect(() => {
+    if (ready && roomName) {
+      void loadSurveys();
+    }
+  }, [loadSurveys, ready, roomName]);
+
+  useEffect(() => {
+    void loadResponses(selectedSurvey?.id ?? "");
+  }, [loadResponses, selectedSurvey?.id]);
+
+  const demandData = useMemo(
+    () =>
+      selectedProduct
+        ? buildDemandData(selectedProduct, responses, filter)
+        : [],
+    [filter, responses, selectedProduct],
+  );
+  const selectedProductIndex = selectedSurvey?.products.findIndex(
+    (product) => product.id === selectedProduct?.id,
+  ) ?? -1;
+  const situationNumber = selectedProductIndex >= 0 ? selectedProductIndex + 1 : 1;
+  const respondentCount =
+    scope === "class"
+      ? demandData[0]?.classCount ?? 0
+      : demandData[0]?.overallCount ?? 0;
+
+  return (
+    <RoomGate
+      description="교사가 알려준 방 이름을 입력하면 해당 방의 설문 결과를 볼 수 있습니다."
+      roomName={roomName}
+      ready={ready}
+      setRoomName={setRoomName}
+      title="결과 분석 방 입장"
+    >
+      <main className="student-page">
+        <div className="student-shell student-results-shell">
+          <header className="student-header">
+            <div className="student-header-title">
+              <div className="survey-eyebrow">
+                <span className="survey-eyebrow-dot" />
+                결과 분석
+              </div>
+              <h1 className="survey-title">
+                {selectedSurvey?.title ?? "수요곡선 결과"}
+              </h1>
+            </div>
+            <RoomBadge label="입장 방" roomName={roomName} onReset={() => setRoomName("")} />
+          </header>
+
+          {!hasRemoteDatabase ? (
+            <div className="student-notice">
+              Supabase 환경변수가 없어서 이 브라우저의 localStorage 응답만 분석합니다.
+            </div>
+          ) : null}
+          {message ? <div className="student-notice" data-tone="error">{message}</div> : null}
+          {loading ? <div className="student-notice">결과를 불러오는 중입니다.</div> : null}
+
+          <section className="student-analysis-panel">
+            <div className="student-analysis-head">
+              <span className="student-entry-icon">
+                <BarChart3 size={24} />
+              </span>
+              <div>
+                <h2>완성된 수요곡선</h2>
+                <p>설문과 상황을 바꿔가며 우리 반 또는 학교 전체의 수요곡선을 살펴볼 수 있습니다.</p>
+              </div>
+              <button
+                className="secondary-button compact-button"
+                onClick={() => {
+                  void loadSurveys();
+                  void loadResponses(selectedSurvey?.id ?? "");
+                }}
+                type="button"
+              >
+                <RefreshCw size={16} />
+                새로고침
+              </button>
+            </div>
+
+            <div className="results-filter-bar student-results-filter-bar">
+              <label>
+                <span className="field-label">설문</span>
+                <select
+                  className="input"
+                  value={selectedSurvey?.id ?? ""}
+                  onChange={(event) => {
+                    const nextSurvey = surveys.find(
+                      (survey) => survey.id === event.target.value,
+                    );
+                    setSelectedSurveyId(event.target.value);
+                    setSelectedProductId(nextSurvey?.products[0]?.id ?? "");
+                  }}
+                >
+                  {surveys.map((survey) => (
+                    <option key={survey.id} value={survey.id}>
+                      {survey.title}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            </div>
+          </section>
+
+          {selectedSurvey ? (
+            <SituationTabs
+              products={selectedSurvey.products}
+              selectedProductId={selectedProduct?.id}
+              onSelect={setSelectedProductId}
+            />
+          ) : null}
+
+          {selectedProduct ? (
+            <>
+              <DemandScopeToggle value={scope} onChange={setScope} />
+              <DemandChart
+                data={demandData}
+                respondentCount={respondentCount}
+                scope={scope}
+                situationNumber={situationNumber}
+              />
+            </>
+          ) : (
+            <section className="teacher-card empty-state">
+              <h2>분석할 설문이 없습니다.</h2>
+              <p>교사가 설문을 저장하고 학생 응답이 모이면 결과가 표시됩니다.</p>
+            </section>
+          )}
+        </div>
+      </main>
+    </RoomGate>
+  );
+}

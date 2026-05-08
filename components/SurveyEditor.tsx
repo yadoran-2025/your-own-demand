@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { Plus, Save, Trash2, X } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -11,16 +11,67 @@ type SurveyEditorProps = {
   onSave: (draft: SurveyDraft) => Promise<void>;
 };
 
+function normalizeDraft(draft?: SurveyDraft) {
+  const fallback = createDefaultDraft();
+  const nextDraft = draft ?? fallback;
+
+  return {
+    ...nextDraft,
+    classBudgets: nextDraft.classBudgets ?? [],
+  };
+}
+
 export function SurveyEditor({ initialDraft, onSave }: SurveyEditorProps) {
   const [draft, setDraft] = useState<SurveyDraft>(
-    initialDraft ?? createDefaultDraft(),
+    normalizeDraft(initialDraft),
   );
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
   useEffect(() => {
-    setDraft(initialDraft ?? createDefaultDraft());
+    setDraft(normalizeDraft(initialDraft));
   }, [initialDraft]);
+
+  function updateClassBudget(
+    budgetIndex: number,
+    field: "grade" | "class_number" | "budget",
+    value: string,
+  ) {
+    setDraft((current) => ({
+      ...current,
+      classBudgets: current.classBudgets.map((classBudget, index) =>
+        index === budgetIndex
+          ? {
+              ...classBudget,
+              [field]: Number(value.replace(/[^\d]/g, "")),
+            }
+          : classBudget,
+      ),
+    }));
+  }
+
+  function addClassBudget() {
+    setDraft((current) => ({
+      ...current,
+      classBudgets: [
+        ...current.classBudgets,
+        {
+          grade: 3,
+          class_number: 1,
+          budget: 20000,
+        },
+      ],
+    }));
+  }
+
+  function removeClassBudget(index: number) {
+    setDraft((current) => ({
+      ...current,
+      classBudgets: current.classBudgets.filter(
+        (_, budgetIndex) => budgetIndex !== index,
+      ),
+    }));
+  }
 
   function updateProductName(index: number, name: string) {
     setDraft((current) => ({
@@ -126,7 +177,7 @@ export function SurveyEditor({ initialDraft, onSave }: SurveyEditorProps) {
       setError(
         saveError instanceof Error
           ? saveError.message
-          : "조사를 저장하지 못했습니다.",
+          : "설문을 저장하지 못했습니다.",
       );
     } finally {
       setSaving(false);
@@ -137,7 +188,7 @@ export function SurveyEditor({ initialDraft, onSave }: SurveyEditorProps) {
     <div className="survey-editor">
       <div className="editor-title-row">
         <label>
-          <span className="field-label">조사 제목</span>
+          <span className="field-label">설문 제목</span>
           <input
             className="input"
             value={draft.title}
@@ -153,6 +204,96 @@ export function SurveyEditor({ initialDraft, onSave }: SurveyEditorProps) {
       </div>
 
       {error ? <div className="teacher-alert" data-tone="error">{error}</div> : null}
+
+      <section className="class-budget-card">
+        <div className="class-budget-header">
+          <div>
+            <h3>학급별 예산</h3>
+            <p>학생은 자기 학년·반에 설정된 예산 안에서 모든 상황에 돈을 나눠 씁니다.</p>
+          </div>
+          <button
+            className="secondary-button compact-button"
+            onClick={addClassBudget}
+            type="button"
+          >
+            <Plus size={16} />
+            예산 추가
+          </button>
+        </div>
+
+        {draft.classBudgets.length ? (
+          <div className="class-budget-list">
+            <div className="class-budget-row class-budget-row-head">
+              <span>학년</span>
+              <span>반</span>
+              <span>예산</span>
+              <span className="sr-only">삭제</span>
+            </div>
+            {draft.classBudgets.map((classBudget, budgetIndex) => (
+              <div
+                className="class-budget-row"
+                key={`${budgetIndex}-${classBudget.grade}-${classBudget.class_number}`}
+              >
+                <input
+                  className="input compact-input"
+                  inputMode="numeric"
+                  min={1}
+                  type="text"
+                  value={Number.isNaN(classBudget.grade) ? "" : classBudget.grade}
+                  onChange={(event) =>
+                    updateClassBudget(budgetIndex, "grade", event.target.value)
+                  }
+                />
+                <input
+                  className="input compact-input"
+                  inputMode="numeric"
+                  min={1}
+                  type="text"
+                  value={
+                    Number.isNaN(classBudget.class_number)
+                      ? ""
+                      : classBudget.class_number
+                  }
+                  onChange={(event) =>
+                    updateClassBudget(
+                      budgetIndex,
+                      "class_number",
+                      event.target.value,
+                    )
+                  }
+                />
+                <label>
+                  <input
+                    className="input compact-input price-input-num"
+                    inputMode="numeric"
+                    min={1}
+                    type="text"
+                    value={
+                      Number.isNaN(classBudget.budget) ? "" : classBudget.budget
+                    }
+                    onChange={(event) =>
+                      updateClassBudget(budgetIndex, "budget", event.target.value)
+                    }
+                  />
+                  <span>{classBudget.budget ? formatWon(classBudget.budget) : ""}</span>
+                </label>
+                <button
+                  aria-label="예산 삭제"
+                  className="icon-button small-icon-button"
+                  onClick={() => removeClassBudget(budgetIndex)}
+                  type="button"
+                >
+                  <X size={16} />
+                </button>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="class-budget-empty">
+            예산을 추가하지 않으면 모든 학급이 제한 없이 제출할 수 있습니다.
+          </div>
+        )}
+      </section>
 
       <div className="product-list">
         {draft.products.map((product, productIndex) => (
@@ -262,3 +403,5 @@ export function SurveyEditor({ initialDraft, onSave }: SurveyEditorProps) {
     </div>
   );
 }
+
+

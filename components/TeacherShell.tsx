@@ -1,18 +1,22 @@
+﻿"use client";
+
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { buildStudentPath } from "@/lib/roomName";
 
 type TeacherShellProps = {
   active: "dashboard" | "setup" | "results";
   children: ReactNode;
+  roomName?: string;
 };
 
 const navItems = [
   { id: "dashboard", href: "/teacher", label: "대시보드" },
-  { id: "setup", href: "/teacher/setup", label: "조사 세팅" },
+  { id: "setup", href: "/teacher/setup", label: "설문 세팅" },
   { id: "results", href: "/teacher/results", label: "결과 확인" },
 ] as const;
 
-export function TeacherShell({ active, children }: TeacherShellProps) {
+export function TeacherShell({ active, children, roomName = "" }: TeacherShellProps) {
   return (
     <div className="teacher-shell">
       <nav className="teacher-top-tabs" aria-label="교사용 빠른 이동">
@@ -27,7 +31,7 @@ export function TeacherShell({ active, children }: TeacherShellProps) {
           </Link>
         ))}
         <span className="teacher-top-tab-divider" />
-        <Link className="teacher-top-tab-student" href="/student">
+        <Link className="teacher-top-tab-student" href={buildStudentPath(roomName)}>
           학생 화면 →
         </Link>
       </nav>
@@ -74,3 +78,4 @@ export function StatusBadge({
     </span>
   );
 }
+

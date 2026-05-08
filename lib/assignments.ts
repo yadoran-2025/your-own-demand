@@ -31,7 +31,7 @@ export function buildAssignmentSeed(surveyId: string, profile: StudentProfile) {
     surveyId,
     profile.grade,
     profile.class_number,
-    profile.student_number,
+    profile.student_name.trim(),
   ].join(":");
 }
 

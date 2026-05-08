@@ -1,6 +1,7 @@
 "use client";
 
-import { Check, Minus, RefreshCw, Send, WalletCards } from "lucide-react";
+import { BarChart3, Check, Minus, Send, WalletCards } from "lucide-react";
+import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import {
   buildAssignmentSeed,
@@ -8,10 +9,14 @@ import {
   buildBalancedAssignments,
   hasCompleteAssignments,
   resolveAssignedPricePoints,
-  type AssignmentMap,
   type AssignedPricePoint,
+  type AssignmentMap,
 } from "@/lib/assignments";
 import { fetchResponses, submitResponse } from "@/lib/data";
+import {
+  buildStudentResultHref,
+  STUDENT_RESULT_PROFILE_KEY,
+} from "@/lib/studentResultProfile";
 import type {
   QuantityMap,
   StudentProfile,
@@ -23,6 +28,7 @@ import { formatWon } from "@/lib/utils";
 type StudentResponseFormProps = {
   survey: Survey;
   onSubmitted?: () => void;
+  resultHref?: string;
 };
 
 type SubmittedSummary = {
@@ -32,6 +38,7 @@ type SubmittedSummary = {
 };
 
 export function StudentResponseForm({
+  resultHref,
   survey,
   onSubmitted,
 }: StudentResponseFormProps) {
@@ -47,9 +54,8 @@ export function StudentResponseForm({
   const [status, setStatus] = useState("");
   const [loadingAssignments, setLoadingAssignments] = useState(true);
   const [submitting, setSubmitting] = useState(false);
-  const [submittedSummary, setSubmittedSummary] = useState<SubmittedSummary | null>(
-    null,
-  );
+  const [submittedSummary, setSubmittedSummary] =
+    useState<SubmittedSummary | null>(null);
 
   useEffect(() => {
     let alive = true;
@@ -117,6 +123,32 @@ export function StudentResponseForm({
   ).length;
   const totalCount = assignedRows.length;
   const progress = totalCount ? Math.round((answeredCount / totalCount) * 100) : 0;
+  const matchedBudget = useMemo(
+    () =>
+      (survey.class_budgets ?? []).find(
+        (classBudget) =>
+          classBudget.grade === profile.grade &&
+          classBudget.class_number === profile.class_number,
+      ),
+    [profile.class_number, profile.grade, survey.class_budgets],
+  );
+  const spentAmount = useMemo(
+    () =>
+      assignedRows.reduce(
+        (sum, { pricePoint }) =>
+          sum + pricePoint.price * (quantities[pricePoint.id] ?? 0),
+        0,
+      ),
+    [assignedRows, quantities],
+  );
+  const remainingAmount = matchedBudget
+    ? matchedBudget.budget - spentAmount
+    : null;
+  const isOverBudget =
+    typeof remainingAmount === "number" && remainingAmount < 0;
+  const budgetMessage = isOverBudget
+    ? `예산을 ${formatWon(Math.abs(remainingAmount))} 초과했습니다. 수량을 줄여 주세요.`
+    : "";
 
   function clampQuantity(value: number) {
     return Math.min(100, Math.max(0, Math.round(value)));
@@ -124,6 +156,7 @@ export function StudentResponseForm({
 
   function setQuantity(pricePointId: string, value: string) {
     const numeric = Number(value);
+    setStatus("");
     setQuantities((current) => ({
       ...current,
       [pricePointId]: Number.isFinite(numeric) ? clampQuantity(numeric) : 0,
@@ -131,6 +164,7 @@ export function StudentResponseForm({
   }
 
   function stepQuantity(pricePointId: string, delta: number) {
+    setStatus("");
     setQuantities((current) => {
       const nextValue = clampQuantity((current[pricePointId] ?? 0) + delta);
       return {
@@ -146,11 +180,11 @@ export function StudentResponseForm({
     }
 
     if (
-      [profile.grade, profile.class_number, profile.student_number].some(
+      [profile.grade, profile.class_number].some(
         (value) => !Number.isInteger(value) || value <= 0,
       )
     ) {
-      return "학년, 반, 번호는 1 이상의 정수로 입력해 주세요.";
+      return "학년과 반은 1 이상의 정수로 입력해 주세요.";
     }
 
     if (!assignedRows.length) {
@@ -163,7 +197,7 @@ export function StudentResponseForm({
     );
 
     if (missing) {
-      return "모든 상황에 대해 구매량을 입력해 주세요.";
+      return "모든 상황에 대한 구매량을 입력해 주세요.";
     }
 
     const invalid = assignedRows.some(({ pricePoint }) => {
@@ -171,7 +205,15 @@ export function StudentResponseForm({
       return !Number.isInteger(value) || value < 0 || value > 100;
     });
 
-    return invalid ? "구매량은 0부터 100까지의 정수만 입력할 수 있습니다." : "";
+    if (invalid) {
+      return "구매량은 0부터 100까지의 정수만 입력할 수 있습니다.";
+    }
+
+    if (isOverBudget) {
+      return budgetMessage;
+    }
+
+    return "";
   }
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -187,6 +229,7 @@ export function StudentResponseForm({
     try {
       const trimmedProfile = {
         ...profile,
+        student_number: 1,
         student_name: profile.student_name.trim(),
       };
       const assignedQuantities = Object.fromEntries(
@@ -197,6 +240,12 @@ export function StudentResponseForm({
       );
 
       await submitResponse(survey, trimmedProfile, assignedQuantities);
+      if (typeof window !== "undefined") {
+        window.localStorage.setItem(
+          STUDENT_RESULT_PROFILE_KEY,
+          JSON.stringify(trimmedProfile),
+        );
+      }
       setSubmittedSummary({
         profile: trimmedProfile,
         quantities: assignedQuantities,
@@ -234,7 +283,7 @@ export function StudentResponseForm({
         </div>
         <h2>응답 완료!</h2>
         <p>
-          수요 조사에 참여해 줘서 고마워요.
+          수요 설문에 참여해 줘서 고마워요.
           <br />
           선생님이 곧 결과를 함께 확인할 거예요.
         </p>
@@ -242,7 +291,7 @@ export function StudentResponseForm({
         <div className="receipt-card">
           <div className="receipt-title">제출 내역</div>
           <div className="receipt-row">
-            <span className="receipt-key">조사</span>
+            <span className="receipt-key">설문</span>
             <span className="receipt-val">{survey.title}</span>
           </div>
           <div className="receipt-row">
@@ -263,17 +312,16 @@ export function StudentResponseForm({
           ))}
         </div>
 
-        <button
+        <Link
           className="student-retry-btn"
-          onClick={() => {
-            setSubmittedSummary(null);
-            setStatus("");
-          }}
-          type="button"
+          href={buildStudentResultHref(
+            resultHref ?? "/student/results",
+            submittedSummary.profile,
+          )}
         >
-          <RefreshCw size={16} />
-          다시 응답하기
-        </button>
+          <BarChart3 size={16} />
+          결과 분석하기
+        </Link>
       </section>
     );
   }
@@ -281,7 +329,7 @@ export function StudentResponseForm({
   return (
     <form className="student-form" onSubmit={handleSubmit}>
       <section className="info-section">
-        <div className="section-label">내 정보</div>
+        <div className="section-label">학생 정보</div>
         <div className="info-grid">
           <label>
             <span className="field-label">학년</span>
@@ -313,21 +361,6 @@ export function StudentResponseForm({
               }
             />
           </label>
-          <label>
-            <span className="field-label">번호</span>
-            <input
-              className="input"
-              min={1}
-              type="number"
-              value={profile.student_number}
-              onChange={(event) =>
-                setProfile((current) => ({
-                  ...current,
-                  student_number: Number(event.target.value),
-                }))
-              }
-            />
-          </label>
           <label className="name-field">
             <span className="field-label">이름 / 닉네임</span>
             <input
@@ -343,6 +376,48 @@ export function StudentResponseForm({
             />
           </label>
         </div>
+      </section>
+
+      <section className="student-budget-card" data-over={isOverBudget}>
+        <div className="student-budget-head">
+          <div>
+            <span>나의 예산</span>
+            <strong>
+              {matchedBudget ? formatWon(matchedBudget.budget) : "예산 미설정"}
+            </strong>
+          </div>
+          <span className="student-budget-class">
+            {profile.grade}학년 {profile.class_number}반
+          </span>
+        </div>
+        {matchedBudget ? (
+          <>
+            <div className="student-budget-meter">
+              <span
+                style={{
+                  width: `${Math.min(
+                    100,
+                    Math.round((spentAmount / matchedBudget.budget) * 100),
+                  )}%`,
+                }}
+              />
+            </div>
+            <div className="student-budget-stats">
+              <div>
+                <span>사용한 금액</span>
+                <strong>{formatWon(spentAmount)}</strong>
+              </div>
+              <div>
+                <span>{isOverBudget ? "초과 금액" : "남은 금액"}</span>
+                <strong>
+                  {formatWon(Math.abs(remainingAmount ?? matchedBudget.budget))}
+                </strong>
+              </div>
+            </div>
+          </>
+        ) : (
+          <p>이 학급에는 예산이 설정되지 않아 제한 없이 제출할 수 있습니다.</p>
+        )}
       </section>
 
       {loadingAssignments ? (
@@ -365,9 +440,12 @@ export function StudentResponseForm({
         />
       ))}
 
-      {status ? (
-        <div className="student-status" data-error={status !== "응답을 제출했습니다."}>
-          {status}
+      {status || budgetMessage ? (
+        <div
+          className="student-status"
+          data-error={(status || budgetMessage) !== "응답을 제출했습니다."}
+        >
+          {status || budgetMessage}
         </div>
       ) : null}
 
@@ -383,7 +461,7 @@ export function StudentResponseForm({
               <div className="progress-fill" style={{ width: `${progress}%` }} />
             </div>
           </div>
-          <button className="submit-btn" disabled={submitting}>
+          <button className="submit-btn" disabled={submitting || isOverBudget}>
             <Send size={17} />
             {submitting ? "제출 중" : "제출"}
           </button>
@@ -418,7 +496,6 @@ function AssignedProductCard({
           {String(productIndex + 1).padStart(2, "0")}
         </div>
         <h2>{product.name}</h2>
-        <span>배정된 가격 구성</span>
       </div>
 
       <div className="student-price-card" data-filled={filled}>
@@ -466,3 +543,4 @@ function AssignedProductCard({
     </section>
   );
 }
+

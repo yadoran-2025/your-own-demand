@@ -1,6 +1,11 @@
 "use client";
 
 import {
+  useState,
+  type MouseEvent,
+  type TouchEvent,
+} from "react";
+import {
   CartesianGrid,
   Legend,
   Line,
@@ -10,17 +15,36 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import type { DemandPoint } from "@/lib/types";
+import type { DemandPoint, DemandScope } from "@/lib/types";
 import { formatWon } from "@/lib/utils";
 
 type DemandChartProps = {
   data: DemandPoint[];
-  title: string;
-  filterLabel: string;
+  respondentCount: number;
+  scope: DemandScope;
+  situationNumber: number;
+};
+
+type DemandPointDotRenderProps = {
+  cx?: number;
+  cy?: number;
+  payload?: DemandPoint;
 };
 
 type TooltipPayload = {
   payload: DemandPoint;
+};
+
+type PointDetails = {
+  average: number;
+  count: number;
+  rows: DemandPoint["classRespondents"];
+};
+
+type TouchPopup = {
+  point: DemandPoint;
+  x: number;
+  y: number;
 };
 
 function RespondentRows({
@@ -58,58 +82,165 @@ function RespondentRows({
   );
 }
 
+function getPointDetails(point: DemandPoint, scope: DemandScope): PointDetails {
+  const isClassScope = scope === "class";
+
+  return {
+    average: isClassScope ? point.classAverage : point.overallAverage,
+    count: isClassScope ? point.classCount : point.overallCount,
+    rows: isClassScope ? point.classRespondents : point.overallRespondents,
+  };
+}
+
 function DemandTooltip({
   active,
   payload,
+  scope,
+  mode,
 }: {
   active?: boolean;
   payload?: TooltipPayload[];
+  scope: DemandScope;
+  mode: "mouse" | "touch";
 }) {
-  if (!active || !payload?.length) {
+  if (mode === "touch" || !active || !payload?.length) {
     return null;
   }
 
   const point = payload[0].payload;
+  const details = getPointDetails(point, scope);
 
   return (
     <div className="demand-tooltip">
       <p>{formatWon(point.price)}</p>
       <RespondentRows
-        average={point.classAverage}
-        count={point.classCount}
-        rows={point.classRespondents}
+        average={details.average}
+        count={details.count}
+        rows={details.rows}
       />
     </div>
   );
 }
 
-export function DemandChart({ data, title, filterLabel }: DemandChartProps) {
+function DemandTouchPopup({
+  popup,
+  scope,
+  onClose,
+}: {
+  popup: TouchPopup;
+  scope: DemandScope;
+  onClose: () => void;
+}) {
+  const details = getPointDetails(popup.point, scope);
+
+  return (
+    <div
+      className="demand-tooltip demand-touch-tooltip"
+      style={{ left: popup.x, top: popup.y }}
+    >
+      <button
+        aria-label="가격 정보 닫기"
+        className="demand-touch-close"
+        onClick={onClose}
+        type="button"
+      >
+        ×
+      </button>
+      <p>{formatWon(popup.point.price)}</p>
+      <RespondentRows
+        average={details.average}
+        count={details.count}
+        rows={details.rows}
+      />
+    </div>
+  );
+}
+
+function DemandPointDot({
+  cx,
+  cy,
+  payload,
+  scope,
+  selected,
+  onSelect,
+}: {
+  cx?: number;
+  cy?: number;
+  payload?: DemandPoint;
+  scope: DemandScope;
+  selected: boolean;
+  onSelect: (point: DemandPoint, x: number, y: number) => void;
+}) {
+  if (typeof cx !== "number" || typeof cy !== "number" || !payload) {
+    return null;
+  }
+
+  const value = scope === "class" ? payload.classAverage : payload.overallAverage;
+  const label = `${formatWon(payload.price)} 가격대, 평균 ${value.toFixed(2)}개`;
+  const handleTouch = (event: TouchEvent<SVGGElement>) => {
+    event.preventDefault();
+    event.stopPropagation();
+    onSelect(payload, cx, cy);
+  };
+  const handleClick = (event: MouseEvent<SVGGElement>) => {
+    event.stopPropagation();
+  };
+
+  return (
+    <g
+      aria-label={label}
+      className="demand-point-dot"
+      data-selected={selected}
+      onClick={handleClick}
+      onTouchEnd={handleTouch}
+      role="button"
+      transform={`translate(${cx}, ${cy})`}
+    >
+      <circle className="demand-point-hit-area" r={22} />
+      <circle
+        className="demand-point-core"
+        fill="var(--color-primary)"
+        r={selected ? 7 : 5}
+        stroke="#ffffff"
+        strokeWidth={2}
+      />
+    </g>
+  );
+}
+
+export function DemandChart({
+  data,
+  respondentCount,
+  scope,
+  situationNumber,
+}: DemandChartProps) {
+  const [interactionMode, setInteractionMode] = useState<"mouse" | "touch">("mouse");
+  const [touchPopup, setTouchPopup] = useState<TouchPopup | null>(null);
+
   if (!data.length) {
     return (
       <section className="teacher-card empty-state chart-empty">
-        <h2>{title}</h2>
+        <h2>상황 {situationNumber} 수요곡선</h2>
         <p>가격 구간이 아직 없습니다.</p>
       </section>
     );
   }
 
-  const firstPoint = data[0];
+  const lineKey = scope === "class" ? "classAverage" : "overallAverage";
+  const lineName = scope === "class" ? "우리 반 평균" : "학교 전체 평균";
+  const lineStroke =
+    scope === "class" ? "var(--color-primary)" : "var(--color-text-secondary)";
 
   return (
     <section className="teacher-card chart-card">
       <div className="chart-header">
-        <div>
-          <h2>{title} 수요곡선</h2>
-          <p>{filterLabel}</p>
+        <div className="chart-title-block">
+          <h2>상황 {situationNumber} 수요곡선</h2>
         </div>
         <div className="chart-meta">
           <div>
-            <strong>{firstPoint.overallCount}명</strong>
-            <span>응답 수</span>
-          </div>
-          <div>
-            <strong>{firstPoint.overallAverage.toFixed(1)}개</strong>
-            <span>{formatWon(firstPoint.price)} 평균</span>
+            <span>응답자수</span>
+            <strong>{respondentCount}</strong>
           </div>
         </div>
       </div>
@@ -119,6 +250,11 @@ export function DemandChart({ data, title, filterLabel }: DemandChartProps) {
             data={data}
             layout="vertical"
             margin={{ bottom: 24, left: 24, right: 28, top: 16 }}
+            onMouseMove={() => {
+              setInteractionMode("mouse");
+              setTouchPopup(null);
+            }}
+            onTouchStart={() => setInteractionMode("touch")}
           >
             <CartesianGrid stroke="var(--color-border)" strokeDasharray="4 4" />
             <XAxis
@@ -142,29 +278,46 @@ export function DemandChart({ data, title, filterLabel }: DemandChartProps) {
               type="number"
               width={84}
             />
-            <Tooltip content={<DemandTooltip />} />
+            <Tooltip
+              content={
+                <DemandTooltip mode={interactionMode} scope={scope} />
+              }
+            />
             <Legend verticalAlign="top" />
             <Line
-              activeDot={{ r: 7 }}
-              dataKey="classAverage"
-              dot={{ r: 5 }}
-              name="선택한 반 평균"
-              stroke="var(--color-primary)"
-              strokeWidth={3}
-              type="monotone"
-            />
-            <Line
-              activeDot={{ r: 7 }}
-              dataKey="overallAverage"
-              dot={{ r: 5 }}
-              name="전체 학생 평균"
-              stroke="var(--color-text-secondary)"
-              strokeDasharray="6 4"
+              activeDot={{ r: 7, fill: "var(--color-primary)", stroke: "#ffffff", strokeWidth: 2 }}
+              dataKey={lineKey}
+              dot={(dotProps) => {
+                const pointDotProps = dotProps as DemandPointDotRenderProps;
+
+                return (
+                  <DemandPointDot
+                    {...pointDotProps}
+                    onSelect={(point, x, y) =>
+                      setTouchPopup({ point, x: x + 14, y: y + 14 })
+                    }
+                    scope={scope}
+                    selected={
+                      pointDotProps.payload?.pricePointId ===
+                      touchPopup?.point.pricePointId
+                    }
+                  />
+                );
+              }}
+              name={lineName}
+              stroke={lineStroke}
               strokeWidth={3}
               type="monotone"
             />
           </LineChart>
         </ResponsiveContainer>
+        {touchPopup ? (
+          <DemandTouchPopup
+            onClose={() => setTouchPopup(null)}
+            popup={touchPopup}
+            scope={scope}
+          />
+        ) : null}
       </div>
     </section>
   );

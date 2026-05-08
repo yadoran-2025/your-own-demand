@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { Plus, RefreshCw, Trash2 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -7,6 +7,7 @@ import {
   TeacherPageHeader,
   TeacherShell,
 } from "@/components/TeacherShell";
+import { RoomBadge, RoomGate } from "@/components/RoomGate";
 import { SurveyEditor } from "@/components/SurveyEditor";
 import {
   deleteSurvey,
@@ -15,9 +16,11 @@ import {
   saveSurvey,
   surveyToDraft,
 } from "@/lib/data";
+import { TEACHER_ROOM_KEY, useStoredRoomName } from "@/lib/roomName";
 import type { Survey } from "@/lib/types";
 
 export default function TeacherSetupPage() {
+  const { roomName, ready, setRoomName } = useStoredRoomName(TEACHER_ROOM_KEY);
   const [surveys, setSurveys] = useState<Survey[]>([]);
   const [selectedSurveyId, setSelectedSurveyId] = useState("");
   const [loading, setLoading] = useState(true);
@@ -33,28 +36,34 @@ export default function TeacherSetupPage() {
   );
 
   const loadSurveys = useCallback(async (preferredSurveyId?: string) => {
+    if (!roomName) {
+      return;
+    }
+
     setLoading(true);
     try {
-      const nextSurveys = await fetchSurveys();
+      const nextSurveys = await fetchSurveys(roomName);
       setSurveys(nextSurveys);
       const nextSurvey =
         nextSurveys.find((survey) => survey.id === preferredSurveyId) ??
         nextSurveys[0];
       setSelectedSurveyId(nextSurvey?.id ?? "");
     } catch (error) {
-      setMessage(error instanceof Error ? error.message : "조사를 불러오지 못했습니다.");
+      setMessage(error instanceof Error ? error.message : "설문을 불러오지 못했습니다.");
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [roomName]);
 
   useEffect(() => {
-    void loadSurveys();
-  }, [loadSurveys]);
+    if (ready && roomName) {
+      void loadSurveys();
+    }
+  }, [loadSurveys, roomName, ready]);
 
   async function handleSaveSurvey(draft: Parameters<typeof saveSurvey>[0]) {
-    const saved = await saveSurvey(draft);
-    setMessage("조사가 저장되었습니다.");
+    const saved = await saveSurvey(draft, roomName);
+    setMessage("설문이 저장되었습니다.");
     await loadSurveys(saved.id);
   }
 
@@ -64,7 +73,7 @@ export default function TeacherSetupPage() {
     }
 
     const confirmed = window.confirm(
-      `"${selectedSurvey.title}" 조사를 삭제할까요? 학생 응답도 함께 삭제됩니다.`,
+      `"${selectedSurvey.title}" 설문을 삭제할까요? 학생 응답도 함께 삭제됩니다.`,
     );
 
     if (!confirmed) {
@@ -73,19 +82,27 @@ export default function TeacherSetupPage() {
 
     try {
       await deleteSurvey(selectedSurvey.id);
-      setMessage("조사가 삭제되었습니다.");
+      setMessage("설문이 삭제되었습니다.");
       setSelectedSurveyId("");
       await loadSurveys();
     } catch (error) {
-      setMessage(error instanceof Error ? error.message : "조사를 삭제하지 못했습니다.");
+      setMessage(error instanceof Error ? error.message : "설문을 삭제하지 못했습니다.");
     }
   }
 
   return (
-    <TeacherShell active="setup">
+    <RoomGate
+      description="교사용 방 이름을 입력하면 그 방 이름의 설문 목록만 세팅할 수 있습니다."
+      roomName={roomName}
+      ready={ready}
+      setRoomName={setRoomName}
+      title="교사용 방 열기"
+    >
+    <TeacherShell active="setup" roomName={roomName}>
       <TeacherPageHeader
         actions={
           <>
+            <RoomBadge roomName={roomName} onReset={() => setRoomName("")} />
             <button
               className="secondary-button compact-button"
               onClick={() => void loadSurveys(selectedSurvey?.id)}
@@ -98,18 +115,18 @@ export default function TeacherSetupPage() {
               className="primary-button compact-button"
               onClick={() => {
                 setSelectedSurveyId("");
-                setMessage("새 조사를 작성합니다. 저장하면 조사 목록에 추가됩니다.");
+                setMessage("새 설문을 작성합니다. 저장하면 설문 목록에 추가됩니다.");
               }}
               type="button"
             >
               <Plus size={16} />
-              새 조사
+              새 설문
             </button>
           </>
         }
-        description="상황과 상품 가격, 상황별 가격 구성을 관리하고 조사를 저장하세요."
-        eyebrow="대시보드 / 조사 세팅"
-        title="조사 세팅"
+        description="상황과 상품 가격, 상황별 가격 구성을 관리하고 설문을 저장하세요."
+        eyebrow="대시보드 / 설문 세팅"
+        title="설문 세팅"
       />
 
       {!hasRemoteDatabase ? (
@@ -118,22 +135,22 @@ export default function TeacherSetupPage() {
         </div>
       ) : null}
       {message ? <div className="teacher-alert">{message}</div> : null}
-      {loading ? <div className="teacher-alert">조사를 불러오는 중입니다.</div> : null}
+      {loading ? <div className="teacher-alert">설문을 불러오는 중입니다.</div> : null}
 
       <div className="setup-layout">
         <section className="teacher-card survey-list-panel">
           <div className="survey-list-header">
-            <h2>저장된 조사</h2>
+            <h2>저장된 설문</h2>
             <button
               className="primary-button compact-button"
               onClick={() => {
                 setSelectedSurveyId("");
-                setMessage("새 조사를 작성합니다. 저장하면 조사 목록에 추가됩니다.");
+                setMessage("새 설문을 작성합니다. 저장하면 설문 목록에 추가됩니다.");
               }}
               type="button"
             >
               <Plus size={14} />
-              새 조사
+              새 설문
             </button>
           </div>
           <div className="survey-list">
@@ -152,7 +169,7 @@ export default function TeacherSetupPage() {
             ))}
             {!surveys.length ? (
               <div className="empty-state compact-empty">
-                <p>저장된 조사가 없습니다.</p>
+                <p>저장된 설문이 없습니다.</p>
               </div>
             ) : null}
           </div>
@@ -162,7 +179,7 @@ export default function TeacherSetupPage() {
           <div className="editor-header">
             <div>
               <span>편집 중</span>
-              <h2>{selectedSurvey?.title ?? "새 조사"}</h2>
+              <h2>{selectedSurvey?.title ?? "새 설문"}</h2>
             </div>
             <button
               className="danger-button compact-button"
@@ -171,7 +188,7 @@ export default function TeacherSetupPage() {
               type="button"
             >
               <Trash2 size={16} />
-              조사 삭제
+              설문 삭제
             </button>
           </div>
           <SurveyEditor
@@ -182,5 +199,9 @@ export default function TeacherSetupPage() {
         </section>
       </div>
     </TeacherShell>
+    </RoomGate>
   );
 }
+
+
+

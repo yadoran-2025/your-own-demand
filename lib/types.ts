@@ -17,8 +17,16 @@ export type Product = {
 export type Survey = {
   id: string;
   title: string;
+  teacher_pin?: string | null;
   created_at: string;
+  class_budgets: ClassBudget[];
   products: Product[];
+};
+
+export type ClassBudget = {
+  grade: number;
+  class_number: number;
+  budget: number;
 };
 
 export type StudentProfile = {
@@ -46,6 +54,7 @@ export type StudentResponse = StudentProfile & {
 export type SurveyDraft = {
   id?: string;
   title: string;
+  classBudgets: ClassBudget[];
   products: Array<{
     id?: string;
     name: string;
@@ -62,6 +71,8 @@ export type FilterState = {
   grade: string;
   classNumber: string;
 };
+
+export type DemandScope = "class" | "school";
 
 export type DistributionBin = {
   label: string;

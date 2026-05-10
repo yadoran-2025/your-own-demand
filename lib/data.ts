@@ -28,7 +28,7 @@ type DbProduct = {
   survey_id: string;
   name: string;
   sort_order: number;
-  price_points: DbPricePoint[];
+  price_points?: DbPricePoint[] | null;
 };
 
 type DbClassBudget = ClassBudget & {
@@ -207,13 +207,30 @@ export async function fetchSurveys(roomName?: string, slim = false): Promise<Sur
       : surveys;
   }
 
-  const selectFields = slim
-    ? "id,title,teacher_pin,created_at,products(id,survey_id,name,sort_order)"
-    : "id,title,teacher_pin,created_at,class_budgets:survey_class_budgets(id,survey_id,grade,class_number,budget),products(id,survey_id,name,sort_order,price_points(id,product_id,description,price,sort_order))";
+  if (slim) {
+    let query = supabase
+      .from("surveys")
+      .select("id,title,teacher_pin,created_at,products(id,survey_id,name,sort_order)")
+      .order("created_at", { ascending: false });
+
+    if (normalizedRoomName) {
+      query = query.eq("teacher_pin", normalizedRoomName);
+    }
+
+    const { data, error } = await query;
+
+    if (error) {
+      throw error;
+    }
+
+    return ((data ?? []) as DbSurvey[]).map(normalizeSurvey);
+  }
 
   let query = supabase
     .from("surveys")
-    .select(selectFields)
+    .select(
+      "id,title,teacher_pin,created_at,class_budgets:survey_class_budgets(id,survey_id,grade,class_number,budget),products(id,survey_id,name,sort_order,price_points(id,product_id,description,price,sort_order))",
+    )
     .order("created_at", { ascending: false });
 
   if (normalizedRoomName) {
@@ -403,13 +420,26 @@ export async function fetchResponses(surveyId: string, slim = false): Promise<St
     return slim ? all.map((r) => ({ ...r, response_items: [] })) : all;
   }
 
-  const selectFields = slim
-    ? "id,survey_id,grade,class_number,student_number,student_name,created_at"
-    : "id,survey_id,grade,class_number,student_number,student_name,created_at,response_items(id,response_id,product_id,price_point_id,quantity)";
+  if (slim) {
+    const { data, error } = await supabase
+      .from("responses")
+      .select("id,survey_id,grade,class_number,student_number,student_name,created_at")
+      .eq("survey_id", surveyId)
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      throw error;
+    }
+
+    const rows = (data ?? []) as Omit<DbResponse, "response_items">[];
+    return rows.map((r) => ({ ...r, response_items: [] }));
+  }
 
   const { data, error } = await supabase
     .from("responses")
-    .select(selectFields)
+    .select(
+      "id,survey_id,grade,class_number,student_number,student_name,created_at,response_items(id,response_id,product_id,price_point_id,quantity)",
+    )
     .eq("survey_id", surveyId)
     .order("created_at", { ascending: false });
 
@@ -417,10 +447,7 @@ export async function fetchResponses(surveyId: string, slim = false): Promise<St
     throw error;
   }
 
-  const rows = (data ?? []) as Omit<DbResponse, "response_items">[];
-  return slim
-    ? rows.map((r) => ({ ...r, response_items: [] }))
-    : (rows as DbResponse[]);
+  return (data ?? []) as DbResponse[];
 }
 
 export async function submitResponse(
@@ -503,4 +530,3 @@ export async function submitResponse(
     throw itemError;
   }
 }
-

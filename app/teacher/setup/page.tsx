@@ -63,7 +63,7 @@ export default function TeacherSetupPage() {
 
   async function handleSaveSurvey(draft: Parameters<typeof saveSurvey>[0]) {
     const saved = await saveSurvey(draft, roomName);
-    setMessage("설문이 저장되었습니다.");
+    setMessage("설문이 저장되었습니다. 기존 응답은 유지됩니다.");
     await loadSurveys(saved.id);
   }
 

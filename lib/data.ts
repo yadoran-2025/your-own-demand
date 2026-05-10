@@ -3,7 +3,6 @@
 import { supabase } from "./supabase";
 import type {
   ClassBudget,
-  Product,
   QuantityMap,
   StudentProfile,
   StudentResponse,
@@ -190,6 +189,7 @@ export function surveyToDraft(survey: Survey): SurveyDraft {
       id: product.id,
       name: product.name,
       pricePoints: product.price_points.map((pricePoint) => ({
+        id: pricePoint.id,
         description: pricePoint.description,
         price: pricePoint.price,
       })),
@@ -255,9 +255,11 @@ export async function saveSurvey(draft: SurveyDraft, roomName?: string): Promise
 
   const cleanProducts = draft.products
     .map((product) => ({
+      id: product.id,
       name: product.name.trim(),
       pricePoints: product.pricePoints
         .map((pricePoint) => ({
+          id: pricePoint.id,
           description: pricePoint.description.trim(),
           price: Number(pricePoint.price),
         }))
@@ -273,24 +275,25 @@ export async function saveSurvey(draft: SurveyDraft, roomName?: string): Promise
 
   if (!supabase) {
     const surveys = readLocal<Survey[]>(SURVEYS_KEY, []);
+    const responses = readLocal<StudentResponse[]>(RESPONSES_KEY, []);
     const surveyId = draft.id ?? makeId("survey");
+    const previousSurvey = surveys.find((item) => item.id === surveyId);
     const survey: Survey = {
       id: surveyId,
       title: draft.title.trim() || "경제 수요설문",
       teacher_pin: normalizedRoomName,
       created_at:
-        surveys.find((item) => item.id === surveyId)?.created_at ??
-        new Date().toISOString(),
+        previousSurvey?.created_at ?? new Date().toISOString(),
       class_budgets: cleanClassBudgets,
       products: cleanProducts.map((product, productIndex) => {
-        const productId = makeId("product");
+        const productId = product.id ?? makeId("product");
         return {
           id: productId,
           survey_id: surveyId,
           name: product.name,
           sort_order: productIndex,
           price_points: product.pricePoints.map((pricePoint, priceIndex) => ({
-            id: makeId("price"),
+            id: pricePoint.id ?? makeId("price"),
             product_id: productId,
             description: pricePoint.description,
             price: pricePoint.price,
@@ -299,10 +302,31 @@ export async function saveSurvey(draft: SurveyDraft, roomName?: string): Promise
         };
       }),
     };
+    const productIds = new Set(survey.products.map((product) => product.id));
+    const pricePointIds = new Set(
+      survey.products.flatMap((product) =>
+        product.price_points.map((pricePoint) => pricePoint.id),
+      ),
+    );
 
     writeLocal(
       SURVEYS_KEY,
       [survey, ...surveys.filter((item) => item.id !== surveyId)],
+    );
+    writeLocal(
+      RESPONSES_KEY,
+      responses.map((response) =>
+        response.survey_id === surveyId
+          ? {
+              ...response,
+              response_items: response.response_items.filter(
+                (item) =>
+                  productIds.has(item.product_id) &&
+                  pricePointIds.has(item.price_point_id),
+              ),
+            }
+          : response,
+      ),
     );
     return survey;
   }
@@ -332,10 +356,17 @@ export async function saveSurvey(draft: SurveyDraft, roomName?: string): Promise
 
   const surveyId = surveyData.id as string;
 
-  if (draft.id) {
-    await supabase.from("responses").delete().eq("survey_id", surveyId);
-    await supabase.from("survey_class_budgets").delete().eq("survey_id", surveyId);
-    await supabase.from("products").delete().eq("survey_id", surveyId);
+  const previousSurvey = draft.id
+    ? (await fetchSurveys(normalizedRoomName)).find((survey) => survey.id === surveyId)
+    : undefined;
+
+  const { error: deleteBudgetError } = await supabase
+    .from("survey_class_budgets")
+    .delete()
+    .eq("survey_id", surveyId);
+
+  if (deleteBudgetError) {
+    throw deleteBudgetError;
   }
 
   if (cleanClassBudgets.length) {
@@ -355,35 +386,121 @@ export async function saveSurvey(draft: SurveyDraft, roomName?: string): Promise
     }
   }
 
-  const productRows = cleanProducts.map((product, index) => ({
-    survey_id: surveyId,
-    name: product.name,
-    sort_order: index,
-  }));
+  const previousProductIds = new Set(
+    previousSurvey?.products.map((product) => product.id) ?? [],
+  );
+  const keptProductIds = new Set<string>();
 
-  const { data: insertedProducts, error: productError } = await supabase
-    .from("products")
-    .insert(productRows)
-    .select("id,survey_id,name,sort_order");
+  for (const [productIndex, product] of cleanProducts.entries()) {
+    let productId = product.id;
 
-  if (productError) {
-    throw productError;
+    if (productId && previousProductIds.has(productId)) {
+      const { error } = await supabase
+        .from("products")
+        .update({
+          name: product.name,
+          sort_order: productIndex,
+        })
+        .eq("id", productId)
+        .eq("survey_id", surveyId);
+
+      if (error) {
+        throw error;
+      }
+    } else {
+      const { data, error } = await supabase
+        .from("products")
+        .insert({
+          survey_id: surveyId,
+          name: product.name,
+          sort_order: productIndex,
+        })
+        .select("id")
+        .single();
+
+      if (error) {
+        throw error;
+      }
+
+      productId = data.id as string;
+    }
+
+    keptProductIds.add(productId);
+
+    const previousProduct = previousSurvey?.products.find(
+      (item) => item.id === productId,
+    );
+    const previousPricePointIds = new Set(
+      previousProduct?.price_points.map((pricePoint) => pricePoint.id) ?? [],
+    );
+    const keptPricePointIds = new Set<string>();
+
+    for (const [priceIndex, pricePoint] of product.pricePoints.entries()) {
+      if (pricePoint.id && previousPricePointIds.has(pricePoint.id)) {
+        const { error } = await supabase
+          .from("price_points")
+          .update({
+            description: pricePoint.description,
+            price: pricePoint.price,
+            sort_order: priceIndex,
+          })
+          .eq("id", pricePoint.id)
+          .eq("product_id", productId);
+
+        if (error) {
+          throw error;
+        }
+
+        keptPricePointIds.add(pricePoint.id);
+      } else {
+        const { data, error } = await supabase
+          .from("price_points")
+          .insert({
+            product_id: productId,
+            description: pricePoint.description,
+            price: pricePoint.price,
+            sort_order: priceIndex,
+          })
+          .select("id")
+          .single();
+
+        if (error) {
+          throw error;
+        }
+
+        keptPricePointIds.add(data.id as string);
+      }
+    }
+
+    const removedPricePointIds = [...previousPricePointIds].filter(
+      (pricePointId) => !keptPricePointIds.has(pricePointId),
+    );
+
+    if (removedPricePointIds.length) {
+      const { error } = await supabase
+        .from("price_points")
+        .delete()
+        .in("id", removedPricePointIds);
+
+      if (error) {
+        throw error;
+      }
+    }
   }
 
-  const priceRows = (insertedProducts as Pick<Product, "id">[]).flatMap(
-    (product, index) =>
-      cleanProducts[index].pricePoints.map((pricePoint, priceIndex) => ({
-        product_id: product.id,
-        description: pricePoint.description,
-        price: pricePoint.price,
-        sort_order: priceIndex,
-      })),
+  const removedProductIds = [...previousProductIds].filter(
+    (productId) => !keptProductIds.has(productId),
   );
 
-  const { error: priceError } = await supabase.from("price_points").insert(priceRows);
+  if (removedProductIds.length) {
+    const { error } = await supabase
+      .from("products")
+      .delete()
+      .in("id", removedProductIds);
 
-  if (priceError) {
-    throw priceError;
+    if (error) {
+      throw error;
+    }
   }
 
   return (await fetchSurveys(normalizedRoomName)).find((survey) => survey.id === surveyId)!;

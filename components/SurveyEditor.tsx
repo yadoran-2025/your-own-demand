@@ -11,6 +11,42 @@ type SurveyEditorProps = {
   onSave: (draft: SurveyDraft) => Promise<void>;
 };
 
+function hasDeletedSurveyItems(initialDraft: SurveyDraft | undefined, draft: SurveyDraft) {
+  if (!initialDraft?.id) {
+    return false;
+  }
+
+  const nextProducts = draft.products
+    .map((product) => ({
+      ...product,
+      name: product.name.trim(),
+      pricePoints: product.pricePoints.filter(
+        (pricePoint) => Number.isFinite(Number(pricePoint.price)) && Number(pricePoint.price) > 0,
+      ),
+    }))
+    .filter((product) => product.name && product.pricePoints.length);
+  const nextProductIds = new Set(nextProducts.map((product) => product.id).filter(Boolean));
+  const hasDeletedProduct = initialDraft.products.some(
+    (product) => product.id && !nextProductIds.has(product.id),
+  );
+
+  if (hasDeletedProduct) {
+    return true;
+  }
+
+  const nextPricePointIds = new Set(
+    nextProducts.flatMap((product) =>
+      product.pricePoints.map((pricePoint) => pricePoint.id).filter(Boolean),
+    ),
+  );
+
+  return initialDraft.products.some((product) =>
+    product.pricePoints.some(
+      (pricePoint) => pricePoint.id && !nextPricePointIds.has(pricePoint.id),
+    ),
+  );
+}
+
 function normalizeDraft(draft?: SurveyDraft) {
   const fallback = createDefaultDraft();
   const nextDraft = draft ?? fallback;
@@ -169,6 +205,15 @@ export function SurveyEditor({ initialDraft, onSave }: SurveyEditorProps) {
   }
 
   async function handleSave() {
+    if (
+      hasDeletedSurveyItems(initialDraft, draft) &&
+      !window.confirm(
+        "삭제한 상황/가격에 연결된 기존 응답 항목은 결과에서 제외됩니다. 나머지 응답은 유지됩니다.",
+      )
+    ) {
+      return;
+    }
+
     setSaving(true);
     setError("");
     try {
@@ -333,7 +378,7 @@ export function SurveyEditor({ initialDraft, onSave }: SurveyEditorProps) {
               {product.pricePoints.map((pricePoint, priceIndex) => (
                 <div
                   className="price-table-row"
-                  key={`${productIndex}-${priceIndex}`}
+                  key={`${pricePoint.id ?? "price"}-${productIndex}-${priceIndex}`}
                 >
                   <input
                     className="input compact-input"

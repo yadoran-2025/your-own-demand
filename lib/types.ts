@@ -59,6 +59,7 @@ export type SurveyDraft = {
     id?: string;
     name: string;
     pricePoints: Array<{
+      id?: string;
       description: string;
       price: number;
     }>;

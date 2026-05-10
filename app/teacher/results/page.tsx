@@ -88,6 +88,8 @@ export default function TeacherResultsPage() {
       return;
     }
 
+    let timer: ReturnType<typeof setTimeout> | null = null;
+
     const channel = client
       .channel(`responses-${selectedSurvey.id}`)
       .on(
@@ -98,20 +100,16 @@ export default function TeacherResultsPage() {
           table: "responses",
           filter: `survey_id=eq.${selectedSurvey.id}`,
         },
-        () => void loadResponses(selectedSurvey.id),
-      )
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "response_items",
+        () => {
+          // 짧게 대기해 response_items까지 커밋된 후 한 번만 fetch
+          if (timer) clearTimeout(timer);
+          timer = setTimeout(() => void loadResponses(selectedSurvey.id), 300);
         },
-        () => void loadResponses(selectedSurvey.id),
       )
       .subscribe();
 
     return () => {
+      if (timer) clearTimeout(timer);
       void client.removeChannel(channel);
     };
   }, [loadResponses, selectedSurvey?.id]);

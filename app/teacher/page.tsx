@@ -4,6 +4,7 @@ import Link from "next/link";
 import QRCode from "qrcode";
 import {
   BarChart3,
+  BookOpen,
   Check,
   Clock,
   Copy,
@@ -61,11 +62,11 @@ export default function TeacherPage() {
 
     setLoading(true);
     try {
-      const nextSurveys = await fetchSurveys(roomName);
+      const nextSurveys = await fetchSurveys(roomName, true);
       setSurveys(nextSurveys);
 
       if (nextSurveys[0]) {
-        setResponses(await fetchResponses(nextSurveys[0].id));
+        setResponses(await fetchResponses(nextSurveys[0].id, true));
       } else {
         setResponses([]);
       }
@@ -192,6 +193,10 @@ export default function TeacherPage() {
           <div className="teacher-inline-actions">
             <Link className="secondary-button compact-button" href="/teacher/setup">
               세팅 수정
+            </Link>
+            <Link className="secondary-button compact-button" href="/teacher/guide">
+              <BookOpen size={16} />
+              활용 안내
             </Link>
             <Link className="primary-button compact-button" href="/teacher/results">
               <BarChart3 size={16} />

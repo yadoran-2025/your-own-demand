@@ -197,7 +197,7 @@ export function surveyToDraft(survey: Survey): SurveyDraft {
   };
 }
 
-export async function fetchSurveys(roomName?: string): Promise<Survey[]> {
+export async function fetchSurveys(roomName?: string, slim = false): Promise<Survey[]> {
   const normalizedRoomName = roomName?.trim();
 
   if (!supabase) {
@@ -207,11 +207,13 @@ export async function fetchSurveys(roomName?: string): Promise<Survey[]> {
       : surveys;
   }
 
+  const selectFields = slim
+    ? "id,title,teacher_pin,created_at,products(id,survey_id,name,sort_order)"
+    : "id,title,teacher_pin,created_at,class_budgets:survey_class_budgets(id,survey_id,grade,class_number,budget),products(id,survey_id,name,sort_order,price_points(id,product_id,description,price,sort_order))";
+
   let query = supabase
     .from("surveys")
-    .select(
-      "id,title,teacher_pin,created_at,class_budgets:survey_class_budgets(id,survey_id,grade,class_number,budget),products(id,survey_id,name,sort_order,price_points(id,product_id,description,price,sort_order))",
-    )
+    .select(selectFields)
     .order("created_at", { ascending: false });
 
   if (normalizedRoomName) {
@@ -393,18 +395,21 @@ export async function deleteSurvey(surveyId: string) {
   }
 }
 
-export async function fetchResponses(surveyId: string): Promise<StudentResponse[]> {
+export async function fetchResponses(surveyId: string, slim = false): Promise<StudentResponse[]> {
   if (!supabase) {
-    return readLocal<StudentResponse[]>(RESPONSES_KEY, []).filter(
+    const all = readLocal<StudentResponse[]>(RESPONSES_KEY, []).filter(
       (response) => response.survey_id === surveyId,
     );
+    return slim ? all.map((r) => ({ ...r, response_items: [] })) : all;
   }
+
+  const selectFields = slim
+    ? "id,survey_id,grade,class_number,student_number,student_name,created_at"
+    : "id,survey_id,grade,class_number,student_number,student_name,created_at,response_items(id,response_id,product_id,price_point_id,quantity)";
 
   const { data, error } = await supabase
     .from("responses")
-    .select(
-      "id,survey_id,grade,class_number,student_number,student_name,created_at,response_items(id,response_id,product_id,price_point_id,quantity)",
-    )
+    .select(selectFields)
     .eq("survey_id", surveyId)
     .order("created_at", { ascending: false });
 
@@ -412,7 +417,10 @@ export async function fetchResponses(surveyId: string): Promise<StudentResponse[
     throw error;
   }
 
-  return (data ?? []) as DbResponse[];
+  const rows = (data ?? []) as Omit<DbResponse, "response_items">[];
+  return slim
+    ? rows.map((r) => ({ ...r, response_items: [] }))
+    : (rows as DbResponse[]);
 }
 
 export async function submitResponse(

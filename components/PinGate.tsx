@@ -14,18 +14,20 @@ type RoomGateProps = {
 export function RoomGate({
   children,
   description,
-  ready: _ready,
+  ready,
   roomName,
   setRoomName,
   title,
 }: RoomGateProps) {
-  void _ready;
-
   const [draftRoomName, setDraftRoomName] = useState(roomName);
 
   useEffect(() => {
     setDraftRoomName(roomName);
   }, [roomName]);
+
+  if (!ready) {
+    return null;
+  }
 
   if (roomName) {
     return <>{children}</>;

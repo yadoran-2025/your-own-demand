@@ -5,7 +5,7 @@ import type { ReactNode } from "react";
 import { buildStudentPath } from "@/lib/roomName";
 
 type TeacherShellProps = {
-  active: "dashboard" | "setup" | "results";
+  active: "dashboard" | "setup" | "results" | "guide";
   children: ReactNode;
   roomName?: string;
 };
@@ -14,6 +14,7 @@ const navItems = [
   { id: "dashboard", href: "/teacher", label: "대시보드" },
   { id: "setup", href: "/teacher/setup", label: "설문 세팅" },
   { id: "results", href: "/teacher/results", label: "결과 확인" },
+  { id: "guide", href: "/teacher/guide", label: "활용 안내" },
 ] as const;
 
 export function TeacherShell({ active, children, roomName = "" }: TeacherShellProps) {
@@ -35,7 +36,9 @@ export function TeacherShell({ active, children, roomName = "" }: TeacherShellPr
           학생 화면 →
         </Link>
       </nav>
-      <main className="teacher-main">{children}</main>
+      <main className={`teacher-main ${active === "guide" ? "teacher-main-guide" : ""}`}>
+        {children}
+      </main>
     </div>
   );
 }

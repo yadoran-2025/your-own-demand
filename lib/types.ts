@@ -72,7 +72,8 @@ export type FilterState = {
   classNumber: string;
 };
 
-export type DemandScope = "class" | "school";
+export type DemandScope = "personal" | "class" | "school";
+export type DemandMetric = "total" | "average";
 
 export type DistributionBin = {
   label: string;
@@ -89,8 +90,11 @@ export type DemandRespondent = {
 export type DemandPoint = {
   price: number;
   pricePointId: string;
+  classTotal: number;
+  overallTotal: number;
   classAverage: number;
   overallAverage: number;
+  personalQuantity?: number | null;
   classCount: number;
   overallCount: number;
   classDistribution: DistributionBin[];

@@ -412,6 +412,96 @@ export async function deleteSurvey(surveyId: string) {
   }
 }
 
+export async function updateStudentResponse(
+  surveyId: string,
+  responseId: string,
+  profile: StudentProfile,
+  quantitiesByItemId: QuantityMap,
+) {
+  const cleanProfile = {
+    grade: Math.max(1, Math.round(Number(profile.grade))),
+    class_number: Math.max(1, Math.round(Number(profile.class_number))),
+    student_number: Math.max(1, Math.round(Number(profile.student_number))),
+    student_name: profile.student_name.trim(),
+  };
+
+  if (!cleanProfile.student_name) {
+    throw new Error("학생 이름을 입력해 주세요.");
+  }
+
+  const cleanQuantities = Object.fromEntries(
+    Object.entries(quantitiesByItemId).map(([itemId, quantity]) => [
+      itemId,
+      Math.min(100, Math.max(0, Math.round(Number(quantity) || 0))),
+    ]),
+  );
+
+  if (!supabase) {
+    const responses = readLocal<StudentResponse[]>(RESPONSES_KEY, []);
+    writeLocal(
+      RESPONSES_KEY,
+      responses.map((response) =>
+        response.id === responseId && response.survey_id === surveyId
+          ? {
+              ...response,
+              ...cleanProfile,
+              response_items: response.response_items.map((item) => ({
+                ...item,
+                quantity: cleanQuantities[item.id] ?? item.quantity,
+              })),
+            }
+          : response,
+      ),
+    );
+    return;
+  }
+
+  const { error: responseError } = await supabase
+    .from("responses")
+    .update(cleanProfile)
+    .eq("id", responseId)
+    .eq("survey_id", surveyId);
+
+  if (responseError) {
+    throw responseError;
+  }
+
+  for (const [itemId, quantity] of Object.entries(cleanQuantities)) {
+    const { error: itemError } = await supabase
+      .from("response_items")
+      .update({ quantity })
+      .eq("id", itemId)
+      .eq("response_id", responseId);
+
+    if (itemError) {
+      throw itemError;
+    }
+  }
+}
+
+export async function deleteStudentResponse(surveyId: string, responseId: string) {
+  if (!supabase) {
+    const responses = readLocal<StudentResponse[]>(RESPONSES_KEY, []);
+    writeLocal(
+      RESPONSES_KEY,
+      responses.filter(
+        (response) => response.id !== responseId || response.survey_id !== surveyId,
+      ),
+    );
+    return;
+  }
+
+  const { error } = await supabase
+    .from("responses")
+    .delete()
+    .eq("id", responseId)
+    .eq("survey_id", surveyId);
+
+  if (error) {
+    throw error;
+  }
+}
+
 export async function fetchResponses(surveyId: string, slim = false): Promise<StudentResponse[]> {
   if (!supabase) {
     const all = readLocal<StudentResponse[]>(RESPONSES_KEY, []).filter(

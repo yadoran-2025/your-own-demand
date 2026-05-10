@@ -3,13 +3,69 @@
 import { BarChart3, RefreshCw } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { DemandChart } from "@/components/DemandChart";
-import { DemandScopeToggle, SituationTabs } from "@/components/ResultControls";
+import {
+  DemandMetricToggle,
+  DemandScopeToggle,
+  SituationTabs,
+} from "@/components/ResultControls";
 import { RoomBadge, RoomGate } from "@/components/RoomGate";
 import { buildDemandData } from "@/lib/aggregation";
 import { fetchResponses, fetchSurveys, hasRemoteDatabase } from "@/lib/data";
 import { STUDENT_ROOM_KEY, useStoredRoomName } from "@/lib/roomName";
 import { readStoredStudentResultProfile } from "@/lib/studentResultProfile";
-import type { DemandScope, FilterState, StudentResponse, Survey } from "@/lib/types";
+import type {
+  DemandMetric,
+  DemandPoint,
+  DemandScope,
+  FilterState,
+  StudentResponse,
+  Survey,
+} from "@/lib/types";
+
+function findPersonalResponse(
+  responses: StudentResponse[],
+  profile: ReturnType<typeof readStoredStudentResultProfile>,
+) {
+  if (!profile?.studentName) {
+    return null;
+  }
+
+  return (
+    responses.find(
+      (response) =>
+        response.grade === profile.grade &&
+        response.class_number === profile.classNumber &&
+        response.student_name.trim() === profile.studentName &&
+        (profile.studentNumber === null ||
+          response.student_number === profile.studentNumber),
+    ) ?? null
+  );
+}
+
+function addPersonalDemand(
+  demandData: DemandPoint[],
+  response: StudentResponse | null,
+  productId?: string,
+) {
+  if (!response || !productId) {
+    return demandData;
+  }
+
+  const quantitiesByPricePoint = new Map(
+    response.response_items
+      .filter((item) => item.product_id === productId)
+      .map((item) => [item.price_point_id, item.quantity]),
+  );
+
+  if (!quantitiesByPricePoint.size) {
+    return demandData;
+  }
+
+  return demandData.map((point) => ({
+    ...point,
+    personalQuantity: quantitiesByPricePoint.get(point.pricePointId) ?? null,
+  }));
+}
 
 export default function StudentResultsPage() {
   const { roomName, ready, setRoomName } = useStoredRoomName(STUDENT_ROOM_KEY);
@@ -22,6 +78,7 @@ export default function StudentResultsPage() {
     classNumber: "all",
   });
   const [scope, setScope] = useState<DemandScope>("class");
+  const [metric, setMetric] = useState<DemandMetric>("total");
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
 
@@ -90,20 +147,37 @@ export default function StudentResultsPage() {
   }, [loadResponses, selectedSurvey?.id]);
 
   const demandData = useMemo(
-    () =>
-      selectedProduct
-        ? buildDemandData(selectedProduct, responses, filter)
-        : [],
+    () => {
+      if (!selectedProduct) {
+        return [];
+      }
+
+      const storedProfile = readStoredStudentResultProfile();
+      const personalResponse = findPersonalResponse(responses, storedProfile);
+
+      return addPersonalDemand(
+        buildDemandData(selectedProduct, responses, filter),
+        personalResponse,
+        selectedProduct.id,
+      );
+    },
     [filter, responses, selectedProduct],
   );
   const selectedProductIndex = selectedSurvey?.products.findIndex(
     (product) => product.id === selectedProduct?.id,
   ) ?? -1;
   const situationNumber = selectedProductIndex >= 0 ? selectedProductIndex + 1 : 1;
+  const hasPersonalDemand = demandData.some(
+    (point) => typeof point.personalQuantity === "number",
+  );
   const respondentCount =
-    scope === "class"
-      ? demandData[0]?.classCount ?? 0
-      : demandData[0]?.overallCount ?? 0;
+    scope === "personal"
+      ? hasPersonalDemand
+        ? 1
+        : 0
+      : scope === "class"
+        ? demandData.reduce((sum, point) => sum + point.classCount, 0)
+        : demandData.reduce((sum, point) => sum + point.overallCount, 0);
 
   return (
     <RoomGate
@@ -143,7 +217,7 @@ export default function StudentResultsPage() {
               </span>
               <div>
                 <h2>완성된 수요곡선</h2>
-                <p>설문과 상황을 바꿔가며 우리 반 또는 학교 전체의 수요곡선을 살펴볼 수 있습니다.</p>
+                <p>설문과 상황을 바꿔가며 나의 응답, 우리 반, 학교 전체의 수요곡선을 살펴볼 수 있습니다.</p>
               </div>
               <button
                 className="secondary-button compact-button"
@@ -192,9 +266,19 @@ export default function StudentResultsPage() {
 
           {selectedProduct ? (
             <>
-              <DemandScopeToggle value={scope} onChange={setScope} />
+              <div className="demand-controls-row">
+                {scope !== "personal" ? (
+                  <DemandMetricToggle value={metric} onChange={setMetric} />
+                ) : null}
+                <DemandScopeToggle
+                  includePersonal
+                  value={scope}
+                  onChange={setScope}
+                />
+              </div>
               <DemandChart
                 data={demandData}
+                metric={metric}
                 respondentCount={respondentCount}
                 scope={scope}
                 situationNumber={situationNumber}

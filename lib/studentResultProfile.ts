@@ -32,6 +32,9 @@ export function readStoredStudentResultProfile() {
     const profile = JSON.parse(raw) as Partial<StudentProfile>;
     const grade = Number(profile.grade);
     const classNumber = Number(profile.class_number);
+    const studentNumber = Number(profile.student_number);
+    const studentName =
+      typeof profile.student_name === "string" ? profile.student_name.trim() : "";
 
     if (!Number.isInteger(grade) || !Number.isInteger(classNumber)) {
       return null;
@@ -40,6 +43,8 @@ export function readStoredStudentResultProfile() {
     return {
       grade,
       classNumber,
+      studentNumber: Number.isInteger(studentNumber) ? studentNumber : null,
+      studentName,
     };
   } catch {
     return null;

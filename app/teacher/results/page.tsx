@@ -4,7 +4,11 @@ import Link from "next/link";
 import { RefreshCw } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { DemandChart } from "@/components/DemandChart";
-import { DemandScopeToggle, SituationTabs } from "@/components/ResultControls";
+import {
+  DemandMetricToggle,
+  DemandScopeToggle,
+  SituationTabs,
+} from "@/components/ResultControls";
 import { RoomBadge, RoomGate } from "@/components/RoomGate";
 import {
   StatusBadge,
@@ -15,7 +19,13 @@ import { buildDemandData, getAvailableClasses, getAvailableGrades } from "@/lib/
 import { fetchResponses, fetchSurveys, hasRemoteDatabase } from "@/lib/data";
 import { TEACHER_ROOM_KEY, useStoredRoomName } from "@/lib/roomName";
 import { supabase } from "@/lib/supabase";
-import type { DemandScope, FilterState, StudentResponse, Survey } from "@/lib/types";
+import type {
+  DemandMetric,
+  DemandScope,
+  FilterState,
+  StudentResponse,
+  Survey,
+} from "@/lib/types";
 
 export default function TeacherResultsPage() {
   const { roomName, ready, setRoomName } = useStoredRoomName(TEACHER_ROOM_KEY);
@@ -28,6 +38,7 @@ export default function TeacherResultsPage() {
     classNumber: "all",
   });
   const [scope, setScope] = useState<DemandScope>("class");
+  const [metric, setMetric] = useState<DemandMetric>("total");
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
 
@@ -133,8 +144,8 @@ export default function TeacherResultsPage() {
   const situationNumber = selectedProductIndex >= 0 ? selectedProductIndex + 1 : 1;
   const respondentCount =
     scope === "class"
-      ? demandData[0]?.classCount ?? 0
-      : demandData[0]?.overallCount ?? 0;
+      ? demandData.reduce((sum, point) => sum + point.classCount, 0)
+      : demandData.reduce((sum, point) => sum + point.overallCount, 0);
 
   return (
     <RoomGate
@@ -249,9 +260,13 @@ export default function TeacherResultsPage() {
 
       {selectedProduct ? (
         <>
-          <DemandScopeToggle value={scope} onChange={setScope} />
+          <div className="demand-controls-row">
+            <DemandMetricToggle value={metric} onChange={setMetric} />
+            <DemandScopeToggle value={scope} onChange={setScope} />
+          </div>
           <DemandChart
             data={demandData}
+            metric={metric}
             respondentCount={respondentCount}
             scope={scope}
             situationNumber={situationNumber}

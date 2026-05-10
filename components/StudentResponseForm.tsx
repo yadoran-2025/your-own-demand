@@ -282,11 +282,6 @@ export function StudentResponseForm({
           <Check size={38} />
         </div>
         <h2>응답 완료!</h2>
-        <p>
-          수요 설문에 참여해 줘서 고마워요.
-          <br />
-          선생님이 곧 결과를 함께 확인할 거예요.
-        </p>
 
         <div className="receipt-card">
           <div className="receipt-title">제출 내역</div>
@@ -311,6 +306,12 @@ export function StudentResponseForm({
             </div>
           ))}
         </div>
+
+        <p className="student-result-callout">
+          활동지를 먼저 작성하세요.
+          <br />
+          그 후에, 버튼을 눌러 결과를 확인하세요.
+        </p>
 
         <Link
           className="student-retry-btn"
@@ -385,6 +386,11 @@ export function StudentResponseForm({
             <strong>
               {matchedBudget ? formatWon(matchedBudget.budget) : "예산 미설정"}
             </strong>
+            {matchedBudget ? (
+              <p className="student-budget-note">
+                남겨도 되지만, 넘기면 안 됩니다.
+              </p>
+            ) : null}
           </div>
           <span className="student-budget-class">
             {profile.grade}학년 {profile.class_number}반

@@ -49,6 +49,10 @@ function average(values: number[]) {
   );
 }
 
+function total(values: number[]) {
+  return values.reduce((sum, value) => sum + value, 0);
+}
+
 function distribution(values: number[]) {
   return bins.map((bin) => ({
     label: bin.label,
@@ -105,6 +109,8 @@ export function buildDemandData(
       return {
         price: pricePoint.price,
         pricePointId: pricePoint.id,
+        classTotal: total(classValues),
+        overallTotal: total(overallValues),
         classAverage: average(classValues),
         overallAverage: average(overallValues),
         classCount: classValues.length,

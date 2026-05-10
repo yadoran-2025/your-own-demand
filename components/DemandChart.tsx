@@ -15,11 +15,12 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import type { DemandPoint, DemandScope } from "@/lib/types";
+import type { DemandMetric, DemandPoint, DemandScope } from "@/lib/types";
 import { formatWon } from "@/lib/utils";
 
 type DemandChartProps = {
   data: DemandPoint[];
+  metric: DemandMetric;
   respondentCount: number;
   scope: DemandScope;
   situationNumber: number;
@@ -33,11 +34,14 @@ type DemandPointDotRenderProps = {
 
 type TooltipPayload = {
   payload: DemandPoint;
+  dataKey?: string;
+  value?: number;
 };
 
 type PointDetails = {
-  average: number;
+  value: number;
   count: number;
+  metric: DemandMetric;
   rows: DemandPoint["classRespondents"];
 };
 
@@ -48,19 +52,24 @@ type TouchPopup = {
 };
 
 function RespondentRows({
-  average,
   count,
+  metric,
   rows,
+  value,
 }: {
-  average: number;
   count: number;
+  metric: DemandMetric;
   rows: DemandPoint["classRespondents"];
+  value: number;
 }) {
+  const valueLabel =
+    metric === "average" ? `평균 ${value.toFixed(2)}개` : `합계 ${value}개`;
+
   return (
     <div className="tooltip-respondents">
       <div className="tooltip-respondents-head">
         <strong>응답 학생</strong>
-        <span>평균 {average.toFixed(2)}개</span>
+        <span>{valueLabel}</span>
       </div>
       <p>응답 {count}명</p>
       <div className="tooltip-student-rows">
@@ -82,13 +91,26 @@ function RespondentRows({
   );
 }
 
-function getPointDetails(point: DemandPoint, scope: DemandScope): PointDetails {
-  const isClassScope = scope === "class";
+function getPointDetails(
+  point: DemandPoint,
+  scope: DemandScope,
+  metric: DemandMetric,
+): PointDetails {
+  const isClassScope = scope !== "school";
+  const value =
+    metric === "average"
+      ? isClassScope
+        ? point.classAverage
+        : point.overallAverage
+      : isClassScope
+        ? point.classTotal
+        : point.overallTotal;
 
   return {
-    average: isClassScope ? point.classAverage : point.overallAverage,
     count: isClassScope ? point.classCount : point.overallCount,
+    metric,
     rows: isClassScope ? point.classRespondents : point.overallRespondents,
+    value,
   };
 }
 
@@ -97,26 +119,44 @@ function DemandTooltip({
   payload,
   scope,
   mode,
+  metric,
 }: {
   active?: boolean;
   payload?: TooltipPayload[];
   scope: DemandScope;
   mode: "mouse" | "touch";
+  metric: DemandMetric;
 }) {
   if (mode === "touch" || !active || !payload?.length) {
     return null;
   }
 
   const point = payload[0].payload;
-  const details = getPointDetails(point, scope);
+
+  if (payload[0].dataKey === "personalQuantity") {
+    return (
+      <div className="demand-tooltip demand-personal-tooltip">
+        <p>{formatWon(point.price)}</p>
+        <div className="tooltip-respondents">
+          <div className="tooltip-respondents-head">
+            <strong>나의 응답</strong>
+            <span>{Number(payload[0].value ?? 0).toFixed(0)}개</span>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const details = getPointDetails(point, scope, metric);
 
   return (
     <div className="demand-tooltip">
       <p>{formatWon(point.price)}</p>
       <RespondentRows
-        average={details.average}
         count={details.count}
+        metric={details.metric}
         rows={details.rows}
+        value={details.value}
       />
     </div>
   );
@@ -125,13 +165,15 @@ function DemandTooltip({
 function DemandTouchPopup({
   popup,
   scope,
+  metric,
   onClose,
 }: {
   popup: TouchPopup;
   scope: DemandScope;
+  metric: DemandMetric;
   onClose: () => void;
 }) {
-  const details = getPointDetails(popup.point, scope);
+  const details = getPointDetails(popup.point, scope, metric);
 
   return (
     <div
@@ -148,9 +190,10 @@ function DemandTouchPopup({
       </button>
       <p>{formatWon(popup.point.price)}</p>
       <RespondentRows
-        average={details.average}
         count={details.count}
+        metric={details.metric}
         rows={details.rows}
+        value={details.value}
       />
     </div>
   );
@@ -160,6 +203,7 @@ function DemandPointDot({
   cx,
   cy,
   payload,
+  metric,
   scope,
   selected,
   onSelect,
@@ -167,6 +211,7 @@ function DemandPointDot({
   cx?: number;
   cy?: number;
   payload?: DemandPoint;
+  metric: DemandMetric;
   scope: DemandScope;
   selected: boolean;
   onSelect: (point: DemandPoint, x: number, y: number) => void;
@@ -175,8 +220,17 @@ function DemandPointDot({
     return null;
   }
 
-  const value = scope === "class" ? payload.classAverage : payload.overallAverage;
-  const label = `${formatWon(payload.price)} 가격대, 평균 ${value.toFixed(2)}개`;
+  const value =
+    metric === "average"
+      ? scope === "school"
+        ? payload.overallAverage
+        : payload.classAverage
+      : scope === "school"
+        ? payload.overallTotal
+        : payload.classTotal;
+  const valueLabel =
+    metric === "average" ? `평균 ${value.toFixed(2)}개` : `합계 ${value}개`;
+  const label = `${formatWon(payload.price)} 가격대, ${valueLabel}`;
   const handleTouch = (event: TouchEvent<SVGGElement>) => {
     event.preventDefault();
     event.stopPropagation();
@@ -210,6 +264,7 @@ function DemandPointDot({
 
 export function DemandChart({
   data,
+  metric,
   respondentCount,
   scope,
   situationNumber,
@@ -226,10 +281,38 @@ export function DemandChart({
     );
   }
 
-  const lineKey = scope === "class" ? "classAverage" : "overallAverage";
-  const lineName = scope === "class" ? "우리 반 평균" : "학교 전체 평균";
+  const hasPersonalDemand = data.some(
+    (point) => typeof point.personalQuantity === "number",
+  );
+
+  if (scope === "personal" && !hasPersonalDemand) {
+    return (
+      <section className="teacher-card empty-state chart-empty">
+        <h2>상황 {situationNumber} 수요곡선</h2>
+        <p>이 상황에 표시할 나의 응답이 없습니다.</p>
+      </section>
+    );
+  }
+
+  const lineKey =
+    metric === "average"
+      ? scope === "class"
+        ? "classAverage"
+        : "overallAverage"
+      : scope === "class"
+        ? "classTotal"
+        : "overallTotal";
+  const lineName =
+    scope === "class"
+      ? metric === "average"
+        ? "우리 반 평균"
+        : "우리 반 수요량"
+      : metric === "average"
+        ? "학교 전체 평균"
+        : "학교 전체 수요량";
   const lineStroke =
     scope === "class" ? "var(--color-primary)" : "var(--color-text-secondary)";
+  const isPersonalScope = scope === "personal";
 
   return (
     <section className="teacher-card chart-card">
@@ -261,7 +344,8 @@ export function DemandChart({
               allowDecimals
               domain={[0, "dataMax + 1"]}
               label={{
-                value: "평균 수요량",
+                value:
+                  isPersonalScope || metric === "total" ? "수요량" : "평균 수요량",
                 position: "insideBottom",
                 offset: -14,
               }}
@@ -280,39 +364,69 @@ export function DemandChart({
             />
             <Tooltip
               content={
-                <DemandTooltip mode={interactionMode} scope={scope} />
+                <DemandTooltip
+                  metric={metric}
+                  mode={interactionMode}
+                  scope={scope}
+                />
               }
             />
             <Legend verticalAlign="top" />
-            <Line
-              activeDot={{ r: 7, fill: "var(--color-primary)", stroke: "#ffffff", strokeWidth: 2 }}
-              dataKey={lineKey}
-              dot={(dotProps) => {
-                const pointDotProps = dotProps as DemandPointDotRenderProps;
+            {!isPersonalScope ? (
+              <Line
+                activeDot={{ r: 7, fill: "var(--color-primary)", stroke: "#ffffff", strokeWidth: 2 }}
+                dataKey={lineKey}
+                dot={(dotProps) => {
+                  const pointDotProps = dotProps as DemandPointDotRenderProps;
 
-                return (
-                  <DemandPointDot
-                    {...pointDotProps}
-                    onSelect={(point, x, y) =>
-                      setTouchPopup({ point, x: x + 14, y: y + 14 })
-                    }
-                    scope={scope}
-                    selected={
-                      pointDotProps.payload?.pricePointId ===
-                      touchPopup?.point.pricePointId
-                    }
-                  />
-                );
-              }}
-              name={lineName}
-              stroke={lineStroke}
-              strokeWidth={3}
-              type="monotone"
-            />
+                  return (
+                    <DemandPointDot
+                      {...pointDotProps}
+                      onSelect={(point, x, y) =>
+                        setTouchPopup({ point, x: x + 14, y: y + 14 })
+                      }
+                      metric={metric}
+                      scope={scope}
+                      selected={
+                        pointDotProps.payload?.pricePointId ===
+                        touchPopup?.point.pricePointId
+                      }
+                    />
+                  );
+                }}
+                name={lineName}
+                stroke={lineStroke}
+                strokeWidth={3}
+                type="monotone"
+              />
+            ) : null}
+            {isPersonalScope ? (
+              <Line
+                activeDot={{
+                  r: 7,
+                  fill: "#f97316",
+                  stroke: "#ffffff",
+                  strokeWidth: 2,
+                }}
+                connectNulls={false}
+                dataKey="personalQuantity"
+                dot={{
+                  r: 5,
+                  fill: "#f97316",
+                  stroke: "#ffffff",
+                  strokeWidth: 2,
+                }}
+                name="나의 응답"
+                stroke="#f97316"
+                strokeWidth={3}
+                type="monotone"
+              />
+            ) : null}
           </LineChart>
         </ResponsiveContainer>
         {touchPopup ? (
           <DemandTouchPopup
+            metric={metric}
             onClose={() => setTouchPopup(null)}
             popup={touchPopup}
             scope={scope}

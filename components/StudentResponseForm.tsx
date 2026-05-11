@@ -4,15 +4,12 @@ import { BarChart3, Check, Minus, Send, WalletCards } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import {
-  buildAssignmentSeed,
-  buildAssignmentStorageKey,
-  buildBalancedAssignments,
   hasCompleteAssignments,
   resolveAssignedPricePoints,
   type AssignedPricePoint,
   type AssignmentMap,
 } from "@/lib/assignments";
-import { fetchResponses, submitResponse } from "@/lib/data";
+import { reserveAssignments, submitResponse } from "@/lib/data";
 import {
   buildStudentResultHref,
   STUDENT_RESULT_PROFILE_KEY,
@@ -20,7 +17,6 @@ import {
 import type {
   QuantityMap,
   StudentProfile,
-  StudentResponse,
   Survey,
 } from "@/lib/types";
 import { formatWon } from "@/lib/utils";
@@ -48,75 +44,30 @@ export function StudentResponseForm({
     student_number: 1,
     student_name: "",
   });
-  const [responses, setResponses] = useState<StudentResponse[]>([]);
   const [assignments, setAssignments] = useState<AssignmentMap>({});
   const [quantities, setQuantities] = useState<QuantityMap>({});
   const [status, setStatus] = useState("");
-  const [loadingAssignments, setLoadingAssignments] = useState(true);
+  const [loadingAssignments, setLoadingAssignments] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [submittedSummary, setSubmittedSummary] =
     useState<SubmittedSummary | null>(null);
 
   useEffect(() => {
-    let alive = true;
-    setLoadingAssignments(true);
-
-    fetchResponses(survey.id)
-      .then((items) => {
-        if (alive) {
-          setResponses(items);
-        }
-      })
-      .catch(() => {
-        if (alive) {
-          setResponses([]);
-        }
-      })
-      .finally(() => {
-        if (alive) {
-          setLoadingAssignments(false);
-        }
-      });
-
-    return () => {
-      alive = false;
-    };
+    setAssignments({});
+    setQuantities({});
+    setStatus("");
   }, [survey.id]);
-
-  useEffect(() => {
-    if (loadingAssignments) {
-      return;
-    }
-
-    const storageKey = buildAssignmentStorageKey(survey.id, profile);
-    const seed = buildAssignmentSeed(survey.id, profile);
-    const stored =
-      typeof window === "undefined" ? null : window.localStorage.getItem(storageKey);
-    let nextAssignments = stored ? (JSON.parse(stored) as AssignmentMap) : null;
-
-    if (!nextAssignments || !hasCompleteAssignments(survey, nextAssignments)) {
-      nextAssignments = buildBalancedAssignments(survey, responses, seed);
-    }
-
-    if (typeof window !== "undefined") {
-      window.localStorage.setItem(storageKey, JSON.stringify(nextAssignments));
-    }
-
-    setAssignments(nextAssignments);
-    setQuantities((current) => {
-      const assignedIds = new Set(Object.values(nextAssignments));
-      return Object.fromEntries(
-        Object.entries(current).filter(([pricePointId]) =>
-          assignedIds.has(pricePointId),
-        ),
-      );
-    });
-  }, [loadingAssignments, profile, responses, survey]);
 
   const assignedRows = useMemo(
     () => resolveAssignedPricePoints(survey, assignments),
     [survey, assignments],
   );
+  const hasAssignments = hasCompleteAssignments(survey, assignments);
+  const hasValidProfile =
+    profile.student_name.trim().length > 0 &&
+    [profile.grade, profile.class_number].every(
+      (value) => Number.isInteger(value) && value > 0,
+    );
 
   const answeredCount = assignedRows.filter(({ pricePoint }) =>
     Object.prototype.hasOwnProperty.call(quantities, pricePoint.id),
@@ -149,6 +100,58 @@ export function StudentResponseForm({
   const budgetMessage = isOverBudget
     ? `예산을 ${formatWon(Math.abs(remainingAmount))} 초과했습니다. 수량을 줄여 주세요.`
     : "";
+
+  function updateProfile(nextProfile: StudentProfile) {
+    setProfile(nextProfile);
+    setAssignments({});
+    setQuantities({});
+    setStatus("");
+  }
+
+  async function handleReserveAssignments() {
+    if (!hasValidProfile) {
+      setStatus("학년, 반, 이름을 먼저 입력해 주세요.");
+      return;
+    }
+
+    setLoadingAssignments(true);
+    setStatus("");
+
+    try {
+      const cleanProfile = {
+        ...profile,
+        student_number: 1,
+        student_name: profile.student_name.trim(),
+      };
+      const nextAssignments = await reserveAssignments(survey, cleanProfile);
+
+      if (!hasCompleteAssignments(survey, nextAssignments)) {
+        throw new Error("가격 배정을 완료하지 못했습니다. 새로고침 후 다시 시도해 주세요.");
+      }
+
+      setProfile(cleanProfile);
+      setAssignments(nextAssignments);
+      setQuantities((current) => {
+        const assignedIds = new Set(Object.values(nextAssignments));
+        return Object.fromEntries(
+          Object.entries(current).filter(([pricePointId]) =>
+            assignedIds.has(pricePointId),
+          ),
+        );
+      });
+      setStatus("");
+    } catch (error) {
+      setAssignments({});
+      setQuantities({});
+      setStatus(
+        error instanceof Error
+          ? error.message
+          : "가격 배정 중 오류가 발생했습니다.",
+      );
+    } finally {
+      setLoadingAssignments(false);
+    }
+  }
 
   function clampQuantity(value: number) {
     return Math.min(100, Math.max(0, Math.round(value)));
@@ -187,8 +190,8 @@ export function StudentResponseForm({
       return "학년과 반은 1 이상의 정수로 입력해 주세요.";
     }
 
-    if (!assignedRows.length) {
-      return "응답할 상황별 가격 구성이 없습니다.";
+    if (!hasAssignments || !assignedRows.length) {
+      return "가격 배정을 먼저 받아 주세요.";
     }
 
     const missing = assignedRows.some(
@@ -340,10 +343,10 @@ export function StudentResponseForm({
               type="number"
               value={profile.grade}
               onChange={(event) =>
-                setProfile((current) => ({
-                  ...current,
+                updateProfile({
+                  ...profile,
                   grade: Number(event.target.value),
-                }))
+                })
               }
             />
           </label>
@@ -355,10 +358,10 @@ export function StudentResponseForm({
               type="number"
               value={profile.class_number}
               onChange={(event) =>
-                setProfile((current) => ({
-                  ...current,
+                updateProfile({
+                  ...profile,
                   class_number: Number(event.target.value),
-                }))
+                })
               }
             />
           </label>
@@ -369,13 +372,37 @@ export function StudentResponseForm({
               placeholder="예: 김민지"
               value={profile.student_name}
               onChange={(event) =>
-                setProfile((current) => ({
-                  ...current,
+                updateProfile({
+                  ...profile,
                   student_name: event.target.value,
-                }))
+                })
               }
             />
           </label>
+        </div>
+      </section>
+
+      <section className="student-product-section">
+        <div className="student-product-header">
+          <div className="student-product-icon">?</div>
+          <h2>{hasAssignments ? "가격 배정 완료" : "가격 배정받기"}</h2>
+        </div>
+        <div className="student-price-card" data-filled={hasAssignments}>
+          <p>
+            학생 정보를 입력한 뒤 가격을 배정받으면 상황별 구매량을 입력할 수 있습니다.
+          </p>
+          <button
+            className="primary-button compact-button"
+            disabled={!hasValidProfile || loadingAssignments || submitting}
+            onClick={handleReserveAssignments}
+            type="button"
+          >
+            {loadingAssignments
+              ? "배정 중"
+              : hasAssignments
+                ? "다시 배정 확인"
+                : "가격 배정받기"}
+          </button>
         </div>
       </section>
 
@@ -426,25 +453,19 @@ export function StudentResponseForm({
         )}
       </section>
 
-      {loadingAssignments ? (
-        <section className="student-product-section">
-          <div className="student-product-header">
-            <h2>상황별 가격 구성을 불러오는 중</h2>
-          </div>
-        </section>
-      ) : null}
-
-      {assignedRows.map(({ product, pricePoint }, productIndex) => (
-        <AssignedProductCard
-          key={product.id}
-          product={product}
-          pricePoint={pricePoint}
-          productIndex={productIndex}
-          quantity={quantities[pricePoint.id]}
-          onSetQuantity={setQuantity}
-          onStepQuantity={stepQuantity}
-        />
-      ))}
+      {hasAssignments
+        ? assignedRows.map(({ product, pricePoint }, productIndex) => (
+            <AssignedProductCard
+              key={product.id}
+              product={product}
+              pricePoint={pricePoint}
+              productIndex={productIndex}
+              quantity={quantities[pricePoint.id]}
+              onSetQuantity={setQuantity}
+              onStepQuantity={stepQuantity}
+            />
+          ))
+        : null}
 
       {status || budgetMessage ? (
         <div
@@ -459,15 +480,20 @@ export function StudentResponseForm({
         <div className="submit-bar-inner">
           <div className="progress-wrap">
             <div className="progress-label">
-              {answeredCount === totalCount
-                ? "모든 상황 입력 완료"
-                : `${answeredCount} / ${totalCount} 상황 입력`}
+              {!hasAssignments
+                ? "가격 배정 대기"
+                : answeredCount === totalCount
+                  ? "모든 상황 입력 완료"
+                  : `${answeredCount} / ${totalCount} 상황 입력`}
             </div>
             <div className="progress-bar">
               <div className="progress-fill" style={{ width: `${progress}%` }} />
             </div>
           </div>
-          <button className="submit-btn" disabled={submitting || isOverBudget}>
+          <button
+            className="submit-btn"
+            disabled={!hasAssignments || submitting || isOverBudget}
+          >
             <Send size={17} />
             {submitting ? "제출 중" : "제출"}
           </button>
@@ -476,7 +502,6 @@ export function StudentResponseForm({
     </form>
   );
 }
-
 type AssignedProductCardProps = AssignedPricePoint & {
   productIndex: number;
   quantity: number | undefined;

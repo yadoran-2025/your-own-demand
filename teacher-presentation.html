@@ -1,0 +1,667 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>수요곡선 활동 시스템 소개</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #f2f5f8;
+        --panel: #ffffff;
+        --ink: #121826;
+        --muted: #5f6b7a;
+        --line: #d8e0ea;
+        --blue: #1f6feb;
+        --blue-soft: #eaf2ff;
+        --green: #15803d;
+        --green-soft: #eaf7ee;
+        --amber: #b45309;
+        --amber-soft: #fff4db;
+        --red: #b42318;
+        --red-soft: #fff0ed;
+        --shadow: 0 18px 60px rgba(18, 24, 38, 0.12);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Pretendard,
+          "Noto Sans KR", sans-serif;
+        line-height: 1.5;
+      }
+
+      .deck-nav {
+        align-items: center;
+        background: rgba(255, 255, 255, 0.9);
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        box-shadow: 0 10px 30px rgba(18, 24, 38, 0.08);
+        display: flex;
+        gap: 6px;
+        left: 50%;
+        padding: 6px;
+        position: fixed;
+        top: 14px;
+        transform: translateX(-50%);
+        z-index: 50;
+      }
+
+      .deck-nav a {
+        border-radius: 999px;
+        color: var(--muted);
+        font-size: 13px;
+        font-weight: 800;
+        padding: 8px 12px;
+        text-decoration: none;
+        white-space: nowrap;
+      }
+
+      .deck-nav a:hover {
+        background: var(--blue-soft);
+        color: var(--blue);
+      }
+
+      .slide {
+        align-items: center;
+        display: grid;
+        min-height: 100vh;
+        padding: 86px 6vw 48px;
+      }
+
+      .slide-inner {
+        margin: 0 auto;
+        max-width: 1180px;
+        width: 100%;
+      }
+
+      .kicker {
+        color: var(--blue);
+        font-size: 14px;
+        font-weight: 900;
+        letter-spacing: 0.02em;
+        margin: 0 0 12px;
+      }
+
+      h1,
+      h2,
+      h3,
+      p {
+        margin-top: 0;
+      }
+
+      h1 {
+        font-size: clamp(42px, 6vw, 76px);
+        line-height: 1.04;
+        margin-bottom: 22px;
+        max-width: 980px;
+      }
+
+      h2 {
+        font-size: clamp(32px, 4.3vw, 54px);
+        line-height: 1.12;
+        margin-bottom: 18px;
+      }
+
+      h3 {
+        font-size: 20px;
+        margin-bottom: 8px;
+      }
+
+      .lead {
+        color: var(--muted);
+        font-size: clamp(19px, 2.2vw, 27px);
+        line-height: 1.55;
+        max-width: 940px;
+      }
+
+      .two-col {
+        align-items: center;
+        display: grid;
+        gap: 42px;
+        grid-template-columns: minmax(0, 0.88fr) minmax(0, 1.12fr);
+      }
+
+      .panel {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        box-shadow: var(--shadow);
+        overflow: hidden;
+      }
+
+      .screen {
+        display: block;
+        height: auto;
+        width: 100%;
+      }
+
+      .screen-frame {
+        background: #eef2f7;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        box-shadow: var(--shadow);
+        overflow: hidden;
+      }
+
+      .screen-caption {
+        align-items: center;
+        background: #fff;
+        border-top: 1px solid var(--line);
+        color: var(--muted);
+        display: flex;
+        font-size: 14px;
+        font-weight: 700;
+        justify-content: space-between;
+        padding: 12px 16px;
+      }
+
+      .badge {
+        border-radius: 999px;
+        display: inline-flex;
+        font-size: 13px;
+        font-weight: 900;
+        padding: 6px 10px;
+      }
+
+      .badge.blue {
+        background: var(--blue-soft);
+        color: var(--blue);
+      }
+
+      .badge.green {
+        background: var(--green-soft);
+        color: var(--green);
+      }
+
+      .badge.amber {
+        background: var(--amber-soft);
+        color: var(--amber);
+      }
+
+      .grid {
+        display: grid;
+        gap: 18px;
+      }
+
+      .grid.three {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .grid.four {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+      }
+
+      .info {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 24px;
+      }
+
+      .info strong {
+        color: var(--blue);
+        display: block;
+        font-size: 36px;
+        line-height: 1;
+        margin-bottom: 12px;
+      }
+
+      .info p {
+        color: var(--muted);
+        margin-bottom: 0;
+      }
+
+      .flow {
+        counter-reset: flow;
+        display: grid;
+        gap: 16px;
+      }
+
+      .flow-item {
+        align-items: flex-start;
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        display: grid;
+        gap: 16px;
+        grid-template-columns: 52px 1fr;
+        padding: 20px;
+      }
+
+      .flow-item::before {
+        align-items: center;
+        background: var(--blue);
+        border-radius: 50%;
+        color: #fff;
+        content: counter(flow);
+        counter-increment: flow;
+        display: inline-flex;
+        font-size: 18px;
+        font-weight: 900;
+        height: 42px;
+        justify-content: center;
+        width: 42px;
+      }
+
+      .flow-item p,
+      .quote p,
+      .note p {
+        color: var(--muted);
+        margin-bottom: 0;
+      }
+
+      .quote {
+        background: #111827;
+        border-radius: 8px;
+        box-shadow: var(--shadow);
+        color: #fff;
+        padding: 34px;
+      }
+
+      .quote h3 {
+        font-size: clamp(26px, 3vw, 38px);
+        line-height: 1.2;
+      }
+
+      .quote p {
+        color: #d8dee9;
+        font-size: 18px;
+      }
+
+      .note {
+        background: var(--amber-soft);
+        border: 1px solid #ffd58a;
+        border-radius: 8px;
+        padding: 18px 20px;
+      }
+
+      .screen-grid {
+        display: grid;
+        gap: 18px;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .screen-grid .screen {
+        aspect-ratio: 16 / 10;
+        object-fit: cover;
+        object-position: top center;
+      }
+
+      .lesson-plan {
+        display: grid;
+        gap: 14px;
+      }
+
+      .lesson-row {
+        align-items: center;
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        display: grid;
+        gap: 18px;
+        grid-template-columns: 120px 1fr 220px;
+        padding: 18px 20px;
+      }
+
+      .time {
+        color: var(--blue);
+        font-size: 26px;
+        font-weight: 900;
+      }
+
+      .teacher-line {
+        background: var(--green-soft);
+        border: 1px solid #b7e4c7;
+        border-radius: 8px;
+        color: #0f5132;
+        font-size: clamp(25px, 3vw, 39px);
+        font-weight: 900;
+        line-height: 1.35;
+        padding: 32px;
+      }
+
+      .footer {
+        bottom: 18px;
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 700;
+        left: 6vw;
+        position: fixed;
+        z-index: 40;
+      }
+
+      @media (max-width: 900px) {
+        .deck-nav {
+          max-width: calc(100vw - 18px);
+          overflow-x: auto;
+        }
+
+        .two-col,
+        .grid.three,
+        .grid.four,
+        .screen-grid,
+        .lesson-row {
+          grid-template-columns: 1fr;
+        }
+
+        .slide {
+          padding-left: 22px;
+          padding-right: 22px;
+        }
+      }
+
+      @media print {
+        .deck-nav,
+        .footer {
+          display: none;
+        }
+
+        .slide {
+          break-after: page;
+          min-height: auto;
+          padding: 40px;
+        }
+
+        body {
+          background: #fff;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <nav class="deck-nav" aria-label="발표 슬라이드 이동">
+      <a href="#s1">소개</a>
+      <a href="#s2">문제</a>
+      <a href="#s3">흐름</a>
+      <a href="#s4">화면</a>
+      <a href="#s5">효과</a>
+      <a href="#s8">운영</a>
+    </nav>
+
+    <main>
+      <section class="slide" id="s1">
+        <div class="slide-inner two-col">
+          <div>
+            <p class="kicker">경제 수업용 실시간 수요곡선 활동</p>
+            <h1>학생의 선택이 바로 그래프가 되는 수업도구</h1>
+            <p class="lead">
+              이 도구는 가격이 달라질 때 학생들이 실제로 얼마나 구매할지
+              응답하게 하고, 그 결과를 즉시 수요곡선으로 시각화합니다.
+            </p>
+          </div>
+          <div class="screen-frame">
+            <img
+              class="screen"
+              src="presentation-assets/screen-dashboard.png"
+              alt="교사용 대시보드 실제 화면"
+            />
+            <div class="screen-caption">
+              <span>실제 교사용 대시보드</span>
+              <span class="badge blue">실시간 응답</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="slide" id="s2">
+        <div class="slide-inner">
+          <p class="kicker">왜 필요한가</p>
+          <h2>수요곡선은 외우는 개념이 아니라, 내가 만든 데이터로 발견하는 개념입니다.</h2>
+          <div class="grid three">
+            <article class="info">
+              <strong>1</strong>
+              <h3>추상 개념을 생활 장면으로 전환</h3>
+              <p>빵, 음료, 간식처럼 학생이 바로 상상할 수 있는 상황에서 가격과 구매량의 관계를 관찰합니다.</p>
+            </article>
+            <article class="info">
+              <strong>2</strong>
+              <h3>개인 선택을 학급 데이터로 확장</h3>
+              <p>한 명의 직감이 모이면 반 평균과 전체 평균이 되고, 시장 수요의 의미가 눈에 보입니다.</p>
+            </article>
+            <article class="info">
+              <strong>3</strong>
+              <h3>토론 가능한 결과를 즉시 생성</h3>
+              <p>가격이 올라도 수요가 줄지 않는 지점, 반별 차이, 예외 응답을 바로 질문으로 바꿀 수 있습니다.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="slide" id="s3">
+        <div class="slide-inner two-col">
+          <div>
+            <p class="kicker">수업 진행 흐름</p>
+            <h2>설문 만들기부터 결과 해석까지 한 차시에 들어옵니다.</h2>
+            <div class="flow">
+              <div class="flow-item">
+                <div>
+                  <h3>교사가 상황과 가격 구간을 설정</h3>
+                  <p>가격 설명, 학급별 예산, 조사 상황을 수업 목표에 맞게 바꿉니다.</p>
+                </div>
+              </div>
+              <div class="flow-item">
+                <div>
+                  <h3>학생은 QR이나 링크로 접속해 구매량 입력</h3>
+                  <p>각자 배정된 가격 조건에 대해 몇 개를 살지 선택합니다.</p>
+                </div>
+              </div>
+              <div class="flow-item">
+                <div>
+                  <h3>교사는 반별·전체 수요곡선을 비교</h3>
+                  <p>응답자 수, 평균 구매량, 반별 필터를 활용해 즉시 분석합니다.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="screen-frame">
+            <img
+              class="screen"
+              src="presentation-assets/screen-setup.png"
+              alt="설문 세팅 실제 화면"
+            />
+            <div class="screen-caption">
+              <span>교사용 설문 세팅 화면</span>
+              <span class="badge green">수업 맞춤형</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="slide" id="s4">
+        <div class="slide-inner">
+          <p class="kicker">실제 수업 화면</p>
+          <h2>교사와 학생이 보는 핵심 화면입니다.</h2>
+          <div class="screen-grid">
+            <div class="screen-frame">
+              <img class="screen" src="presentation-assets/screen-dashboard.png" alt="대시보드 화면" />
+              <div class="screen-caption"><span>대시보드: 참여 현황과 학생 입장 QR</span></div>
+            </div>
+            <div class="screen-frame">
+              <img class="screen" src="presentation-assets/screen-student.png" alt="학생 응답 화면" />
+              <div class="screen-caption"><span>학생 화면: 예산 안에서 구매량 선택</span></div>
+            </div>
+            <div class="screen-frame">
+              <img class="screen" src="presentation-assets/screen-setup.png" alt="설문 세팅 화면" />
+              <div class="screen-caption"><span>설문 세팅: 상황·가격·예산 편집</span></div>
+            </div>
+            <div class="screen-frame">
+              <img class="screen" src="presentation-assets/screen-results.png" alt="결과 확인 화면" />
+              <div class="screen-caption"><span>결과 확인: 반별·전체 수요곡선</span></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="slide" id="s5">
+        <div class="slide-inner">
+          <p class="kicker">교육적 효과</p>
+          <h2>이 도구가 만드는 학습 경험</h2>
+          <div class="grid four">
+            <article class="info">
+              <span class="badge blue">개념 형성</span>
+              <h3>수요 법칙의 귀납적 이해</h3>
+              <p>가격과 구매량의 반대 방향 움직임을 학생 데이터에서 직접 발견합니다.</p>
+            </article>
+            <article class="info">
+              <span class="badge green">참여</span>
+              <h3>모든 학생이 데이터 생산자</h3>
+              <p>손을 드는 몇 명이 아니라 전체 학생의 선택이 수업 자료가 됩니다.</p>
+            </article>
+            <article class="info">
+              <span class="badge amber">분석</span>
+              <h3>그래프 해석과 근거 말하기</h3>
+              <p>평균, 분포, 반별 차이를 근거로 경제 현상을 설명하게 됩니다.</p>
+            </article>
+            <article class="info">
+              <span class="badge blue">전이</span>
+              <h3>현실 시장으로 연결</h3>
+              <p>대체재, 예산 제약, 선호 차이 같은 확장 질문으로 자연스럽게 이어집니다.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="slide" id="s6">
+        <div class="slide-inner two-col">
+          <div class="screen-frame">
+            <img
+              class="screen"
+              src="presentation-assets/screen-results.png"
+              alt="수요곡선 결과 화면"
+            />
+            <div class="screen-caption">
+              <span>응답 결과가 곧 그래프와 토론 질문이 됩니다.</span>
+            </div>
+          </div>
+          <div>
+            <p class="kicker">수업 대화 예시</p>
+            <div class="quote">
+              <h3>“왜 8,000원 구간에서는 수요가 크게 줄었는데, 12,000원에서는 덜 줄었을까?”</h3>
+              <p>
+                학생들은 그래프 모양을 읽고, 상황의 맥락·가격 인식·예산 제약을 근거로 설명합니다.
+                이때 경제 개념은 정답 암기가 아니라 해석의 언어가 됩니다.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="slide" id="s7">
+        <div class="slide-inner">
+          <p class="kicker">교사에게 어필할 포인트</p>
+          <h2>“준비는 짧고, 수업 데이터는 깊게 남습니다.”</h2>
+          <div class="grid three">
+            <article class="info">
+              <h3>수업 준비 부담 감소</h3>
+              <p>상품·가격 구간만 바꾸면 다른 학급, 다른 단원, 수행평가 도입 활동에도 재사용할 수 있습니다.</p>
+            </article>
+            <article class="info">
+              <h3>실시간 형성평가</h3>
+              <p>응답 수와 그래프를 보며 학생들이 가격-수량 관계를 어떻게 이해하는지 즉시 확인합니다.</p>
+            </article>
+            <article class="info">
+              <h3>학생 말문을 여는 자료</h3>
+              <p>교과서 예시보다 “우리 반 데이터”가 토론 참여의 심리적 거리를 훨씬 낮춥니다.</p>
+            </article>
+          </div>
+          <div class="note" style="margin-top: 18px">
+            <p>
+              추천 소개 문장: 경제 수요곡선을 학생들이 직접 만든 데이터로 관찰하고,
+              그 자리에서 그래프 해석과 시장 원리 토론까지 이어 주는 교실형 실험 도구입니다.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section class="slide" id="s8">
+        <div class="slide-inner">
+          <p class="kicker">45분 운영안</p>
+          <h2>바로 수업에 넣을 수 있는 진행안</h2>
+          <div class="lesson-plan">
+            <div class="lesson-row">
+              <div class="time">5분</div>
+              <div>
+                <h3>상황 제시</h3>
+                <p>오늘 조사할 상품과 가격 조건을 설명하고, “가격이 바뀌면 나는 얼마나 살까?”를 던집니다.</p>
+              </div>
+              <span class="badge blue">동기 유발</span>
+            </div>
+            <div class="lesson-row">
+              <div class="time">10분</div>
+              <div>
+                <h3>학생 응답</h3>
+                <p>QR로 접속해 학년·반·이름을 입력하고 각 상황별 구매량을 제출합니다.</p>
+              </div>
+              <span class="badge green">개별 선택</span>
+            </div>
+            <div class="lesson-row">
+              <div class="time">15분</div>
+              <div>
+                <h3>수요곡선 해석</h3>
+                <p>반 평균과 전체 평균을 비교하며 수요 법칙, 예외 지점, 가격 민감도를 묻습니다.</p>
+              </div>
+              <span class="badge amber">자료 해석</span>
+            </div>
+            <div class="lesson-row">
+              <div class="time">15분</div>
+              <div>
+                <h3>개념 정리와 확장</h3>
+                <p>수요, 수요량, 수요곡선, 예산 제약을 정리하고 대체재·보완재 질문으로 확장합니다.</p>
+              </div>
+              <span class="badge blue">개념화</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="slide" id="s9">
+        <div class="slide-inner">
+          <p class="kicker">마무리 메시지</p>
+          <div class="teacher-line">
+            이 도구의 핵심은 “학생을 설문 대상”으로 두는 것이 아니라,
+            “학생을 시장 데이터의 생산자이자 해석자”로 세우는 데 있습니다.
+          </div>
+          <p class="lead" style="margin-top: 26px">
+            그래서 경제 개념은 칠판 위 정의에 머물지 않고, 우리 반의 선택과 그래프,
+            그리고 학생들의 설명 속에서 살아 움직입니다.
+          </p>
+        </div>
+      </section>
+    </main>
+
+    <div class="footer">← → 키로 이동 · 브라우저 인쇄에서 PDF 저장 가능</div>
+
+    <script>
+      const slides = [...document.querySelectorAll(".slide")];
+
+      function currentIndex() {
+        const middle = window.scrollY + window.innerHeight / 2;
+        return slides.findIndex((slide) => {
+          const top = slide.offsetTop;
+          const bottom = top + slide.offsetHeight;
+          return middle >= top && middle < bottom;
+        });
+      }
+
+      window.addEventListener("keydown", (event) => {
+        const index = currentIndex();
+        if (event.key === "ArrowRight" || event.key === "PageDown") {
+          slides[Math.min(slides.length - 1, index + 1)].scrollIntoView();
+        }
+        if (event.key === "ArrowLeft" || event.key === "PageUp") {
+          slides[Math.max(0, index - 1)].scrollIntoView();
+        }
+      });
+    </script>
+  </body>
+</html>

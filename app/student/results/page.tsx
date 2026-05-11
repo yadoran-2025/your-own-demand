@@ -6,7 +6,6 @@ import { DemandChart } from "@/components/DemandChart";
 import {
   DemandMetricToggle,
   DemandScopeToggle,
-  SituationTabs,
 } from "@/components/ResultControls";
 import { RoomBadge, RoomGate } from "@/components/RoomGate";
 import { buildDemandData } from "@/lib/aggregation";
@@ -72,21 +71,17 @@ export default function StudentResultsPage() {
   const [surveys, setSurveys] = useState<Survey[]>([]);
   const [responses, setResponses] = useState<StudentResponse[]>([]);
   const [selectedSurveyId, setSelectedSurveyId] = useState("");
-  const [selectedProductId, setSelectedProductId] = useState("");
   const [filter, setFilter] = useState<FilterState>({
     grade: "all",
     classNumber: "all",
   });
-  const [scope, setScope] = useState<DemandScope>("class");
+  const [scope, setScope] = useState<DemandScope>("personal");
   const [metric, setMetric] = useState<DemandMetric>("total");
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
 
   const selectedSurvey =
     surveys.find((survey) => survey.id === selectedSurveyId) ?? surveys[0];
-  const selectedProduct =
-    selectedSurvey?.products.find((product) => product.id === selectedProductId) ??
-    selectedSurvey?.products[0];
 
   const loadSurveys = useCallback(async () => {
     if (!roomName) {
@@ -111,7 +106,6 @@ export default function StudentResultsPage() {
 
       setSurveys(nextSurveys);
       setSelectedSurveyId(nextSurvey?.id ?? "");
-      setSelectedProductId(nextSurvey?.products[0]?.id ?? "");
       setFilter({
         grade: nextGrade,
         classNumber: nextClassNumber,
@@ -146,38 +140,42 @@ export default function StudentResultsPage() {
     void loadResponses(selectedSurvey?.id ?? "");
   }, [loadResponses, selectedSurvey?.id]);
 
-  const demandData = useMemo(
+  const productCharts = useMemo(
     () => {
-      if (!selectedProduct) {
+      if (!selectedSurvey) {
         return [];
       }
 
       const storedProfile = readStoredStudentResultProfile();
       const personalResponse = findPersonalResponse(responses, storedProfile);
 
-      return addPersonalDemand(
-        buildDemandData(selectedProduct, responses, filter),
-        personalResponse,
-        selectedProduct.id,
-      );
+      return selectedSurvey.products.map((product, index) => {
+        const data = addPersonalDemand(
+          buildDemandData(product, responses, filter),
+          personalResponse,
+          product.id,
+        );
+        const hasPersonalDemand = data.some(
+          (point) => typeof point.personalQuantity === "number",
+        );
+        const respondentCount =
+          scope === "personal"
+            ? hasPersonalDemand
+              ? 1
+              : 0
+            : scope === "class"
+              ? data.reduce((sum, point) => sum + point.classCount, 0)
+              : data.reduce((sum, point) => sum + point.overallCount, 0);
+
+        return {
+          data,
+          respondentCount,
+          situationNumber: index + 1,
+        };
+      });
     },
-    [filter, responses, selectedProduct],
+    [filter, responses, scope, selectedSurvey],
   );
-  const selectedProductIndex = selectedSurvey?.products.findIndex(
-    (product) => product.id === selectedProduct?.id,
-  ) ?? -1;
-  const situationNumber = selectedProductIndex >= 0 ? selectedProductIndex + 1 : 1;
-  const hasPersonalDemand = demandData.some(
-    (point) => typeof point.personalQuantity === "number",
-  );
-  const respondentCount =
-    scope === "personal"
-      ? hasPersonalDemand
-        ? 1
-        : 0
-      : scope === "class"
-        ? demandData.reduce((sum, point) => sum + point.classCount, 0)
-        : demandData.reduce((sum, point) => sum + point.overallCount, 0);
 
   return (
     <RoomGate
@@ -239,11 +237,7 @@ export default function StudentResultsPage() {
                   className="input"
                   value={selectedSurvey?.id ?? ""}
                   onChange={(event) => {
-                    const nextSurvey = surveys.find(
-                      (survey) => survey.id === event.target.value,
-                    );
                     setSelectedSurveyId(event.target.value);
-                    setSelectedProductId(nextSurvey?.products[0]?.id ?? "");
                   }}
                 >
                   {surveys.map((survey) => (
@@ -256,15 +250,7 @@ export default function StudentResultsPage() {
             </div>
           </section>
 
-          {selectedSurvey ? (
-            <SituationTabs
-              products={selectedSurvey.products}
-              selectedProductId={selectedProduct?.id}
-              onSelect={setSelectedProductId}
-            />
-          ) : null}
-
-          {selectedProduct ? (
+          {selectedSurvey?.products.length ? (
             <>
               <div className="demand-controls-row">
                 {scope !== "personal" ? (
@@ -276,13 +262,18 @@ export default function StudentResultsPage() {
                   onChange={setScope}
                 />
               </div>
-              <DemandChart
-                data={demandData}
-                metric={metric}
-                respondentCount={respondentCount}
-                scope={scope}
-                situationNumber={situationNumber}
-              />
+              <div className="student-chart-stack">
+                {productCharts.map((chart) => (
+                  <DemandChart
+                    data={chart.data}
+                    key={chart.situationNumber}
+                    metric={metric}
+                    respondentCount={chart.respondentCount}
+                    scope={scope}
+                    situationNumber={chart.situationNumber}
+                  />
+                ))}
+              </div>
             </>
           ) : (
             <section className="teacher-card empty-state">

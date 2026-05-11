@@ -1256,6 +1256,11 @@ select {
   margin-bottom: 0;
 }
 
+.student-chart-stack {
+  display: grid;
+  gap: 1rem;
+}
+
 .demand-scope-toggle {
   display: inline-flex;
   gap: 0.25rem;
@@ -1378,6 +1383,92 @@ select {
 .demand-point-core {
   filter: drop-shadow(0 2px 4px rgba(37, 99, 235, 0.22));
   transition: r 150ms ease;
+}
+
+.demand-personal-absorb-line {
+  animation: demandPersonalLineAbsorb 900ms ease both;
+  pointer-events: none;
+}
+
+.demand-absorbing-dot {
+  animation: demandPointAbsorb 880ms cubic-bezier(0.2, 0.86, 0.24, 1) both;
+  animation-delay: var(--absorb-delay);
+  pointer-events: none;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.demand-absorbing-halo {
+  animation: demandPointHaloAbsorb 880ms ease both;
+  animation-delay: var(--absorb-delay);
+  fill: rgba(249, 115, 22, 0.14);
+  stroke: rgba(249, 115, 22, 0.34);
+  stroke-width: 1.5;
+}
+
+.demand-absorbing-core {
+  fill: #f97316;
+  filter: drop-shadow(0 2px 5px rgba(249, 115, 22, 0.28));
+  stroke: #ffffff;
+  stroke-width: 2;
+}
+
+@keyframes demandPersonalLineAbsorb {
+  0% {
+    opacity: 0.88;
+    stroke-dasharray: 1 0;
+  }
+
+  58% {
+    opacity: 0.42;
+  }
+
+  100% {
+    opacity: 0;
+    stroke-dasharray: 0 18;
+  }
+}
+
+@keyframes demandPointAbsorb {
+  0% {
+    opacity: 1;
+    transform: translateX(var(--absorb-x)) scale(1.35);
+  }
+
+  62% {
+    opacity: 0.95;
+    transform: translateX(0) scale(1);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateX(0) scale(0.36);
+  }
+}
+
+@keyframes demandPointHaloAbsorb {
+  0% {
+    opacity: 0.7;
+    transform: scale(1.4);
+  }
+
+  70% {
+    opacity: 0.24;
+    transform: scale(0.86);
+  }
+
+  100% {
+    opacity: 0;
+    transform: scale(0.2);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .demand-personal-absorb-line,
+  .demand-absorbing-dot,
+  .demand-absorbing-halo {
+    animation: none;
+  }
 }
 
 .demand-tooltip {

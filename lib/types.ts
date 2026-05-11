@@ -68,6 +68,11 @@ export type SurveyDraft = {
 
 export type QuantityMap = Record<string, number>;
 
+export type ReservedAssignment = {
+  product_id: string;
+  price_point_id: string;
+};
+
 export type FilterState = {
   grade: string;
   classNumber: string;

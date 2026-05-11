@@ -1,9 +1,17 @@
 ﻿"use client";
 
 import { supabase } from "./supabase";
+import {
+  buildAssignmentSeed,
+  buildAssignmentStorageKey,
+  buildBalancedAssignments,
+  hasCompleteAssignments,
+  type AssignmentMap,
+} from "./assignments";
 import type {
   ClassBudget,
   QuantityMap,
+  ReservedAssignment,
   StudentProfile,
   StudentResponse,
   Survey,
@@ -60,6 +68,8 @@ type DbResponse = {
     quantity: number;
   }>;
 };
+
+type ReservedAssignmentRow = ReservedAssignment;
 
 export const hasRemoteDatabase = Boolean(supabase);
 
@@ -657,6 +667,92 @@ export async function fetchResponses(surveyId: string, slim = false): Promise<St
   return (data ?? []) as DbResponse[];
 }
 
+function normalizeAssignmentProfile(profile: StudentProfile): StudentProfile {
+  return {
+    grade: Math.max(1, Math.round(Number(profile.grade))),
+    class_number: Math.max(1, Math.round(Number(profile.class_number))),
+    student_number: 1,
+    student_name: profile.student_name.trim(),
+  };
+}
+
+export async function reserveAssignments(
+  survey: Survey,
+  profile: StudentProfile,
+): Promise<AssignmentMap> {
+  const cleanProfile = normalizeAssignmentProfile(profile);
+
+  if (!cleanProfile.student_name) {
+    throw new Error("학생 이름을 입력해 주세요.");
+  }
+
+  if (!supabase) {
+    const storageKey = buildAssignmentStorageKey(survey.id, cleanProfile);
+    const stored =
+      typeof window === "undefined" ? null : window.localStorage.getItem(storageKey);
+    const storedAssignments = stored ? (JSON.parse(stored) as AssignmentMap) : null;
+
+    if (storedAssignments && hasCompleteAssignments(survey, storedAssignments)) {
+      return storedAssignments;
+    }
+
+    const responses = readLocal<StudentResponse[]>(RESPONSES_KEY, []).filter(
+      (response) => response.survey_id === survey.id,
+    );
+    const nextAssignments = buildBalancedAssignments(
+      survey,
+      responses,
+      buildAssignmentSeed(survey.id, cleanProfile),
+    );
+
+    if (typeof window !== "undefined") {
+      window.localStorage.setItem(storageKey, JSON.stringify(nextAssignments));
+    }
+
+    return nextAssignments;
+  }
+
+  const { data, error } = await supabase.rpc("reserve_balanced_assignments", {
+    target_class_number: cleanProfile.class_number,
+    target_grade: cleanProfile.grade,
+    target_student_name: cleanProfile.student_name,
+    target_survey_id: survey.id,
+  });
+
+  if (error) {
+    throw error;
+  }
+
+  return Object.fromEntries(
+    ((data ?? []) as ReservedAssignmentRow[]).map((row) => [
+      row.product_id,
+      row.price_point_id,
+    ]),
+  );
+}
+
+export async function consumeAssignmentReservations(
+  surveyId: string,
+  profile: StudentProfile,
+) {
+  if (!supabase) {
+    return;
+  }
+
+  const cleanProfile = normalizeAssignmentProfile(profile);
+
+  const { error } = await supabase.rpc("consume_assignment_reservations", {
+    target_class_number: cleanProfile.class_number,
+    target_grade: cleanProfile.grade,
+    target_student_name: cleanProfile.student_name,
+    target_survey_id: surveyId,
+  });
+
+  if (error) {
+    throw error;
+  }
+}
+
 export async function submitResponse(
   survey: Survey,
   profile: StudentProfile,
@@ -735,5 +831,11 @@ export async function submitResponse(
 
   if (itemError) {
     throw itemError;
+  }
+
+  try {
+    await consumeAssignmentReservations(survey.id, profile);
+  } catch (error) {
+    console.warn("Failed to consume assignment reservations", error);
   }
 }

@@ -1,7 +1,10 @@
 "use client";
 
 import {
+  useEffect,
+  useRef,
   useState,
+  type CSSProperties,
   type MouseEvent,
   type TouchEvent,
 } from "react";
@@ -29,6 +32,7 @@ type DemandChartProps = {
 type DemandPointDotRenderProps = {
   cx?: number;
   cy?: number;
+  index?: number;
   payload?: DemandPoint;
 };
 
@@ -36,6 +40,14 @@ type TooltipPayload = {
   payload: DemandPoint;
   dataKey?: string;
   value?: number;
+};
+
+type ChartPointerState = {
+  activeCoordinate?: {
+    x?: number;
+    y?: number;
+  };
+  activePayload?: TooltipPayload[];
 };
 
 type PointDetails = {
@@ -112,6 +124,22 @@ function getPointDetails(
     rows: isClassScope ? point.classRespondents : point.overallRespondents,
     value,
   };
+}
+
+function getDemandValue(
+  point: DemandPoint,
+  scope: DemandScope,
+  metric: DemandMetric,
+) {
+  if (scope === "personal") {
+    return point.personalQuantity ?? 0;
+  }
+
+  if (metric === "average") {
+    return scope === "school" ? point.overallAverage : point.classAverage;
+  }
+
+  return scope === "school" ? point.overallTotal : point.classTotal;
 }
 
 function DemandTooltip({
@@ -206,7 +234,8 @@ function DemandPointDot({
   metric,
   scope,
   selected,
-  onSelect,
+  onMouseSelect,
+  onTouchSelect,
 }: {
   cx?: number;
   cy?: number;
@@ -214,7 +243,8 @@ function DemandPointDot({
   metric: DemandMetric;
   scope: DemandScope;
   selected: boolean;
-  onSelect: (point: DemandPoint, x: number, y: number) => void;
+  onMouseSelect: (point: DemandPoint, x: number, y: number) => void;
+  onTouchSelect: (point: DemandPoint, x: number, y: number) => void;
 }) {
   if (typeof cx !== "number" || typeof cy !== "number" || !payload) {
     return null;
@@ -234,10 +264,11 @@ function DemandPointDot({
   const handleTouch = (event: TouchEvent<SVGGElement>) => {
     event.preventDefault();
     event.stopPropagation();
-    onSelect(payload, cx, cy);
+    onTouchSelect(payload, cx, cy);
   };
   const handleClick = (event: MouseEvent<SVGGElement>) => {
     event.stopPropagation();
+    onMouseSelect(payload, cx, cy);
   };
 
   return (
@@ -262,6 +293,49 @@ function DemandPointDot({
   );
 }
 
+function AbsorbingDemandPointDot({
+  absorptionKey,
+  cx,
+  cy,
+  index = 0,
+  payload,
+  xOffset,
+}: {
+  absorptionKey: number;
+  cx?: number;
+  cy?: number;
+  index?: number;
+  payload?: DemandPoint;
+  xOffset: number;
+}) {
+  if (
+    typeof cx !== "number" ||
+    typeof cy !== "number" ||
+    !payload ||
+    typeof payload.personalQuantity !== "number"
+  ) {
+    return null;
+  }
+
+  const style = {
+    "--absorb-delay": `${Math.min(index, 8) * 55}ms`,
+    "--absorb-x": `${xOffset}px`,
+  } as CSSProperties;
+
+  return (
+    <g transform={`translate(${cx}, ${cy})`}>
+      <g
+        className="demand-absorbing-dot"
+        data-absorb-key={absorptionKey}
+        style={style}
+      >
+        <circle className="demand-absorbing-halo" r={14} />
+        <circle className="demand-absorbing-core" r={5.5} />
+      </g>
+    </g>
+  );
+}
+
 export function DemandChart({
   data,
   metric,
@@ -270,7 +344,56 @@ export function DemandChart({
   situationNumber,
 }: DemandChartProps) {
   const [interactionMode, setInteractionMode] = useState<"mouse" | "touch">("mouse");
+  const [pinnedPopup, setPinnedPopup] = useState<TouchPopup | null>(null);
   const [touchPopup, setTouchPopup] = useState<TouchPopup | null>(null);
+  const [absorptionKey, setAbsorptionKey] = useState(0);
+  const [isAbsorbing, setIsAbsorbing] = useState(false);
+  const [chartWidth, setChartWidth] = useState(0);
+  const canvasRef = useRef<HTMLDivElement | null>(null);
+  const previousScopeRef = useRef(scope);
+
+  const hasPersonalDemand = data.some(
+    (point) => typeof point.personalQuantity === "number",
+  );
+
+  useEffect(() => {
+    setPinnedPopup(null);
+    setTouchPopup(null);
+  }, [data, metric, scope, situationNumber]);
+
+  useEffect(() => {
+    const element = canvasRef.current;
+
+    if (!element) {
+      return;
+    }
+
+    const updateWidth = () => setChartWidth(element.clientWidth);
+    updateWidth();
+
+    const observer = new ResizeObserver(updateWidth);
+    observer.observe(element);
+
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    const previousScope = previousScopeRef.current;
+    previousScopeRef.current = scope;
+
+    if (previousScope !== "personal" || scope === "personal" || !hasPersonalDemand) {
+      return;
+    }
+
+    setAbsorptionKey((current) => current + 1);
+    setIsAbsorbing(true);
+
+    const timeoutId = window.setTimeout(() => {
+      setIsAbsorbing(false);
+    }, 980);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [hasPersonalDemand, scope]);
 
   if (!data.length) {
     return (
@@ -280,10 +403,6 @@ export function DemandChart({
       </section>
     );
   }
-
-  const hasPersonalDemand = data.some(
-    (point) => typeof point.personalQuantity === "number",
-  );
 
   if (scope === "personal" && !hasPersonalDemand) {
     return (
@@ -313,6 +432,29 @@ export function DemandChart({
   const lineStroke =
     scope === "class" ? "var(--color-primary)" : "var(--color-text-secondary)";
   const isPersonalScope = scope === "personal";
+  const maxVisibleValue = Math.max(
+    0,
+    ...data.map((point) => getDemandValue(point, scope, metric)),
+    ...data.map((point) => point.personalQuantity ?? 0),
+  );
+  const plotWidth = Math.max(chartWidth - 136, 240);
+  const pixelsPerUnit = plotWidth / Math.max(maxVisibleValue + 1, 1);
+  const getAbsorbOffset = (point: DemandPoint) => {
+    if (typeof point.personalQuantity !== "number") {
+      return 0;
+    }
+
+    const rawOffset =
+      (point.personalQuantity - getDemandValue(point, scope, metric)) *
+      pixelsPerUnit;
+
+    return Math.max(-220, Math.min(220, rawOffset));
+  };
+  const pinPoint = (point: DemandPoint, x: number, y: number) => {
+    setInteractionMode("mouse");
+    setTouchPopup(null);
+    setPinnedPopup({ point, x: x + 14, y: y + 14 });
+  };
 
   return (
     <section className="teacher-card chart-card">
@@ -327,17 +469,41 @@ export function DemandChart({
           </div>
         </div>
       </div>
-      <div className="chart-canvas">
+      <div className="chart-canvas" ref={canvasRef}>
         <ResponsiveContainer height="100%" width="100%">
           <LineChart
             data={data}
             layout="vertical"
             margin={{ bottom: 24, left: 24, right: 28, top: 16 }}
+            onClick={(state: unknown) => {
+              if (isPersonalScope) {
+                return;
+              }
+
+              const chartState = state as ChartPointerState;
+              const point = chartState.activePayload?.find(
+                (item) => item.dataKey === lineKey,
+              )?.payload;
+              const coordinate = chartState.activeCoordinate;
+
+              if (
+                !point ||
+                typeof coordinate?.x !== "number" ||
+                typeof coordinate.y !== "number"
+              ) {
+                return;
+              }
+
+              pinPoint(point, coordinate.x, coordinate.y);
+            }}
             onMouseMove={() => {
               setInteractionMode("mouse");
               setTouchPopup(null);
             }}
-            onTouchStart={() => setInteractionMode("touch")}
+            onTouchStart={() => {
+              setInteractionMode("touch");
+              setPinnedPopup(null);
+            }}
           >
             <CartesianGrid stroke="var(--color-border)" strokeDasharray="4 4" />
             <XAxis
@@ -366,30 +532,64 @@ export function DemandChart({
               content={
                 <DemandTooltip
                   metric={metric}
-                  mode={interactionMode}
+                  mode={pinnedPopup ? "touch" : interactionMode}
                   scope={scope}
                 />
               }
             />
             <Legend verticalAlign="top" />
+            {isAbsorbing && !isPersonalScope ? (
+              <Line
+                className="demand-personal-absorb-line"
+                connectNulls={false}
+                dataKey="personalQuantity"
+                dot={false}
+                isAnimationActive={false}
+                legendType="none"
+                stroke="#f97316"
+                strokeWidth={3}
+                type="monotone"
+              />
+            ) : null}
             {!isPersonalScope ? (
               <Line
-                activeDot={{ r: 7, fill: "var(--color-primary)", stroke: "#ffffff", strokeWidth: 2 }}
+                activeDot={{
+                  r: 7,
+                  fill: "var(--color-primary)",
+                  stroke: "#ffffff",
+                  strokeWidth: 2,
+                  style: { pointerEvents: "none" },
+                }}
                 dataKey={lineKey}
                 dot={(dotProps) => {
                   const pointDotProps = dotProps as DemandPointDotRenderProps;
 
+                  if (isAbsorbing) {
+                    return (
+                      <AbsorbingDemandPointDot
+                        {...pointDotProps}
+                        absorptionKey={absorptionKey}
+                        xOffset={
+                          pointDotProps.payload
+                            ? getAbsorbOffset(pointDotProps.payload)
+                            : 0
+                        }
+                      />
+                    );
+                  }
+
                   return (
                     <DemandPointDot
                       {...pointDotProps}
-                      onSelect={(point, x, y) =>
+                      onMouseSelect={pinPoint}
+                      onTouchSelect={(point, x, y) =>
                         setTouchPopup({ point, x: x + 14, y: y + 14 })
                       }
                       metric={metric}
                       scope={scope}
                       selected={
                         pointDotProps.payload?.pricePointId ===
-                        touchPopup?.point.pricePointId
+                        (pinnedPopup ?? touchPopup)?.point.pricePointId
                       }
                     />
                   );
@@ -429,6 +629,14 @@ export function DemandChart({
             metric={metric}
             onClose={() => setTouchPopup(null)}
             popup={touchPopup}
+            scope={scope}
+          />
+        ) : null}
+        {pinnedPopup ? (
+          <DemandTouchPopup
+            metric={metric}
+            onClose={() => setPinnedPopup(null)}
+            popup={pinnedPopup}
             scope={scope}
           />
         ) : null}

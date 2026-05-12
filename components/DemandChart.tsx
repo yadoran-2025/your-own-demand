@@ -18,6 +18,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import { createPortal } from "react-dom";
 import type { DemandMetric, DemandPoint, DemandScope } from "@/lib/types";
 import { formatWon } from "@/lib/utils";
 
@@ -58,10 +59,48 @@ type PointDetails = {
 };
 
 type TouchPopup = {
+  placement: "above" | "below";
   point: DemandPoint;
   x: number;
   y: number;
 };
+
+const TOUCH_TOOLTIP_WIDTH = 304;
+const TOUCH_TOOLTIP_ESTIMATED_HEIGHT = 260;
+const TOUCH_TOOLTIP_MARGIN = 16;
+const TOUCH_TOOLTIP_OFFSET = 14;
+
+function getPopupPosition(anchorX: number, anchorY: number) {
+  if (typeof window === "undefined") {
+    return { placement: "below" as const, x: anchorX, y: anchorY };
+  }
+
+  const halfWidth = TOUCH_TOOLTIP_WIDTH / 2;
+  const x = Math.min(
+    window.innerWidth - halfWidth - TOUCH_TOOLTIP_MARGIN,
+    Math.max(halfWidth + TOUCH_TOOLTIP_MARGIN, anchorX),
+  );
+  const hasEnoughSpaceBelow =
+    anchorY + TOUCH_TOOLTIP_OFFSET + TOUCH_TOOLTIP_ESTIMATED_HEIGHT <=
+    window.innerHeight - TOUCH_TOOLTIP_MARGIN;
+
+  if (hasEnoughSpaceBelow) {
+    return {
+      placement: "below" as const,
+      x,
+      y: Math.max(TOUCH_TOOLTIP_MARGIN, anchorY + TOUCH_TOOLTIP_OFFSET),
+    };
+  }
+
+  return {
+    placement: "above" as const,
+    x,
+    y: Math.min(
+      window.innerHeight - TOUCH_TOOLTIP_MARGIN,
+      Math.max(TOUCH_TOOLTIP_MARGIN, anchorY - TOUCH_TOOLTIP_OFFSET),
+    ),
+  };
+}
 
 function RespondentRows({
   count,
@@ -202,11 +241,20 @@ function DemandTouchPopup({
   onClose: () => void;
 }) {
   const details = getPointDetails(popup.point, scope, metric);
+  const popupStyle = {
+    left: popup.x,
+    maxHeight:
+      popup.placement === "above"
+        ? `calc(${popup.y}px - ${TOUCH_TOOLTIP_MARGIN}px)`
+        : `calc(100vh - ${popup.y}px - ${TOUCH_TOOLTIP_MARGIN}px)`,
+    top: popup.y,
+  };
 
-  return (
+  const content = (
     <div
       className="demand-tooltip demand-touch-tooltip"
-      style={{ left: popup.x, top: popup.y }}
+      data-placement={popup.placement}
+      style={popupStyle}
     >
       <button
         aria-label="가격 정보 닫기"
@@ -225,6 +273,12 @@ function DemandTouchPopup({
       />
     </div>
   );
+
+  if (typeof document === "undefined") {
+    return null;
+  }
+
+  return createPortal(content, document.body);
 }
 
 function DemandPointDot({
@@ -243,8 +297,8 @@ function DemandPointDot({
   metric: DemandMetric;
   scope: DemandScope;
   selected: boolean;
-  onMouseSelect: (point: DemandPoint, x: number, y: number) => void;
-  onTouchSelect: (point: DemandPoint, x: number, y: number) => void;
+  onMouseSelect: (point: DemandPoint, clientX: number, clientY: number) => void;
+  onTouchSelect: (point: DemandPoint, clientX: number, clientY: number) => void;
 }) {
   if (typeof cx !== "number" || typeof cy !== "number" || !payload) {
     return null;
@@ -264,11 +318,15 @@ function DemandPointDot({
   const handleTouch = (event: TouchEvent<SVGGElement>) => {
     event.preventDefault();
     event.stopPropagation();
-    onTouchSelect(payload, cx, cy);
+    const touch = event.changedTouches[0] ?? event.touches[0];
+
+    if (touch) {
+      onTouchSelect(payload, touch.clientX, touch.clientY);
+    }
   };
   const handleClick = (event: MouseEvent<SVGGElement>) => {
     event.stopPropagation();
-    onMouseSelect(payload, cx, cy);
+    onMouseSelect(payload, event.clientX, event.clientY);
   };
 
   return (
@@ -450,10 +508,27 @@ export function DemandChart({
 
     return Math.max(-220, Math.min(220, rawOffset));
   };
-  const pinPoint = (point: DemandPoint, x: number, y: number) => {
+  const getViewportPopupPosition = (x: number, y: number) => {
+    const rect = canvasRef.current?.getBoundingClientRect();
+
+    if (!rect) {
+      return getPopupPosition(x, y);
+    }
+
+    return getPopupPosition(rect.left + x, rect.top + y);
+  };
+  const pinPointAtViewport = (point: DemandPoint, clientX: number, clientY: number) => {
     setInteractionMode("mouse");
     setTouchPopup(null);
-    setPinnedPopup({ point, x: x + 14, y: y + 14 });
+    setPinnedPopup({
+      point,
+      ...getPopupPosition(clientX, clientY),
+    });
+  };
+  const pinPointFromChart = (point: DemandPoint, x: number, y: number) => {
+    setInteractionMode("mouse");
+    setTouchPopup(null);
+    setPinnedPopup({ point, ...getViewportPopupPosition(x, y) });
   };
 
   return (
@@ -494,7 +569,7 @@ export function DemandChart({
                 return;
               }
 
-              pinPoint(point, coordinate.x, coordinate.y);
+              pinPointFromChart(point, coordinate.x, coordinate.y);
             }}
             onMouseMove={() => {
               setInteractionMode("mouse");
@@ -578,12 +653,15 @@ export function DemandChart({
                     );
                   }
 
-                  return (
+                      return (
                     <DemandPointDot
                       {...pointDotProps}
-                      onMouseSelect={pinPoint}
+                      onMouseSelect={pinPointAtViewport}
                       onTouchSelect={(point, x, y) =>
-                        setTouchPopup({ point, x: x + 14, y: y + 14 })
+                        setTouchPopup({
+                          point,
+                          ...getPopupPosition(x, y),
+                        })
                       }
                       metric={metric}
                       scope={scope}

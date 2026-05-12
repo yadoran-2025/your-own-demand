@@ -27,6 +27,9 @@ import {
 } from "@/lib/roomName";
 import type { StudentResponse, Survey } from "@/lib/types";
 
+const ERROR_REPORT_URL =
+  "https://docs.google.com/spreadsheets/d/e/2PACX-1vRqcg9kXgh8lcmeTO9xwQJKjqSQt6IotKtDHEbxj0YOpQ1V_TC3xSA3YoB4lcIr01g2FoiNapJfI8Wg/pubhtml?gid=645775367&single=true";
+
 function formatRelativeTime(value: string) {
   const created = new Date(value).getTime();
   const diffMinutes = Math.max(1, Math.round((Date.now() - created) / 60000));
@@ -162,7 +165,20 @@ export default function TeacherPage() {
     >
       <TeacherShell active="dashboard" roomName={roomName}>
         <TeacherPageHeader
-          actions={<RoomBadge roomName={roomName} onReset={() => setRoomName("")} />}
+          actions={
+            <>
+              <Link
+                className="error-report-button compact-button"
+                href={ERROR_REPORT_URL}
+                rel="noopener noreferrer"
+                target="_blank"
+              >
+                <ExternalLink size={16} />
+                오류 기재
+              </Link>
+              <RoomBadge roomName={roomName} onReset={() => setRoomName("")} />
+            </>
+          }
           description="설문을 준비하고 실시간 응답 결과를 확인하세요."
           title="우리들의 수요-공급 곡선은?"
         />

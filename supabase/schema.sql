@@ -231,7 +231,11 @@ begin
       with submitted_counts as (
         select ri.price_point_id, count(*)::integer as response_count
         from public.response_items ri
+        join public.responses r on r.id = ri.response_id
         where ri.product_id = current_product.id
+          and r.survey_id = target_survey_id
+          and r.grade = target_grade
+          and r.class_number = target_class_number
         group by ri.price_point_id
       ),
       reservation_counts as (
@@ -239,6 +243,8 @@ begin
         from public.assignment_reservations ar
         where ar.survey_id = target_survey_id
           and ar.product_id = current_product.id
+          and ar.grade = target_grade
+          and ar.class_number = target_class_number
           and ar.consumed_at is null
           and ar.expires_at > now()
         group by ar.price_point_id

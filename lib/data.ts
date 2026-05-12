@@ -697,7 +697,10 @@ export async function reserveAssignments(
     }
 
     const responses = readLocal<StudentResponse[]>(RESPONSES_KEY, []).filter(
-      (response) => response.survey_id === survey.id,
+      (response) =>
+        response.survey_id === survey.id &&
+        response.grade === cleanProfile.grade &&
+        response.class_number === cleanProfile.class_number,
     );
     const nextAssignments = buildBalancedAssignments(
       survey,

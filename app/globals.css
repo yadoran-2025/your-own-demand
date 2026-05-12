@@ -346,6 +346,25 @@ select {
   font-weight: var(--weight-extrabold);
 }
 
+.error-report-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border: 1.5px solid color-mix(in srgb, var(--color-warn-text, #e67700) 42%, white);
+  background: var(--color-warn-bg, #fff9db);
+  color: var(--color-warn-text, #e67700);
+  text-decoration: none;
+  box-shadow: var(--shadow-sm);
+  transition: background 150ms ease, border-color 150ms ease, transform 150ms ease;
+}
+
+.error-report-button:hover {
+  background: color-mix(in srgb, var(--color-warn-bg, #fff9db) 72%, white);
+  border-color: var(--color-warn-text, #e67700);
+  transform: translateY(-1px);
+}
+
 .danger-button {
   display: inline-flex;
   min-height: 2.125rem;
@@ -1483,11 +1502,20 @@ select {
 }
 
 .demand-touch-tooltip {
-  position: absolute;
-  z-index: 4;
+  position: fixed;
+  z-index: 1000;
   width: min(19rem, calc(100% - 2rem));
   max-width: 19rem;
+  overflow: hidden;
   transform: translate(-50%, 0);
+}
+
+.demand-touch-tooltip[data-placement="above"] {
+  transform: translate(-50%, -100%);
+}
+
+.demand-touch-tooltip .tooltip-student-rows {
+  max-height: min(14rem, calc(100vh - 12rem));
 }
 
 .demand-touch-close {

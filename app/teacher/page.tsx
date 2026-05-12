@@ -19,7 +19,12 @@ import {
   TeacherPageHeader,
   TeacherShell,
 } from "@/components/TeacherShell";
-import { fetchResponses, fetchSurveys, hasRemoteDatabase } from "@/lib/data";
+import {
+  ensureRoomHasDefaultSurveys,
+  fetchResponses,
+  fetchSurveys,
+  hasRemoteDatabase,
+} from "@/lib/data";
 import {
   buildStudentPath,
   TEACHER_ROOM_KEY,
@@ -65,6 +70,7 @@ export default function TeacherPage() {
 
     setLoading(true);
     try {
+      await ensureRoomHasDefaultSurveys(roomName);
       const nextSurveys = await fetchSurveys(roomName, true);
       setSurveys(nextSurveys);
 

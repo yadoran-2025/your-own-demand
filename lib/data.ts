@@ -164,26 +164,28 @@ export function createDefaultDraft(): SurveyDraft {
       {
         name: "아침을 먹지 않고 나왔는데 뚜레쥬르에서 갓 구운 빵의 향이 난다.",
         pricePoints: [
-          { description: "소형 빵 1개", price: 2000 },
-          { description: "소형 빵 2개 묶음", price: 4000 },
-          { description: "샌드위치와 음료 세트", price: 8000 },
-          { description: "프리미엄 브런치 세트", price: 12000 },
+          { description: "사장님이 미쳤어요, 빵 한 개당 500원", price: 500 },
+          { description: "빵 1+1 이벤트로, 개당 가격이 1000원", price: 1000 },
+          { description: "갓 구운 빵이 개당 2000원", price: 2000 },
+          { description: "밀가루 가격 실화..? 빵 한 개당 가격이", price: 4000 },
         ],
       },
       {
-        name: "체육대회가 끝나고 목이 마른데 편의점 앞 냉장고에 차가운 음료가 보인다.",
+        name: "학교 끝나고 달달한 게 땡기는데 보인 메가커피,",
         pricePoints: [
-          { description: "소형 캔", price: 1000 },
-          { description: "중형 페트병", price: 1800 },
-          { description: "대형 페트병", price: 3000 },
+          { description: "신메뉴 출시 이벤트, 팥빙수가 1000원!", price: 1000 },
+          { description: "고객 감사 이벤트, 팥빙수가 2300원!", price: 2300 },
+          { description: "팥빙수 하나에 4300원", price: 4300 },
+          { description: "팥 가격이 비싸져서 7000원", price: 7000 },
         ],
       },
       {
-        name: "점심시간이 짧은 날, 학교 매점에 바로 먹을 수 있는 간식이 놓여 있다.",
+        name: "학원이 끝나고 너무 배가 고픈데 발견한 kfc",
         pricePoints: [
-          { description: "삼각김밥 1개", price: 1200 },
-          { description: "김밥과 음료 구성", price: 3500 },
-          { description: "도시락 세트", price: 6500 },
+          { description: "사장님이 미쳤어요, 한 조각 990원!", price: 990 },
+          { description: "9시 이후 진행되는 1+1 이벤트. 한 조각 1500원", price: 1500 },
+          { description: "뭐야, 치킨나이트 끝났어? 한 조각 3300원", price: 3300 },
+          { description: "닭 수급 불안정으로 한 조각 4700원", price: 4700 },
         ],
       },
     ],
@@ -254,6 +256,22 @@ export async function fetchSurveys(roomName?: string, slim = false): Promise<Sur
   }
 
   return ((data ?? []) as DbSurvey[]).map(normalizeSurvey);
+}
+
+export async function ensureRoomHasDefaultSurveys(roomName?: string): Promise<Survey[]> {
+  const normalizedRoomName = roomName?.trim();
+
+  if (!normalizedRoomName) {
+    return [];
+  }
+
+  const existingSurveys = await fetchSurveys(normalizedRoomName);
+
+  if (existingSurveys.length) {
+    return existingSurveys;
+  }
+
+  return [await saveSurvey(createDefaultDraft(), normalizedRoomName)];
 }
 
 export async function saveSurvey(draft: SurveyDraft, roomName?: string): Promise<Survey> {

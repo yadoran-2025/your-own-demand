@@ -9,6 +9,7 @@ import {
 } from "@/components/TeacherShell";
 import {
   deleteStudentResponse,
+  ensureRoomHasDefaultSurveys,
   fetchResponses,
   fetchSurveys,
   hasRemoteDatabase,
@@ -104,6 +105,7 @@ export default function TeacherResponsesPage() {
     setLoading(true);
     setMessage("");
     try {
+      await ensureRoomHasDefaultSurveys(roomName);
       const nextSurveys = await fetchSurveys(roomName);
       setSurveys(nextSurveys);
       const nextSurvey =

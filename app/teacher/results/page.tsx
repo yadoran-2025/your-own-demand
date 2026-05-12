@@ -16,7 +16,12 @@ import {
   TeacherShell,
 } from "@/components/TeacherShell";
 import { buildDemandData, getAvailableClasses, getAvailableGrades } from "@/lib/aggregation";
-import { fetchResponses, fetchSurveys, hasRemoteDatabase } from "@/lib/data";
+import {
+  ensureRoomHasDefaultSurveys,
+  fetchResponses,
+  fetchSurveys,
+  hasRemoteDatabase,
+} from "@/lib/data";
 import { TEACHER_ROOM_KEY, useStoredRoomName } from "@/lib/roomName";
 import { supabase } from "@/lib/supabase";
 import type {
@@ -55,6 +60,7 @@ export default function TeacherResultsPage() {
 
     setLoading(true);
     try {
+      await ensureRoomHasDefaultSurveys(roomName);
       const nextSurveys = await fetchSurveys(roomName);
       setSurveys(nextSurveys);
       const nextSurvey =

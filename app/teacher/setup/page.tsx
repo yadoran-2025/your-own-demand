@@ -11,6 +11,7 @@ import { RoomBadge, RoomGate } from "@/components/RoomGate";
 import { SurveyEditor } from "@/components/SurveyEditor";
 import {
   deleteSurvey,
+  ensureRoomHasDefaultSurveys,
   fetchSurveys,
   hasRemoteDatabase,
   saveSurvey,
@@ -42,6 +43,7 @@ export default function TeacherSetupPage() {
 
     setLoading(true);
     try {
+      await ensureRoomHasDefaultSurveys(roomName);
       const nextSurveys = await fetchSurveys(roomName);
       setSurveys(nextSurveys);
       const nextSurvey =

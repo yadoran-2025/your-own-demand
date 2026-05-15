@@ -1078,6 +1078,12 @@ select {
   grid-template-columns: minmax(0, 1fr);
 }
 
+.budget-results-filter-bar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.75rem;
+}
+
 .response-filter-bar {
   display: grid;
   grid-template-columns: 2fr 1fr 1fr 1.2fr;
@@ -1255,6 +1261,106 @@ select {
   border-color: var(--color-primary);
   background: var(--color-primary);
   color: var(--color-on-primary);
+}
+
+.budget-group-card {
+  margin-bottom: 1rem;
+  padding: 0.875rem 1.25rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.budget-group-tabs {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+  gap: 0.5rem;
+}
+
+.budget-group-tab {
+  display: grid;
+  gap: 0.25rem;
+  min-height: 4rem;
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  padding: 0.75rem 0.875rem;
+  color: var(--color-text-secondary);
+  text-align: left;
+  cursor: pointer;
+  transition: background 150ms ease, border-color 150ms ease, color 150ms ease;
+}
+
+.budget-group-tab:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.budget-group-tab[data-active="true"] {
+  border-color: var(--color-primary);
+  background: var(--color-primary-subtle);
+  color: var(--color-primary);
+}
+
+.budget-group-tab strong,
+.budget-group-tab span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.budget-group-tab strong {
+  font-size: 0.9375rem;
+  font-weight: var(--weight-black, 900);
+}
+
+.budget-group-tab span {
+  color: var(--color-text-muted);
+  font-size: 0.75rem;
+  font-weight: var(--weight-bold);
+}
+
+.budget-comparison-tooltip {
+  min-width: 16rem;
+}
+
+.budget-tooltip-rows {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.budget-tooltip-rows div,
+.budget-tooltip-rows span {
+  display: flex;
+  align-items: center;
+}
+
+.budget-tooltip-rows div {
+  justify-content: space-between;
+  gap: 1rem;
+  color: var(--color-text-secondary);
+  font-size: 0.8125rem;
+  font-weight: var(--weight-bold);
+}
+
+.budget-tooltip-rows span {
+  min-width: 0;
+  gap: 0.5rem;
+}
+
+.budget-tooltip-rows i {
+  flex: 0 0 auto;
+  width: 0.625rem;
+  height: 0.625rem;
+  border-radius: var(--radius-full);
+}
+
+.budget-tooltip-rows strong {
+  flex: 0 0 auto;
+  color: var(--color-text-primary);
+  font-weight: var(--weight-black, 900);
 }
 
 .demand-scope-card {
@@ -3391,4 +3497,3 @@ select {
     display: none;
   }
 }
-

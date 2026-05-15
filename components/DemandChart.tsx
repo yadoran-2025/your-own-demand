@@ -23,11 +23,13 @@ import type { DemandMetric, DemandPoint, DemandScope } from "@/lib/types";
 import { formatWon } from "@/lib/utils";
 
 type DemandChartProps = {
+  lineNameOverride?: string;
   data: DemandPoint[];
   metric: DemandMetric;
   respondentCount: number;
   scope: DemandScope;
   situationNumber: number;
+  title?: string;
 };
 
 type DemandPointDotRenderProps = {
@@ -411,10 +413,12 @@ function AbsorbingDemandPointDot({
 
 export function DemandChart({
   data,
+  lineNameOverride,
   metric,
   respondentCount,
   scope,
   situationNumber,
+  title,
 }: DemandChartProps) {
   const [interactionMode, setInteractionMode] = useState<"mouse" | "touch">("mouse");
   const [pinnedPopup, setPinnedPopup] = useState<TouchPopup | null>(null);
@@ -495,13 +499,14 @@ export function DemandChart({
         ? "classTotal"
         : "overallTotal";
   const lineName =
-    scope === "class"
+    lineNameOverride ??
+    (scope === "class"
       ? metric === "average"
         ? "우리 반 평균"
         : "우리 반 수요량"
       : metric === "average"
         ? "학교 전체 평균"
-        : "학교 전체 수요량";
+        : "학교 전체 수요량");
   const lineStroke =
     scope === "class" ? "var(--color-primary)" : "var(--color-text-secondary)";
   const isPersonalScope = scope === "personal";
@@ -550,7 +555,7 @@ export function DemandChart({
     <section className="teacher-card chart-card">
       <div className="chart-header">
         <div className="chart-title-block">
-          <h2>상황 {situationNumber} 수요곡선</h2>
+          <h2>{title ?? `상황 ${situationNumber} 수요곡선`}</h2>
         </div>
         <div className="chart-meta">
           <div>

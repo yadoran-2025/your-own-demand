@@ -1,4 +1,6 @@
 import type {
+  BudgetDemandGroup,
+  ClassBudget,
   DemandPoint,
   FilterState,
   PricePoint,
@@ -89,22 +91,18 @@ function respondentsFor(
     .map((row) => row!);
 }
 
-export function buildDemandData(
+function buildDemandPoints(
   product: Product,
-  responses: StudentResponse[],
-  filter: FilterState,
+  targetResponses: StudentResponse[],
+  overallResponses: StudentResponse[],
 ): DemandPoint[] {
-  const filteredResponses = responses.filter((response) =>
-    matchesFilter(response, filter),
-  );
-
   return [...product.price_points]
     .sort((a, b) => a.sort_order - b.sort_order || a.price - b.price)
     .map((pricePoint) => {
-      const classValues = quantitiesFor(filteredResponses, product, pricePoint);
-      const overallValues = quantitiesFor(responses, product, pricePoint);
-      const classRespondents = respondentsFor(filteredResponses, product, pricePoint);
-      const overallRespondents = respondentsFor(responses, product, pricePoint);
+      const classValues = quantitiesFor(targetResponses, product, pricePoint);
+      const overallValues = quantitiesFor(overallResponses, product, pricePoint);
+      const classRespondents = respondentsFor(targetResponses, product, pricePoint);
+      const overallRespondents = respondentsFor(overallResponses, product, pricePoint);
 
       return {
         price: pricePoint.price,
@@ -121,6 +119,126 @@ export function buildDemandData(
         overallRespondents,
       };
     });
+}
+
+export function buildDemandData(
+  product: Product,
+  responses: StudentResponse[],
+  filter: FilterState,
+): DemandPoint[] {
+  const filteredResponses = responses.filter((response) =>
+    matchesFilter(response, filter),
+  );
+
+  return buildDemandPoints(product, filteredResponses, responses);
+}
+
+function classKey(grade: number, classNumber: number) {
+  return `${grade}-${classNumber}`;
+}
+
+function budgetGroupId(budget: number) {
+  return `budget-${budget}`;
+}
+
+function formatBudgetLabel(budget: number | null) {
+  return budget === null ? "예산 미설정" : `${budget.toLocaleString("ko-KR")}원`;
+}
+
+function sortClasses(
+  classes: Array<{ grade: number; class_number: number }>,
+) {
+  return [...classes].sort(
+    (a, b) => a.grade - b.grade || a.class_number - b.class_number,
+  );
+}
+
+function findBudgetForResponse(
+  response: StudentResponse,
+  budgetByClass: Map<string, ClassBudget>,
+) {
+  return budgetByClass.get(classKey(response.grade, response.class_number));
+}
+
+export function buildBudgetDemandGroups(
+  classBudgets: ClassBudget[],
+  responses: StudentResponse[],
+): BudgetDemandGroup[] {
+  const budgetByClass = new Map<string, ClassBudget>();
+  const groupsById = new Map<string, BudgetDemandGroup>();
+
+  for (const classBudget of classBudgets) {
+    budgetByClass.set(
+      classKey(classBudget.grade, classBudget.class_number),
+      classBudget,
+    );
+
+    const id = budgetGroupId(classBudget.budget);
+    const group = groupsById.get(id) ?? {
+      id,
+      budget: classBudget.budget,
+      label: formatBudgetLabel(classBudget.budget),
+      classes: [],
+      responses: [],
+    };
+
+    group.classes.push({
+      grade: classBudget.grade,
+      class_number: classBudget.class_number,
+    });
+    groupsById.set(id, group);
+  }
+
+  const unbudgetedClasses = new Map<string, { grade: number; class_number: number }>();
+
+  for (const response of responses) {
+    const classBudget = findBudgetForResponse(response, budgetByClass);
+
+    if (classBudget) {
+      groupsById.get(budgetGroupId(classBudget.budget))?.responses.push(response);
+      continue;
+    }
+
+    unbudgetedClasses.set(classKey(response.grade, response.class_number), {
+      grade: response.grade,
+      class_number: response.class_number,
+    });
+
+    const group = groupsById.get("unbudgeted") ?? {
+      id: "unbudgeted",
+      budget: null,
+      label: formatBudgetLabel(null),
+      classes: [],
+      responses: [],
+    };
+
+    group.responses.push(response);
+    groupsById.set("unbudgeted", group);
+  }
+
+  const unbudgetedGroup = groupsById.get("unbudgeted");
+  if (unbudgetedGroup) {
+    unbudgetedGroup.classes = Array.from(unbudgetedClasses.values());
+  }
+
+  return Array.from(groupsById.values())
+    .map((group) => ({
+      ...group,
+      classes: sortClasses(group.classes),
+    }))
+    .sort((a, b) => {
+      if (a.budget === null) return 1;
+      if (b.budget === null) return -1;
+      return a.budget - b.budget;
+    });
+}
+
+export function buildBudgetDemandData(
+  product: Product,
+  group: BudgetDemandGroup,
+  responses: StudentResponse[],
+) {
+  return buildDemandPoints(product, group.responses, responses);
 }
 
 export function getAvailableGrades(responses: StudentResponse[]) {

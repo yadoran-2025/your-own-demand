@@ -5,7 +5,13 @@ import type { ReactNode } from "react";
 import { buildStudentPath } from "@/lib/roomName";
 
 type TeacherShellProps = {
-  active: "dashboard" | "setup" | "responses" | "results" | "guide";
+  active:
+    | "dashboard"
+    | "setup"
+    | "responses"
+    | "results"
+    | "budget-results"
+    | "guide";
   children: ReactNode;
   roomName?: string;
 };
@@ -15,6 +21,7 @@ const navItems = [
   { id: "setup", href: "/teacher/setup", label: "설문 세팅" },
   { id: "responses", href: "/teacher/responses", label: "응답 관리" },
   { id: "results", href: "/teacher/results", label: "결과 확인" },
+  { id: "budget-results", href: "/teacher/budget-results", label: "예산별 결과" },
   { id: "guide", href: "/teacher/guide", label: "활용 안내" },
 ] as const;
 
@@ -82,4 +89,3 @@ export function StatusBadge({
     </span>
   );
 }
-

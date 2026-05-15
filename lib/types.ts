@@ -51,6 +51,17 @@ export type StudentResponse = StudentProfile & {
   response_items: ResponseItem[];
 };
 
+export type BudgetDemandGroup = {
+  id: string;
+  budget: number | null;
+  label: string;
+  classes: Array<{
+    grade: number;
+    class_number: number;
+  }>;
+  responses: StudentResponse[];
+};
+
 export type SurveyDraft = {
   id?: string;
   title: string;

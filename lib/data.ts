@@ -827,31 +827,17 @@ export async function submitResponse(
     return response;
   }
 
-  const { data: response, error: responseError } = await supabase
-    .from("responses")
-    .insert({
-      survey_id: survey.id,
-      grade: profile.grade,
-      class_number: profile.class_number,
-      student_number: profile.student_number,
-      student_name: profile.student_name,
-    })
-    .select("id")
-    .single();
+  const { error: submitError } = await supabase.rpc("submit_student_response", {
+    item_rows: items,
+    target_class_number: profile.class_number,
+    target_grade: profile.grade,
+    target_student_name: profile.student_name,
+    target_student_number: profile.student_number,
+    target_survey_id: survey.id,
+  });
 
-  if (responseError) {
-    throw responseError;
-  }
-
-  const { error: itemError } = await supabase.from("response_items").insert(
-    items.map((item) => ({
-      response_id: response.id,
-      ...item,
-    })),
-  );
-
-  if (itemError) {
-    throw itemError;
+  if (submitError) {
+    throw submitError;
   }
 
   try {

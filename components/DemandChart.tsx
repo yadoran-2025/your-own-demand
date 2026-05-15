@@ -70,12 +70,27 @@ const TOUCH_TOOLTIP_ESTIMATED_HEIGHT = 260;
 const TOUCH_TOOLTIP_MARGIN = 16;
 const TOUCH_TOOLTIP_OFFSET = 14;
 
+function getTouchTooltipWidth() {
+  if (typeof window === "undefined") {
+    return TOUCH_TOOLTIP_WIDTH;
+  }
+
+  const rootFontSize = Number.parseFloat(
+    window.getComputedStyle(document.documentElement).fontSize,
+  );
+  const remWidth = Number.isFinite(rootFontSize)
+    ? rootFontSize * 19
+    : TOUCH_TOOLTIP_WIDTH;
+
+  return Math.min(remWidth, window.innerWidth - TOUCH_TOOLTIP_MARGIN * 2);
+}
+
 function getPopupPosition(anchorX: number, anchorY: number) {
   if (typeof window === "undefined") {
     return { placement: "below" as const, x: anchorX, y: anchorY };
   }
 
-  const halfWidth = TOUCH_TOOLTIP_WIDTH / 2;
+  const halfWidth = getTouchTooltipWidth() / 2;
   const x = Math.min(
     window.innerWidth - halfWidth - TOUCH_TOOLTIP_MARGIN,
     Math.max(halfWidth + TOUCH_TOOLTIP_MARGIN, anchorX),

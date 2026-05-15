@@ -1587,10 +1587,17 @@ select {
 
 .tooltip-student-rows {
   max-height: 14rem;
+  overflow-x: hidden;
   overflow-y: auto;
 }
 
+.tooltip-student-rows div {
+  align-items: center;
+  min-width: 0;
+}
+
 .tooltip-student-rows div span {
+  flex: 1 1 auto;
   min-width: 0;
   overflow: hidden;
   color: var(--color-text-secondary);
@@ -1606,6 +1613,7 @@ select {
 
 .tooltip-student-rows div strong {
   flex: 0 0 auto;
+  margin-left: auto;
   color: var(--color-text-primary);
 }
 

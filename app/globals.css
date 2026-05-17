@@ -261,7 +261,9 @@ select {
   font-weight: var(--weight-extrabold);
   text-align: center;
   text-decoration: none;
-  transition: background 150ms ease, color 150ms ease;
+  transition:
+    background 150ms ease,
+    color 150ms ease;
   white-space: nowrap;
 }
 
@@ -280,7 +282,9 @@ select {
   font-weight: var(--weight-bold);
   text-decoration: none;
   white-space: nowrap;
-  transition: background 150ms ease, color 150ms ease;
+  transition:
+    background 150ms ease,
+    color 150ms ease;
 }
 
 .teacher-top-tab-student:hover {
@@ -351,12 +355,16 @@ select {
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  border: 1.5px solid color-mix(in srgb, var(--color-warn-text, #e67700) 42%, white);
+  border: 1.5px solid
+    color-mix(in srgb, var(--color-warn-text, #e67700) 42%, white);
   background: var(--color-warn-bg, #fff9db);
   color: var(--color-warn-text, #e67700);
   text-decoration: none;
   box-shadow: var(--shadow-sm);
-  transition: background 150ms ease, border-color 150ms ease, transform 150ms ease;
+  transition:
+    background 150ms ease,
+    border-color 150ms ease,
+    transform 150ms ease;
 }
 
 .error-report-button:hover {
@@ -378,7 +386,9 @@ select {
   color: var(--color-error-text);
   font-size: 0.8125rem;
   font-weight: var(--weight-bold);
-  transition: background 150ms ease, border-color 150ms ease;
+  transition:
+    background 150ms ease,
+    border-color 150ms ease;
   cursor: pointer;
 }
 
@@ -460,8 +470,13 @@ select {
 }
 
 @keyframes teacherPulse {
-  0%, 100% { opacity: 1; }
-  50%       { opacity: 0.35; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
 }
 
 /* ── 활성 설문 배너 ──────────────────────────── */
@@ -571,7 +586,10 @@ select {
   color: var(--color-text-primary);
   text-decoration: none;
   box-shadow: var(--shadow-sm);
-  transition: border-color 150ms ease, box-shadow 150ms ease, transform 150ms ease;
+  transition:
+    border-color 150ms ease,
+    box-shadow 150ms ease,
+    transform 150ms ease;
 }
 
 .teacher-action-card:hover {
@@ -831,7 +849,9 @@ select {
   font-weight: var(--weight-bold);
   text-align: left;
   cursor: pointer;
-  transition: background 150ms ease, color 150ms ease;
+  transition:
+    background 150ms ease,
+    color 150ms ease;
 }
 
 .survey-list-item:hover {
@@ -1238,7 +1258,10 @@ select {
   font-size: 0.8125rem;
   font-weight: var(--weight-bold);
   cursor: pointer;
-  transition: background 150ms ease, border-color 150ms ease, color 150ms ease;
+  transition:
+    background 150ms ease,
+    border-color 150ms ease,
+    color 150ms ease;
 }
 
 .product-tab span:last-child {
@@ -1289,7 +1312,10 @@ select {
   color: var(--color-text-secondary);
   text-align: left;
   cursor: pointer;
-  transition: background 150ms ease, border-color 150ms ease, color 150ms ease;
+  transition:
+    background 150ms ease,
+    border-color 150ms ease,
+    color 150ms ease;
 }
 
 .budget-group-tab:hover {
@@ -1365,16 +1391,30 @@ select {
 
 .demand-movement-demo {
   display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.35rem;
+  margin-bottom: 1rem;
+  padding: 1.75rem 1.9rem 1.35rem;
+}
+
+.demand-movement-content {
+  display: grid;
   grid-template-columns: minmax(0, 0.9fr) minmax(18rem, 1.1fr);
   gap: 1.25rem;
   align-items: center;
-  margin-bottom: 1rem;
-  padding: 1.125rem 1.25rem;
 }
 
 .demand-movement-copy {
   display: grid;
   gap: 1rem;
+}
+
+.demand-movement-title {
+  margin: 0 !important;
+  font-size: 2.35rem !important;
+  font-weight: var(--weight-black, 900) !important;
+  line-height: 1.1 !important;
+  white-space: nowrap;
 }
 
 .demand-movement-copy h2 {
@@ -1425,7 +1465,11 @@ select {
   min-width: 0;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
-  background: linear-gradient(180deg, #ffffff 0%, var(--color-primary-subtle) 100%);
+  background: linear-gradient(
+    180deg,
+    #ffffff 0%,
+    var(--color-primary-subtle) 100%
+  );
   padding: 0.75rem;
 }
 
@@ -1466,7 +1510,10 @@ select {
   fill: none;
   stroke-linecap: round;
   stroke-width: 5;
-  transition: opacity 260ms ease, stroke 260ms ease, transform 520ms ease;
+  transition:
+    opacity 260ms ease,
+    stroke 260ms ease,
+    transform 520ms ease;
 }
 
 .demand-demo-base-curve {
@@ -1515,7 +1562,9 @@ select {
 .demand-demo-shift-origin,
 .demand-demo-shift-point {
   opacity: 0;
-  transition: opacity 260ms ease, transform 720ms cubic-bezier(0.2, 0.9, 0.2, 1);
+  transition:
+    opacity 260ms ease,
+    transform 720ms cubic-bezier(0.2, 0.9, 0.2, 1);
 }
 
 .demand-demo-shift-trail {
@@ -1558,7 +1607,10 @@ select {
 
 .demand-demo-moving-dot {
   transform: translate(184px, 116px);
-  transition: opacity 260ms ease, transform 720ms cubic-bezier(0.2, 0.9, 0.2, 1), fill 260ms ease;
+  transition:
+    opacity 260ms ease,
+    transform 720ms cubic-bezier(0.2, 0.9, 0.2, 1),
+    fill 260ms ease;
 }
 
 .demand-movement-demo[data-mode="price"] .demand-demo-moving-dot {
@@ -1597,7 +1649,8 @@ select {
 
 .demand-movement-demo[data-mode="shift"] .demand-demo-shift-point {
   opacity: 1;
-  animation: demand-shift-point-move 2.4s cubic-bezier(0.22, 0.8, 0.28, 1) infinite;
+  animation: demand-shift-point-move 2.4s cubic-bezier(0.22, 0.8, 0.28, 1)
+    infinite;
 }
 
 .demand-movement-demo[data-mode="shift"] .demand-demo-shift-point.point-2 {
@@ -1723,7 +1776,9 @@ select {
   font-size: 0.8125rem;
   font-weight: var(--weight-extrabold);
   cursor: pointer;
-  transition: background 150ms ease, color 150ms ease;
+  transition:
+    background 150ms ease,
+    color 150ms ease;
 }
 
 .demand-scope-button:hover {
@@ -2098,10 +2153,15 @@ select {
   .response-summary,
   .results-filter-bar,
   .demand-movement-demo,
+  .demand-movement-content,
   .response-filter-bar,
   .response-manager-layout,
   .response-profile-grid {
     grid-template-columns: 1fr;
+  }
+
+  .demand-movement-title {
+    white-space: normal;
   }
 
   .active-survey-bar {
@@ -2267,8 +2327,13 @@ select {
 }
 
 @keyframes studentBlink {
-  0%, 100% { opacity: 1; }
-  50%       { opacity: 0.35; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
 }
 
 .survey-title {
@@ -2386,7 +2451,9 @@ select {
   background: var(--color-surface);
   padding: 1rem 1.125rem;
   box-shadow: var(--shadow-sm);
-  transition: border-color 160ms ease, box-shadow 160ms ease;
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease;
 }
 
 .student-price-card:focus-within {
@@ -2704,7 +2771,10 @@ select {
   font-weight: var(--weight-extrabold);
   box-shadow: var(--shadow-sm);
   cursor: pointer;
-  transition: background 160ms ease, box-shadow 160ms ease, transform 160ms ease;
+  transition:
+    background 160ms ease,
+    box-shadow 160ms ease,
+    transform 160ms ease;
 }
 
 .submit-btn:hover {
@@ -2743,8 +2813,14 @@ select {
 }
 
 @keyframes studentPopIn {
-  from { opacity: 0; transform: scale(0.4); }
-  to   { opacity: 1; transform: scale(1); }
+  from {
+    opacity: 0;
+    transform: scale(0.4);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 .student-success-shell h2,
@@ -3128,7 +3204,10 @@ select {
   color: var(--color-text-primary);
   text-align: left;
   cursor: pointer;
-  transition: border-color 150ms ease, background 150ms ease, transform 150ms ease;
+  transition:
+    border-color 150ms ease,
+    background 150ms ease,
+    transform 150ms ease;
 }
 
 .guide-click-step:hover,
@@ -3538,7 +3617,10 @@ select {
   color: #152033;
   text-align: left;
   cursor: pointer;
-  transition: border-color 150ms ease, background 150ms ease, transform 150ms ease;
+  transition:
+    border-color 150ms ease,
+    background 150ms ease,
+    transform 150ms ease;
 }
 
 .guide-v3-flow-step:hover,

@@ -1,14 +1,17 @@
 ﻿"use client";
 
 import { RefreshCw } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { RoomBadge, RoomGate } from "@/components/RoomGate";
 import { StudentResponseForm } from "@/components/StudentResponseForm";
 import { fetchSurveys, hasRemoteDatabase } from "@/lib/data";
 import { STUDENT_ROOM_KEY, useStoredRoomName } from "@/lib/roomName";
+import { hasStoredStudentSubmission } from "@/lib/studentResultProfile";
 import type { Survey } from "@/lib/types";
 
 export default function StudentPage() {
+  const router = useRouter();
   const { roomName, ready, setRoomName } = useStoredRoomName(STUDENT_ROOM_KEY);
   const [surveys, setSurveys] = useState<Survey[]>([]);
   const [selectedSurveyId, setSelectedSurveyId] = useState("");
@@ -53,6 +56,17 @@ export default function StudentPage() {
     roomName && selectedSurvey
       ? `/student/results?room=${encodeURIComponent(roomName)}&survey=${encodeURIComponent(selectedSurvey.id)}`
       : "/student/results";
+
+  useEffect(() => {
+    if (
+      ready &&
+      roomName &&
+      selectedSurvey &&
+      hasStoredStudentSubmission(roomName, selectedSurvey.id)
+    ) {
+      router.replace(resultHref);
+    }
+  }, [ready, resultHref, roomName, router, selectedSurvey]);
 
   if (!loading && !selectedSurvey) {
     return (
@@ -134,7 +148,11 @@ export default function StudentPage() {
                 </label>
               </section>
             ) : null}
-            <StudentResponseForm resultHref={resultHref} survey={selectedSurvey} />
+            <StudentResponseForm
+              resultHref={resultHref}
+              roomName={roomName}
+              survey={selectedSurvey}
+            />
           </>
         ) : null}
       </div>
@@ -142,6 +160,5 @@ export default function StudentPage() {
     </RoomGate>
   );
 }
-
 
 

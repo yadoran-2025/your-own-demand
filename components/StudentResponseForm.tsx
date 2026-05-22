@@ -13,6 +13,7 @@ import { reserveAssignments, submitResponse } from "@/lib/data";
 import {
   buildStudentResultHref,
   STUDENT_RESULT_PROFILE_KEY,
+  writeStoredStudentSubmission,
 } from "@/lib/studentResultProfile";
 import type {
   QuantityMap,
@@ -25,6 +26,7 @@ type StudentResponseFormProps = {
   survey: Survey;
   onSubmitted?: () => void;
   resultHref?: string;
+  roomName?: string;
 };
 
 type SubmittedSummary = {
@@ -35,6 +37,7 @@ type SubmittedSummary = {
 
 export function StudentResponseForm({
   resultHref,
+  roomName,
   survey,
   onSubmitted,
 }: StudentResponseFormProps) {
@@ -248,6 +251,9 @@ export function StudentResponseForm({
           STUDENT_RESULT_PROFILE_KEY,
           JSON.stringify(trimmedProfile),
         );
+      }
+      if (roomName) {
+        writeStoredStudentSubmission(roomName, survey.id, trimmedProfile);
       }
       setSubmittedSummary({
         profile: trimmedProfile,
@@ -574,4 +580,3 @@ function AssignedProductCard({
     </section>
   );
 }
-

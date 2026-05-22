@@ -1,6 +1,15 @@
 import type { StudentProfile } from "./types";
 
 export const STUDENT_RESULT_PROFILE_KEY = "demand-app-student-result-profile";
+const STUDENT_SUBMISSION_KEY_PREFIX = "demand-app-student-submission";
+
+function buildStudentSubmissionKey(roomName: string, surveyId: string) {
+  return [
+    STUDENT_SUBMISSION_KEY_PREFIX,
+    encodeURIComponent(roomName.trim()),
+    encodeURIComponent(surveyId),
+  ].join(":");
+}
 
 export function buildStudentResultHref(
   href: string,
@@ -49,4 +58,32 @@ export function readStoredStudentResultProfile() {
   } catch {
     return null;
   }
+}
+
+export function writeStoredStudentSubmission(
+  roomName: string,
+  surveyId: string,
+  profile: StudentProfile,
+) {
+  if (typeof window === "undefined" || !roomName.trim() || !surveyId) {
+    return;
+  }
+
+  window.localStorage.setItem(
+    buildStudentSubmissionKey(roomName, surveyId),
+    JSON.stringify({
+      profile,
+      submitted_at: new Date().toISOString(),
+    }),
+  );
+}
+
+export function hasStoredStudentSubmission(roomName: string, surveyId: string) {
+  if (typeof window === "undefined" || !roomName.trim() || !surveyId) {
+    return false;
+  }
+
+  return Boolean(
+    window.localStorage.getItem(buildStudentSubmissionKey(roomName, surveyId)),
+  );
 }

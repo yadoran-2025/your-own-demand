@@ -42,7 +42,11 @@ Supabase 환경변수가 없으면 localStorage 데모 모드로 동작합니다
 ```bash
 NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+NEXT_PUBLIC_TEACHER_REVIEW_URL=https://blog.naver.com/yadoransw/224282983636
 ```
+
+교사용 화면을 5번 이상 방문한 브라우저에는 후기 요청 팝업이 표시됩니다.
+후기 링크를 바꾸려면 `NEXT_PUBLIC_TEACHER_REVIEW_URL` 값을 수정합니다.
 
 현재 MVP는 교실 활동용 단순 공개 정책을 사용합니다. 실제 배포에서는 교사용 비밀번호, 교사 계정, RLS 정책 분리를 추가하는 것을 권장합니다.
 
@@ -63,4 +67,3 @@ npm run typecheck
 npm run lint
 npm run build
 ```
-

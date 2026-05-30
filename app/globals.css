@@ -302,6 +302,150 @@ select {
   box-shadow: var(--shadow-sm);
 }
 
+/* ── 후기 요청 팝업 ───────────────────────────── */
+.teacher-review-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  background: rgba(15, 23, 42, 0.28);
+  padding: 1rem;
+}
+
+.teacher-review-dialog {
+  width: min(100%, 420px);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg, 12px);
+  background: var(--color-surface, #ffffff);
+  box-shadow: 0 24px 70px rgba(15, 23, 42, 0.18);
+  padding: 1.25rem;
+}
+
+.teacher-review-dialog h2 {
+  margin: 0;
+  color: var(--color-text-primary);
+  font-size: 1.25rem;
+  font-weight: var(--weight-black, 900);
+  line-height: 1.25;
+}
+
+.teacher-review-dialog p:not(.teacher-eyebrow) {
+  margin: 0.625rem 0 0;
+  color: var(--color-text-muted);
+  font-size: 0.875rem;
+  line-height: 1.6;
+}
+
+.teacher-review-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.teacher-review-actions .compact-button {
+  min-height: 2.25rem;
+}
+
+.teacher-review-actions button:disabled {
+  cursor: not-allowed;
+  opacity: 0.62;
+  transform: none;
+}
+
+.teacher-review-dismiss {
+  min-height: 2.25rem;
+  border: 0;
+  background: transparent;
+  padding: 0.375rem 0.25rem;
+  color: var(--color-text-muted);
+  font-size: 0.8125rem;
+  font-weight: var(--weight-bold);
+}
+
+.teacher-review-dismiss:hover {
+  color: var(--color-text-primary);
+}
+
+/* ── 다음 수업 추천 카드 ───────────────────────── */
+.teacher-next-lesson-card {
+  position: fixed;
+  right: 1rem;
+  bottom: 1rem;
+  z-index: 40;
+  width: min(100% - 2rem, 300px);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg, 12px);
+  background: var(--color-surface, #ffffff);
+  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.12);
+  padding: 0.75rem;
+}
+
+.teacher-next-lesson-card h2 {
+  margin: 0;
+  padding-right: 1.5rem;
+  color: var(--color-text-primary);
+  font-size: 0.875rem;
+  font-weight: var(--weight-black, 900);
+  line-height: 1.35;
+}
+
+.teacher-next-lesson-card p:not(.teacher-eyebrow) {
+  margin: 0.25rem 0 0;
+  color: var(--color-text-muted);
+  font-size: 0.75rem;
+  line-height: 1.45;
+}
+
+.teacher-next-lesson-card .teacher-eyebrow {
+  margin-bottom: 0.25rem;
+  font-size: 0.6875rem !important;
+}
+
+.teacher-next-lesson-close {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  display: inline-flex;
+  width: 1.5rem;
+  height: 1.5rem;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: var(--radius-full);
+  background: transparent;
+  color: var(--color-text-muted);
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.teacher-next-lesson-close:hover {
+  background: color-mix(in srgb, var(--color-primary) 8%, transparent);
+  color: var(--color-text-primary);
+}
+
+.teacher-next-lesson-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.625rem;
+}
+
+.teacher-next-lesson-actions .compact-button {
+  min-height: 1.875rem;
+  padding: 0.25rem 0.625rem;
+  font-size: 0.75rem;
+}
+
+.teacher-next-lesson-actions .teacher-review-dismiss {
+  min-height: 1.875rem;
+  font-size: 0.75rem;
+}
+
 /* ── 페이지 헤더 ─────────────────────────────── */
 .teacher-page-header {
   display: flex;

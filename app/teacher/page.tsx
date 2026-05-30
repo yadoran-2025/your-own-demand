@@ -33,7 +33,7 @@ import {
 import type { StudentResponse, Survey } from "@/lib/types";
 
 const ERROR_REPORT_URL =
-  "https://docs.google.com/spreadsheets/d/e/2PACX-1vRqcg9kXgh8lcmeTO9xwQJKjqSQt6IotKtDHEbxj0YOpQ1V_TC3xSA3YoB4lcIr01g2FoiNapJfI8Wg/pubhtml?gid=645775367&single=true";
+  "https://blog.naver.com/yadoransw/224282983636";
 
 function formatRelativeTime(value: string) {
   const created = new Date(value).getTime();

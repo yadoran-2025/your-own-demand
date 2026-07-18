@@ -245,7 +245,11 @@ export function StudentResponseForm({
         ]),
       );
 
-      await submitResponse(survey, trimmedProfile, assignedQuantities);
+      const responseId = await submitResponse(
+        survey,
+        trimmedProfile,
+        assignedQuantities,
+      );
       if (typeof window !== "undefined") {
         window.localStorage.setItem(
           STUDENT_RESULT_PROFILE_KEY,
@@ -253,7 +257,12 @@ export function StudentResponseForm({
         );
       }
       if (roomName) {
-        writeStoredStudentSubmission(roomName, survey.id, trimmedProfile);
+        writeStoredStudentSubmission(
+          roomName,
+          survey.id,
+          trimmedProfile,
+          typeof responseId === "string" ? responseId : undefined,
+        );
       }
       setSubmittedSummary({
         profile: trimmedProfile,
@@ -340,6 +349,10 @@ export function StudentResponseForm({
     <form className="student-form" onSubmit={handleSubmit}>
       <section className="info-section">
         <div className="section-label">학생 정보</div>
+        <p className="privacy-inline-notice">
+          이름 대신 선생님이 안내한 별명을 사용할 수 있어요. 연락처, 주소,
+          계정 정보처럼 수업과 관계없는 개인정보는 입력하지 마세요.
+        </p>
         <div className="info-grid">
           <label>
             <span className="field-label">학년</span>
@@ -372,7 +385,7 @@ export function StudentResponseForm({
             />
           </label>
           <label className="name-field">
-            <span className="field-label">이름 / 닉네임</span>
+            <span className="field-label">이름 / 수업용 별명</span>
             <input
               className="input name-input"
               placeholder="예: 김민지"

@@ -1,0 +1,16 @@
+{
+  "app": {
+    "name": "your-own-demand",
+    "url": "https://yadoran-2025.github.io/your-own-demand/teacher/",
+    "stack": "Next.js"
+  },
+  "tracks": [
+    "security",
+    "edzip"
+  ],
+  "edzipCase": "D",
+  "teacher": {
+    "dormsHandle": ""
+  },
+  "ownershipConfirmed": true
+}

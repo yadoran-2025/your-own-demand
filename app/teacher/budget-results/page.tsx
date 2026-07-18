@@ -553,13 +553,13 @@ export default function TeacherBudgetResultsPage() {
     }
 
     try {
-      setResponses(await fetchResponses(surveyId));
+      setResponses(await fetchResponses(surveyId, false, roomName));
     } catch (error) {
       setMessage(
         error instanceof Error ? error.message : "응답을 불러오지 못했습니다.",
       );
     }
-  }, []);
+  }, [roomName]);
 
   useEffect(() => {
     if (ready && roomName) {

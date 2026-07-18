@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState, type ReactNode } from "react";
+import { LegalFooter } from "@/components/LegalFooter";
 import { buildStudentPath } from "@/lib/roomName";
 
 type TeacherShellProps = {
@@ -59,6 +60,7 @@ export function TeacherShell({ active, children, roomName = "" }: TeacherShellPr
       <main className={`teacher-main ${active === "guide" ? "teacher-main-guide" : ""}`}>
         {children}
       </main>
+      <LegalFooter />
       {isReviewPromptVisible ? null : <TeacherNextLessonCard />}
       <TeacherReviewPrompt onVisibilityChange={setIsReviewPromptVisible} />
     </div>

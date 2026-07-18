@@ -28,6 +28,7 @@ type DemandChartProps = {
   metric: DemandMetric;
   respondentCount: number;
   scope: DemandScope;
+  showRespondents?: boolean;
   situationNumber: number;
   title?: string;
 };
@@ -123,11 +124,13 @@ function RespondentRows({
   count,
   metric,
   rows,
+  showRespondents,
   value,
 }: {
   count: number;
   metric: DemandMetric;
   rows: DemandPoint["classRespondents"];
+  showRespondents: boolean;
   value: number;
 }) {
   const valueLabel =
@@ -140,21 +143,27 @@ function RespondentRows({
         <span>{valueLabel}</span>
       </div>
       <p>응답 {count}명</p>
-      <div className="tooltip-student-rows">
-        {rows.map((row, index) => (
-          <div
-            key={`${row.grade}-${row.classNumber}-${row.studentName}-${index}`}
-          >
-            <span>
-              {row.grade}학년 {row.classNumber}반
-              <span className="tooltip-separator">-</span>
-              {row.studentName || "이름 없음"}
-            </span>
-            <strong>{row.quantity}개</strong>
-          </div>
-        ))}
-        {!rows.length ? <span>이 가격에 응답한 학생이 없습니다.</span> : null}
-      </div>
+      {showRespondents ? (
+        <div className="tooltip-student-rows">
+          {rows.map((row, index) => (
+            <div
+              key={`${row.grade}-${row.classNumber}-${row.studentName}-${index}`}
+            >
+              <span>
+                {row.grade}학년 {row.classNumber}반
+                <span className="tooltip-separator">-</span>
+                {row.studentName || "이름 없음"}
+              </span>
+              <strong>{row.quantity}개</strong>
+            </div>
+          ))}
+          {!rows.length ? <span>이 가격에 응답한 학생이 없습니다.</span> : null}
+        </div>
+      ) : (
+        <span className="tooltip-private-note">
+          개인정보 보호를 위해 학생별 이름은 표시하지 않습니다.
+        </span>
+      )}
     </div>
   );
 }
@@ -204,12 +213,14 @@ function DemandTooltip({
   scope,
   mode,
   metric,
+  showRespondents,
 }: {
   active?: boolean;
   payload?: TooltipPayload[];
   scope: DemandScope;
   mode: "mouse" | "touch";
   metric: DemandMetric;
+  showRespondents: boolean;
 }) {
   if (mode === "touch" || !active || !payload?.length) {
     return null;
@@ -240,6 +251,7 @@ function DemandTooltip({
         count={details.count}
         metric={details.metric}
         rows={details.rows}
+        showRespondents={showRespondents}
         value={details.value}
       />
     </div>
@@ -251,11 +263,13 @@ function DemandTouchPopup({
   scope,
   metric,
   onClose,
+  showRespondents,
 }: {
   popup: TouchPopup;
   scope: DemandScope;
   metric: DemandMetric;
   onClose: () => void;
+  showRespondents: boolean;
 }) {
   const details = getPointDetails(popup.point, scope, metric);
   const popupStyle = {
@@ -286,6 +300,7 @@ function DemandTouchPopup({
         count={details.count}
         metric={details.metric}
         rows={details.rows}
+        showRespondents={showRespondents}
         value={details.value}
       />
     </div>
@@ -417,6 +432,7 @@ export function DemandChart({
   metric,
   respondentCount,
   scope,
+  showRespondents = true,
   situationNumber,
   title,
 }: DemandChartProps) {
@@ -628,6 +644,7 @@ export function DemandChart({
                 <DemandTooltip
                   metric={metric}
                   mode={pinnedPopup ? "touch" : interactionMode}
+                  showRespondents={showRespondents}
                   scope={scope}
                 />
               }
@@ -727,6 +744,7 @@ export function DemandChart({
             metric={metric}
             onClose={() => setTouchPopup(null)}
             popup={touchPopup}
+            showRespondents={showRespondents}
             scope={scope}
           />
         ) : null}
@@ -735,6 +753,7 @@ export function DemandChart({
             metric={metric}
             onClose={() => setPinnedPopup(null)}
             popup={pinnedPopup}
+            showRespondents={showRespondents}
             scope={scope}
           />
         ) : null}

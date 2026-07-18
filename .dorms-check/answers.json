@@ -1,0 +1,42 @@
+{
+  "code.headers-config": {
+    "status": "pass",
+    "evidence": "public/_headers:1-13 and vercel.json:1-29 configure CSP, frame-ancestors/X-Frame-Options, nosniff, Referrer-Policy, and Permissions-Policy for hosts that support custom headers."
+  },
+  "edzip.1-1": {
+    "status": "pass",
+    "evidence": "app/privacy/page.tsx:26-38 lists minimal collected fields; components/StudentResponseForm.tsx:350-391 collects only grade, class, and name/class alias in the student profile section."
+  },
+  "edzip.1-2": {
+    "status": "pass",
+    "evidence": "app/privacy/page.tsx:17-24 states the collection/use purpose for classroom demand-curve response collection and statistics."
+  },
+  "edzip.1-3": {
+    "status": "pass",
+    "evidence": "app/privacy/page.tsx:26-47 states collected fields, retention, and deletion timing; app/teacher/responses/page.tsx:247-264 provides teacher-side deletion."
+  },
+  "edzip.2-1": {
+    "status": "pass",
+    "evidence": "supabase/migrations/20260718063239_lock_private_response_reads.sql:14-27 blocks direct anon/authenticated access to response PII tables; lines 29-184 add room-checked RPC access; app/privacy/page.tsx:50-57 discloses HTTPS and RLS safeguards."
+  },
+  "edzip.3-1": {
+    "status": "pass",
+    "evidence": "app/privacy/page.tsx:80-87 states access/correction/deletion/suspension request procedures; app/privacy/page.tsx:99-111 gives the contact route."
+  },
+  "edzip.4-1": {
+    "status": "pass",
+    "evidence": "app/privacy/page.tsx:89-97 states under-14/guardian-consent handling and that the app does not automate consent; components/StudentResponseForm.tsx:352-355 warns students not to enter unrelated personal data."
+  },
+  "edzip.5-1": {
+    "status": "pass",
+    "evidence": "app/privacy/page.tsx:99-111 names the privacy contact role and inquiry link."
+  },
+  "edzip.5-2": {
+    "status": "pass",
+    "evidence": "app/privacy/page.tsx:59-67 states personal data is not provided to third parties except as required by law."
+  },
+  "edzip.5-3": {
+    "status": "pass",
+    "evidence": "app/privacy/page.tsx:69-78 discloses GitHub Pages hosting, Supabase database processing, and possible overseas transfer depending on the Supabase region."
+  }
+}

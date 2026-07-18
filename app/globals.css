@@ -235,6 +235,86 @@ select {
   padding: 0 2rem 3rem;
 }
 
+.legal-footer {
+  width: 100%;
+  max-width: 960px;
+  margin: auto auto 0;
+  padding: 1.25rem 2rem 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.25rem;
+  color: var(--color-text-muted);
+  font-size: 0.8125rem;
+}
+
+.legal-footer nav {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 0.875rem;
+}
+
+.legal-footer a {
+  color: var(--color-text-secondary);
+  text-decoration: none;
+}
+
+.legal-footer a:hover {
+  color: var(--color-primary);
+}
+
+.legal-page {
+  min-height: 100dvh;
+  padding: 3rem 1.25rem 0;
+  background: var(--color-bg, #f5f5f7);
+  color: var(--color-text-primary);
+}
+
+.legal-card {
+  width: 100%;
+  max-width: 760px;
+  margin: 0 auto 2rem;
+  padding: 2rem;
+  border: 1px solid var(--color-border);
+  border-radius: 1.25rem;
+  background: var(--color-surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.legal-card h1 {
+  margin: 0.25rem 0 0.5rem;
+  font-size: 1.875rem;
+  line-height: 1.25;
+}
+
+.legal-card section {
+  margin-top: 1.5rem;
+}
+
+.legal-card h2 {
+  margin: 0 0 0.5rem;
+  font-size: 1.05rem;
+}
+
+.legal-card p {
+  margin: 0.5rem 0 0;
+  color: var(--color-text-secondary);
+  line-height: 1.75;
+}
+
+.legal-muted,
+.legal-placeholder {
+  color: var(--color-text-muted);
+}
+
+.legal-placeholder {
+  padding: 0.75rem 1rem;
+  border-radius: 0.75rem;
+  background: var(--color-warn-bg);
+}
+
 /* ── 상단 탭 바 ──────────────────────────────── */
 .teacher-top-tabs {
   position: fixed;
@@ -2215,6 +2295,14 @@ select {
   margin-top: 0.5rem;
 }
 
+.tooltip-private-note {
+  display: block;
+  margin-top: 0.5rem;
+  color: var(--color-text-muted);
+  font-size: 0.75rem;
+  line-height: 1.5;
+}
+
 .tooltip-student-rows {
   max-height: 14rem;
   overflow-x: hidden;
@@ -2520,6 +2608,13 @@ select {
   font-weight: var(--weight-black, 900);
   letter-spacing: 0.07em;
   text-transform: uppercase;
+}
+
+.privacy-inline-notice {
+  margin: -0.25rem 0 1rem;
+  color: var(--color-text-secondary);
+  font-size: 0.875rem;
+  line-height: 1.6;
 }
 
 .info-grid {

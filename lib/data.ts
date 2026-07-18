@@ -69,6 +69,10 @@ type DbResponse = {
   }>;
 };
 
+type DbResponseRpc = Omit<DbResponse, "response_items"> & {
+  response_items?: DbResponse["response_items"] | string | null;
+};
+
 type ReservedAssignmentRow = ReservedAssignment;
 
 export const hasRemoteDatabase = Boolean(supabase);
@@ -562,6 +566,7 @@ export async function updateStudentResponse(
   responseId: string,
   profile: StudentProfile,
   quantitiesByItemId: QuantityMap,
+  roomName?: string,
 ) {
   const cleanProfile = {
     grade: Math.max(1, Math.round(Number(profile.grade))),
@@ -601,30 +606,35 @@ export async function updateStudentResponse(
     return;
   }
 
-  const { error: responseError } = await supabase
-    .from("responses")
-    .update(cleanProfile)
-    .eq("id", responseId)
-    .eq("survey_id", surveyId);
-
-  if (responseError) {
-    throw responseError;
+  const normalizedRoomName = roomName?.trim();
+  if (!normalizedRoomName) {
+    throw new Error("방 이름을 먼저 입력해 주세요.");
   }
 
-  for (const [itemId, quantity] of Object.entries(cleanQuantities)) {
-    const { error: itemError } = await supabase
-      .from("response_items")
-      .update({ quantity })
-      .eq("id", itemId)
-      .eq("response_id", responseId);
+  const { error } = await supabase.rpc("update_room_student_response", {
+    quantity_rows: Object.entries(cleanQuantities).map(([item_id, quantity]) => ({
+      item_id,
+      quantity,
+    })),
+    target_class_number: cleanProfile.class_number,
+    target_grade: cleanProfile.grade,
+    target_response_id: responseId,
+    target_room_name: normalizedRoomName,
+    target_student_name: cleanProfile.student_name,
+    target_student_number: cleanProfile.student_number,
+    target_survey_id: surveyId,
+  });
 
-    if (itemError) {
-      throw itemError;
-    }
+  if (error) {
+    throw error;
   }
 }
 
-export async function deleteStudentResponse(surveyId: string, responseId: string) {
+export async function deleteStudentResponse(
+  surveyId: string,
+  responseId: string,
+  roomName?: string,
+) {
   if (!supabase) {
     const responses = readLocal<StudentResponse[]>(RESPONSES_KEY, []);
     writeLocal(
@@ -636,18 +646,40 @@ export async function deleteStudentResponse(surveyId: string, responseId: string
     return;
   }
 
-  const { error } = await supabase
-    .from("responses")
-    .delete()
-    .eq("id", responseId)
-    .eq("survey_id", surveyId);
+  const normalizedRoomName = roomName?.trim();
+  if (!normalizedRoomName) {
+    throw new Error("방 이름을 먼저 입력해 주세요.");
+  }
+
+  const { error } = await supabase.rpc("delete_room_student_response", {
+    target_response_id: responseId,
+    target_room_name: normalizedRoomName,
+    target_survey_id: surveyId,
+  });
 
   if (error) {
     throw error;
   }
 }
 
-export async function fetchResponses(surveyId: string, slim = false): Promise<StudentResponse[]> {
+function normalizeResponseItems(items: DbResponseRpc["response_items"]) {
+  if (!items) {
+    return [];
+  }
+
+  if (typeof items === "string") {
+    return JSON.parse(items) as DbResponse["response_items"];
+  }
+
+  return items;
+}
+
+export async function fetchResponses(
+  surveyId: string,
+  slim = false,
+  roomName?: string,
+  revealResponseId?: string | null,
+): Promise<StudentResponse[]> {
   if (!supabase) {
     const all = readLocal<StudentResponse[]>(RESPONSES_KEY, []).filter(
       (response) => response.survey_id === surveyId,
@@ -655,34 +687,26 @@ export async function fetchResponses(surveyId: string, slim = false): Promise<St
     return slim ? all.map((r) => ({ ...r, response_items: [] })) : all;
   }
 
-  if (slim) {
-    const { data, error } = await supabase
-      .from("responses")
-      .select("id,survey_id,grade,class_number,student_number,student_name,created_at")
-      .eq("survey_id", surveyId)
-      .order("created_at", { ascending: false });
-
-    if (error) {
-      throw error;
-    }
-
-    const rows = (data ?? []) as Omit<DbResponse, "response_items">[];
-    return rows.map((r) => ({ ...r, response_items: [] }));
+  const normalizedRoomName = roomName?.trim();
+  if (!normalizedRoomName) {
+    throw new Error("방 이름을 먼저 입력해 주세요.");
   }
 
-  const { data, error } = await supabase
-    .from("responses")
-    .select(
-      "id,survey_id,grade,class_number,student_number,student_name,created_at,response_items(id,response_id,product_id,price_point_id,quantity)",
-    )
-    .eq("survey_id", surveyId)
-    .order("created_at", { ascending: false });
+  const { data, error } = await supabase.rpc("fetch_room_responses", {
+    include_response_items: !slim,
+    reveal_response_id: revealResponseId ?? null,
+    target_room_name: normalizedRoomName,
+    target_survey_id: surveyId,
+  });
 
   if (error) {
     throw error;
   }
 
-  return (data ?? []) as DbResponse[];
+  return ((data ?? []) as DbResponseRpc[]).map((response) => ({
+    ...response,
+    response_items: slim ? [] : normalizeResponseItems(response.response_items),
+  }));
 }
 
 function normalizeAssignmentProfile(profile: StudentProfile): StudentProfile {
@@ -827,7 +851,7 @@ export async function submitResponse(
     return response;
   }
 
-  const { error: submitError } = await supabase.rpc("submit_student_response", {
+  const { data: responseId, error: submitError } = await supabase.rpc("submit_student_response", {
     item_rows: items,
     target_class_number: profile.class_number,
     target_grade: profile.grade,
@@ -845,4 +869,5 @@ export async function submitResponse(
   } catch (error) {
     console.warn("Failed to consume assignment reservations", error);
   }
+  return responseId as string;
 }

@@ -129,7 +129,7 @@ export default function TeacherResponsesPage() {
     }
 
     try {
-      const nextResponses = await fetchResponses(surveyId);
+      const nextResponses = await fetchResponses(surveyId, false, roomName);
       setResponses(nextResponses);
       const nextResponse =
         nextResponses.find((response) => response.id === preferredResponseId) ??
@@ -140,7 +140,7 @@ export default function TeacherResponsesPage() {
         error instanceof Error ? error.message : "응답을 불러오지 못했습니다.",
       );
     }
-  }, []);
+  }, [roomName]);
 
   useEffect(() => {
     if (ready && roomName) {
@@ -236,6 +236,7 @@ export default function TeacherResponsesPage() {
         selectedResponse.id,
         profileDraft,
         quantityDraft,
+        roomName,
       );
       setMessage("응답이 저장되었습니다.");
       await loadResponses(selectedSurvey.id, selectedResponse.id);
@@ -259,7 +260,7 @@ export default function TeacherResponsesPage() {
 
     setMessage("");
     try {
-      await deleteStudentResponse(selectedSurvey.id, selectedResponse.id);
+      await deleteStudentResponse(selectedSurvey.id, selectedResponse.id, roomName);
       setMessage("응답이 삭제되었습니다.");
       await loadResponses(selectedSurvey.id);
     } catch (error) {

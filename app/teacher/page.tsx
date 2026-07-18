@@ -75,7 +75,7 @@ export default function TeacherPage() {
       setSurveys(nextSurveys);
 
       if (nextSurveys[0]) {
-        setResponses(await fetchResponses(nextSurveys[0].id, true));
+        setResponses(await fetchResponses(nextSurveys[0].id, true, roomName));
       } else {
         setResponses([]);
       }

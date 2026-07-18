@@ -3,6 +3,7 @@
 import { BarChart3, RefreshCw } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { DemandChart } from "@/components/DemandChart";
+import { LegalFooter } from "@/components/LegalFooter";
 import {
   DemandMetricToggle,
   DemandScopeToggle,
@@ -11,7 +12,10 @@ import { RoomBadge, RoomGate } from "@/components/RoomGate";
 import { buildDemandData } from "@/lib/aggregation";
 import { fetchResponses, fetchSurveys, hasRemoteDatabase } from "@/lib/data";
 import { STUDENT_ROOM_KEY, useStoredRoomName } from "@/lib/roomName";
-import { readStoredStudentResultProfile } from "@/lib/studentResultProfile";
+import {
+  readStoredStudentResultProfile,
+  readStoredStudentSubmission,
+} from "@/lib/studentResultProfile";
 import type {
   DemandMetric,
   DemandPoint,
@@ -24,7 +28,12 @@ import type {
 function findPersonalResponse(
   responses: StudentResponse[],
   profile: ReturnType<typeof readStoredStudentResultProfile>,
+  responseId?: string | null,
 ) {
+  if (responseId) {
+    return responses.find((response) => response.id === responseId) ?? null;
+  }
+
   if (!profile?.studentName) {
     return null;
   }
@@ -124,11 +133,19 @@ export default function StudentResultsPage() {
     }
 
     try {
-      setResponses(await fetchResponses(surveyId));
+      const storedSubmission = readStoredStudentSubmission(roomName, surveyId);
+      setResponses(
+        await fetchResponses(
+          surveyId,
+          false,
+          roomName,
+          storedSubmission?.responseId ?? "00000000-0000-0000-0000-000000000000",
+        ),
+      );
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "응답을 불러오지 못했습니다.");
     }
-  }, []);
+  }, [roomName]);
 
   useEffect(() => {
     if (ready && roomName) {
@@ -147,7 +164,14 @@ export default function StudentResultsPage() {
       }
 
       const storedProfile = readStoredStudentResultProfile();
-      const personalResponse = findPersonalResponse(responses, storedProfile);
+      const storedSubmission = selectedSurvey
+        ? readStoredStudentSubmission(roomName, selectedSurvey.id)
+        : null;
+      const personalResponse = findPersonalResponse(
+        responses,
+        storedProfile,
+        storedSubmission?.responseId,
+      );
 
       return selectedSurvey.products.map((product, index) => {
         const data = addPersonalDemand(
@@ -174,7 +198,7 @@ export default function StudentResultsPage() {
         };
       });
     },
-    [filter, responses, scope, selectedSurvey],
+    [filter, responses, roomName, scope, selectedSurvey],
   );
 
   return (
@@ -269,6 +293,7 @@ export default function StudentResultsPage() {
                     key={chart.situationNumber}
                     metric={metric}
                     respondentCount={chart.respondentCount}
+                    showRespondents={false}
                     scope={scope}
                     situationNumber={chart.situationNumber}
                   />
@@ -283,6 +308,7 @@ export default function StudentResultsPage() {
           )}
         </div>
       </main>
+      <LegalFooter />
     </RoomGate>
   );
 }

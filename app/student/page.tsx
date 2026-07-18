@@ -3,6 +3,7 @@
 import { RefreshCw } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
+import { LegalFooter } from "@/components/LegalFooter";
 import { RoomBadge, RoomGate } from "@/components/RoomGate";
 import { StudentResponseForm } from "@/components/StudentResponseForm";
 import { fetchSurveys, hasRemoteDatabase } from "@/lib/data";
@@ -92,6 +93,7 @@ export default function StudentPage() {
           </button>
         </div>
       </main>
+      <LegalFooter />
       </RoomGate>
     );
   }
@@ -157,8 +159,8 @@ export default function StudentPage() {
         ) : null}
       </div>
     </main>
+    <LegalFooter />
     </RoomGate>
   );
 }
-
 

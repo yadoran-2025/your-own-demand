@@ -3,8 +3,19 @@ import "./globals.css";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://yadoran-2025.github.io"),
   title: "수요곡선 활동 시스템",
   description: "고등학교 경제 수업을 위한 수요곡선 설문 앱",
+  alternates: {
+    canonical: "/your-own-demand/teacher/",
+  },
+  openGraph: {
+    title: "수요곡선 활동 시스템",
+    description: "고등학교 경제 수업을 위한 수요곡선 설문 앱",
+    siteName: "수요곡선 활동 시스템",
+    type: "website",
+    url: "/your-own-demand/teacher/",
+  },
 };
 
 export default function RootLayout({
@@ -24,4 +35,3 @@ export default function RootLayout({
     </html>
   );
 }
-

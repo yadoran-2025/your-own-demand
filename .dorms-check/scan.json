@@ -1,5 +1,5 @@
 {
-  "at": "2026-07-18T06:48:28.002Z",
+  "at": "2026-07-18T06:55:34.393Z",
   "url": "https://yadoran-2025.github.io/your-own-demand/teacher/",
   "results": [
     {
@@ -9,7 +9,7 @@
       "evidence": {
         "header": "content-security-policy",
         "value": null,
-        "observedAt": "2026-07-18T06:48:18.888Z"
+        "observedAt": "2026-07-18T06:55:29.611Z"
       }
     },
     {
@@ -19,7 +19,7 @@
       "evidence": {
         "header": "strict-transport-security",
         "value": "max-age=31556952",
-        "observedAt": "2026-07-18T06:48:18.889Z"
+        "observedAt": "2026-07-18T06:55:29.612Z"
       }
     },
     {
@@ -29,7 +29,7 @@
       "evidence": {
         "header": "x-frame-options",
         "value": null,
-        "observedAt": "2026-07-18T06:48:18.889Z"
+        "observedAt": "2026-07-18T06:55:29.612Z"
       }
     },
     {
@@ -39,7 +39,7 @@
       "evidence": {
         "header": "x-content-type-options",
         "value": null,
-        "observedAt": "2026-07-18T06:48:18.889Z"
+        "observedAt": "2026-07-18T06:55:29.612Z"
       }
     },
     {
@@ -49,7 +49,7 @@
       "evidence": {
         "header": "referrer-policy",
         "value": null,
-        "observedAt": "2026-07-18T06:48:18.889Z"
+        "observedAt": "2026-07-18T06:55:29.612Z"
       }
     },
     {
@@ -59,7 +59,7 @@
       "evidence": {
         "header": "permissions-policy",
         "value": null,
-        "observedAt": "2026-07-18T06:48:18.889Z"
+        "observedAt": "2026-07-18T06:55:29.612Z"
       }
     },
     {
@@ -202,30 +202,30 @@
     },
     {
       "id": "seo.og",
-      "status": "fail",
+      "status": "pass",
       "observed": "Open Graph 태그",
       "evidence": {}
     },
     {
       "id": "seo.canonical",
-      "status": "info",
+      "status": "pass",
       "observed": "canonical 링크",
       "evidence": {}
     },
     {
       "id": "perf.ttfb",
       "status": "pass",
-      "observed": "응답 시간 340ms",
+      "observed": "응답 시간 301ms",
       "evidence": {
-        "ms": 340
+        "ms": 301
       }
     },
     {
       "id": "perf.page-size",
       "status": "pass",
-      "observed": "문서 크기 9KB",
+      "observed": "문서 크기 11KB",
       "evidence": {
-        "bytes": 9034
+        "bytes": 11318
       }
     },
     {
@@ -238,18 +238,22 @@
     },
     {
       "id": "legal.privacy-policy",
-      "status": "fail",
-      "observed": "개인정보처리방침 페이지/링크 없음",
+      "status": "pass",
+      "observed": "개인정보처리방침 발견(link: /your-own-demand/privacy/)",
       "evidence": {
-        "found": false
+        "found": true,
+        "via": "link",
+        "where": "/your-own-demand/privacy/"
       }
     },
     {
       "id": "legal.terms",
-      "status": "info",
-      "observed": "이용약관 페이지/링크 없음",
+      "status": "pass",
+      "observed": "이용약관 발견(link: /your-own-demand/terms/)",
       "evidence": {
-        "found": false
+        "found": true,
+        "via": "link",
+        "where": "/your-own-demand/terms/"
       }
     },
     {
@@ -477,7 +481,7 @@
     "url": "https://yadoran-2025.github.io/your-own-demand/teacher/",
     "finalUrl": "https://yadoran-2025.github.io/your-own-demand/teacher/",
     "httpStatus": 200,
-    "ttfbMs": 340,
+    "ttfbMs": 301,
     "observedHeaders": [
       "accept-ranges",
       "access-control-allow-origin",
@@ -502,6 +506,6 @@
       "x-served-by",
       "x-timer"
     ],
-    "scannedAt": "2026-07-18T06:48:19.124Z"
+    "scannedAt": "2026-07-18T06:55:29.776Z"
   }
 }

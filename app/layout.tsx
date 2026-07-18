@@ -31,7 +31,14 @@ export default function RootLayout({
           href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"
         />
       </head>
-      <body>{children}</body>
+      <body>
+        <nav className="legal-static-links" aria-label="법률 및 운영 안내">
+          <a href="/your-own-demand/privacy/">개인정보 처리방침</a>
+          <a href="/your-own-demand/terms/">이용약관</a>
+          <a href="/your-own-demand/privacy/#contact">문의</a>
+        </nav>
+        {children}
+      </body>
     </html>
   );
 }

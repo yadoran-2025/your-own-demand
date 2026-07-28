@@ -1,0 +1,53 @@
+{
+  "project": "inflation-2e38b",
+  "query": "timestamp >= \"2026-07-28T13:48:00Z\" AND timestamp <= \"2026-07-28T13:56:00Z\" AND ((protoPayload.serviceName=\"firestore.googleapis.com\" AND (protoPayload.methodName=\"google.firestore.admin.v1.FirestoreAdmin.DeleteDatabase\" OR protoPayload.methodName=\"google.firestore.admin.v1.FirestoreAdmin.CreateDatabase\")) OR (protoPayload.serviceName=\"cloudresourcemanager.googleapis.com\" AND protoPayload.methodName:\"DeleteProject\"))",
+  "utcInterval": {
+    "start": "2026-07-28T13:48:00Z",
+    "end": "2026-07-28T13:56:00Z"
+  },
+  "scope": "No resourceName or database ID constraint. The filter captures all resources in this project for Firestore CreateDatabase/DeleteDatabase and Cloud Resource Manager DeleteProject method classes.",
+  "retrieval": {
+    "command": "gcloud logging read",
+    "order": "asc",
+    "limit": 1000,
+    "pagination": "gcloud logging read paginates until its 1000-entry limit; this complete JSON result contains 4 entries and exposes no continuation token."
+  },
+  "resultCount": 4,
+  "interpretation": "One successful default-database deletion, two CreateDatabase cooldown rejections (status code 9), and one successful default-database creation. No project-delete event was returned.",
+  "entries": [
+    {
+      "timestamp": "2026-07-28T13:48:41.887489Z",
+      "serviceName": "firestore.googleapis.com",
+      "methodName": "google.firestore.admin.v1.FirestoreAdmin.DeleteDatabase",
+      "resourceName": "projects/inflation-2e38b/databases/(default)",
+      "status": {}
+    },
+    {
+      "timestamp": "2026-07-28T13:48:59.020782Z",
+      "serviceName": "firestore.googleapis.com",
+      "methodName": "google.firestore.admin.v1.FirestoreAdmin.CreateDatabase",
+      "resourceName": "projects/inflation-2e38b/databases/(default)",
+      "status": {
+        "code": 9,
+        "message": "Database ID '(default)' is not available in project 'inflation-2e38b'. Please retry in 282 seconds."
+      }
+    },
+    {
+      "timestamp": "2026-07-28T13:51:23.992421Z",
+      "serviceName": "firestore.googleapis.com",
+      "methodName": "google.firestore.admin.v1.FirestoreAdmin.CreateDatabase",
+      "resourceName": "projects/inflation-2e38b/databases/(default)",
+      "status": {
+        "code": 9,
+        "message": "Database ID '(default)' is not available in project 'inflation-2e38b'. Please retry in 136 seconds."
+      }
+    },
+    {
+      "timestamp": "2026-07-28T13:55:02.324979Z",
+      "serviceName": "firestore.googleapis.com",
+      "methodName": "google.firestore.admin.v1.FirestoreAdmin.CreateDatabase",
+      "resourceName": "projects/inflation-2e38b/databases/(default)",
+      "status": {}
+    }
+  ]
+}

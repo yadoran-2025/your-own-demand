@@ -13,6 +13,7 @@ import {
   Users,
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { TeacherAuthGate } from "@/components/TeacherAuthGate";
 import { RoomBadge, RoomGate } from "@/components/RoomGate";
 import {
   StatusBadge,
@@ -162,7 +163,8 @@ export default function TeacherPage() {
   const lastResponse = responses[0];
 
   return (
-    <RoomGate
+    <TeacherAuthGate>
+      <RoomGate
       description="교사용 방 이름을 입력하면 그 방 이름으로 만든 설문만 대시보드에 표시됩니다."
       roomName={roomName}
       ready={ready}
@@ -318,6 +320,7 @@ export default function TeacherPage() {
           </div>
         </section>
       </TeacherShell>
-    </RoomGate>
+      </RoomGate>
+    </TeacherAuthGate>
   );
 }

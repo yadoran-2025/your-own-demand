@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { RefreshCw } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { TeacherAuthGate } from "@/components/TeacherAuthGate";
 import {
   CartesianGrid,
   Legend,
@@ -649,7 +650,8 @@ export default function TeacherBudgetResultsPage() {
   );
 
   return (
-    <RoomGate
+    <TeacherAuthGate>
+      <RoomGate
       description="교사용 방 이름을 입력하면 그 방 이름으로 만든 설문 결과만 볼 수 있습니다."
       roomName={roomName}
       ready={ready}
@@ -792,6 +794,7 @@ export default function TeacherBudgetResultsPage() {
           </section>
         )}
       </TeacherShell>
-    </RoomGate>
+      </RoomGate>
+    </TeacherAuthGate>
   );
 }

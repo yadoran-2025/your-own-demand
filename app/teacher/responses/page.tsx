@@ -2,6 +2,7 @@
 
 import { RefreshCw, Save, Trash2 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { TeacherAuthGate } from "@/components/TeacherAuthGate";
 import { RoomBadge, RoomGate } from "@/components/RoomGate";
 import {
   TeacherPageHeader,
@@ -269,7 +270,8 @@ export default function TeacherResponsesPage() {
   }
 
   return (
-    <RoomGate
+    <TeacherAuthGate>
+      <RoomGate
       description="교사용 방 이름을 입력하면 그 방 이름의 학생 응답만 관리할 수 있습니다."
       roomName={roomName}
       ready={ready}
@@ -526,6 +528,7 @@ export default function TeacherResponsesPage() {
           </section>
         </div>
       </TeacherShell>
-    </RoomGate>
+      </RoomGate>
+    </TeacherAuthGate>
   );
 }

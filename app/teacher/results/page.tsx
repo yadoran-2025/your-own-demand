@@ -26,7 +26,7 @@ import {
 } from "@/lib/data";
 import { TEACHER_ROOM_KEY, useStoredRoomName } from "@/lib/roomName";
 import { canAccessTeacherData } from "@/lib/teacher-access";
-import { supabase } from "@/lib/supabase";
+import { startPolling } from "@/lib/polling";
 import type {
   DemandMetric,
   DemandScope,
@@ -107,37 +107,8 @@ export default function TeacherResultsPage() {
   }, [canUseTeacherData, loadResponses, selectedSurvey?.id]);
 
   useEffect(() => {
-    if (!canUseTeacherData) return;
-    const client = supabase;
-
-    if (!client || !selectedSurvey?.id) {
-      return;
-    }
-
-    let timer: ReturnType<typeof setTimeout> | null = null;
-
-    const channel = client
-      .channel(`responses-${selectedSurvey.id}`)
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "responses",
-          filter: `survey_id=eq.${selectedSurvey.id}`,
-        },
-        () => {
-          // 짧게 대기해 response_items까지 커밋된 후 한 번만 fetch
-          if (timer) clearTimeout(timer);
-          timer = setTimeout(() => void loadResponses(selectedSurvey.id), 300);
-        },
-      )
-      .subscribe();
-
-    return () => {
-      if (timer) clearTimeout(timer);
-      void client.removeChannel(channel);
-    };
+    if (!canUseTeacherData || !selectedSurvey?.id) return;
+    return startPolling(() => loadResponses(selectedSurvey.id));
   }, [canUseTeacherData, loadResponses, selectedSurvey?.id]);
 
   const grades = useMemo(() => getAvailableGrades(responses), [responses]);

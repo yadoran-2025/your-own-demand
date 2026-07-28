@@ -34,7 +34,7 @@ import {
 } from "@/lib/data";
 import { TEACHER_ROOM_KEY, useStoredRoomName } from "@/lib/roomName";
 import { canAccessTeacherData } from "@/lib/teacher-access";
-import { supabase } from "@/lib/supabase";
+import { startPolling } from "@/lib/polling";
 import type {
   BudgetDemandGroup,
   DemandPoint,
@@ -580,36 +580,8 @@ export default function TeacherBudgetResultsPage() {
   }, [canUseTeacherData, loadResponses, selectedSurvey?.id]);
 
   useEffect(() => {
-    if (!canUseTeacherData) return;
-    const client = supabase;
-
-    if (!client || !selectedSurvey?.id) {
-      return;
-    }
-
-    let timer: ReturnType<typeof setTimeout> | null = null;
-
-    const channel = client
-      .channel(`budget-responses-${selectedSurvey.id}`)
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "responses",
-          filter: `survey_id=eq.${selectedSurvey.id}`,
-        },
-        () => {
-          if (timer) clearTimeout(timer);
-          timer = setTimeout(() => void loadResponses(selectedSurvey.id), 300);
-        },
-      )
-      .subscribe();
-
-    return () => {
-      if (timer) clearTimeout(timer);
-      void client.removeChannel(channel);
-    };
+    if (!canUseTeacherData || !selectedSurvey?.id) return;
+    return startPolling(() => loadResponses(selectedSurvey.id));
   }, [canUseTeacherData, loadResponses, selectedSurvey?.id]);
 
   const budgetGroups = useMemo(

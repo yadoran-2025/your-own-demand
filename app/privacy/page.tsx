@@ -70,12 +70,23 @@ export default function PrivacyPage() {
         <section>
           <h2>6. 처리 위탁 및 국외이전</h2>
           <p>
-            Vercel은 웹사이트를 호스팅하고 서버 API 요청을 처리합니다. Google
-            Firebase Authentication은 교사와 익명 학생 세션을 인증·검증하며, Firebase
-            프로젝트 ID <code>inflation-2e38b</code>의 Cloud Firestore는 설문과
-            응답 데이터를 저장합니다. 운영자는 학교 제출 전에 실제 Firebase/
-            Firestore 리전, Vercel 처리 위치, 하위 처리자, 국외이전 세부 내용을
-            확인해야 합니다.
+            설문과 응답의 주 저장소는 Firebase 프로젝트 ID{" "}
+            <code>inflation-2e38b</code>의 Cloud Firestore이며, 데이터베이스
+            위치는 대한민국 서울 리전 <code>asia-northeast3</code>입니다.
+          </p>
+          <p>
+            Google Firebase Authentication은 교사 Google 로그인과 학생 익명
+            세션의 식별자를 미국 데이터센터에서 처리합니다. Vercel은 웹사이트를
+            호스팅하고 학생 프로필과 응답이 포함된 서버 API 요청을 미국의 주요 처리
+            시설 및 계약상 하위 처리자를 통해 처리할 수 있습니다. 따라서 Firestore가
+            서울에 있더라도 서비스 전체를 국외이전이 없는 구조로 보지 않습니다.
+          </p>
+          <p>
+            국외 처리는 인증, API 실행, 보안 로그 및 장애 대응을 목적으로 서비스
+            이용 중 지속적으로 발생할 수 있습니다. 운영자는 학교 도입 전에 Google과
+            Vercel의 최신 처리 국가, 하위 처리자, 보유·삭제 조건을 확인하고,
+            개인정보 보호법과 학교·교육청 기준에 따른 고지 또는 동의 절차를
+            완료해야 합니다.
           </p>
         </section>
 

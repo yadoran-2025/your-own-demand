@@ -3,19 +3,22 @@ import "./globals.css";
 import type { Metadata } from "next";
 import { AuthProvider } from "@/components/AuthProvider";
 
+const siteUrl =
+  process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+
 export const metadata: Metadata = {
-  metadataBase: new URL("https://yadoran-2025.github.io"),
+  metadataBase: new URL(siteUrl),
   title: "수요곡선 활동 시스템",
   description: "고등학교 경제 수업을 위한 수요곡선 설문 앱",
   alternates: {
-    canonical: "/your-own-demand/teacher/",
+    canonical: "/teacher",
   },
   openGraph: {
     title: "수요곡선 활동 시스템",
     description: "고등학교 경제 수업을 위한 수요곡선 설문 앱",
     siteName: "수요곡선 활동 시스템",
     type: "website",
-    url: "/your-own-demand/teacher/",
+    url: "/teacher",
   },
 };
 
@@ -35,9 +38,9 @@ export default function RootLayout({
       <body>
         <AuthProvider>
         <nav className="legal-static-links" aria-label="법률 및 운영 안내">
-          <a href="/your-own-demand/privacy/">개인정보 처리방침</a>
-          <a href="/your-own-demand/terms/">이용약관</a>
-          <a href="/your-own-demand/privacy/#contact">문의</a>
+          <a href="/privacy/">개인정보 처리방침</a>
+          <a href="/terms/">이용약관</a>
+          <a href="/privacy/#contact">문의</a>
         </nav>
         {children}
         </AuthProvider>

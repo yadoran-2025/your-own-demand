@@ -41,6 +41,8 @@ Cloud Firestore 보안 규칙은 클라이언트의 직접 읽기·쓰기를 거
 
 Vercel에서 이 저장소를 연결하고 Production 및 Preview 환경 변수에 `.env.example`의 모든 키를 설정합니다. Firebase Authentication authorized domains에는 배포된 Production 도메인과 Vercel Preview 도메인을 모두 등록합니다. 서비스 계정은 필요한 Admin SDK 권한만 부여합니다.
 
+Firestore 서울 리전은 주 데이터 저장 위치를 국내로 제한하지만, Firebase Authentication과 Vercel API 처리까지 국내화하지 않으므로 개인정보 국외이전 검토를 생략할 근거가 되지 않습니다.
+
 ## 검증
 
 ```bash

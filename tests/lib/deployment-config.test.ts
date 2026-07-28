@@ -78,6 +78,32 @@ describe("deployment configuration", () => {
     expect(privacy).not.toContain("GitHub Pages");
   });
 
+  it("uses a Vercel origin and root-relative legal routes", () => {
+    const layout = readFileSync("app/layout.tsx", "utf8");
+    const env = readFileSync(".env.example", "utf8");
+
+    expect(layout).toContain("process.env.NEXT_PUBLIC_SITE_URL");
+    expect(layout).toContain('href="/privacy/"');
+    expect(layout).toContain('href="/terms/"');
+    expect(layout).not.toContain("yadoran-2025.github.io");
+    expect(layout).not.toContain("/your-own-demand/");
+    expect(env).toContain(
+      "NEXT_PUBLIC_SITE_URL=https://inflation-classroom.vercel.app",
+    );
+  });
+
+  it("distinguishes Seoul storage from overseas processing", () => {
+    const privacy = readFileSync("app/privacy/page.tsx", "utf8");
+
+    expect(privacy).toContain("asia-northeast3");
+    expect(privacy).toContain("서울");
+    expect(privacy).toContain("Firebase Authentication");
+    expect(privacy).toContain("미국");
+    expect(privacy).toContain("Vercel");
+    expect(privacy).toContain("국외");
+    expect(privacy).not.toContain("국외이전 없음");
+  });
+
   it("routes local development and emulator tests safely", () => {
     const readme = readFileSync("README.md", "utf8");
     expect(readme).toContain("npx firebase-tools emulators:start --only firestore");

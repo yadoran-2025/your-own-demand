@@ -12,3 +12,5 @@
 - Resolved root collection IDs: `classes`, `spaces`
 - Destructive approval: human approved permanently deleting all data and records inside Firestore database `(default)` in Firebase project `inflation-2e38b`, currently located `nam5`, including root collections `classes` and `spaces`; approved deleting only that `(default)` database, not the Firebase project; approved recreating an empty Firestore database `(default)` in `asia-northeast3`.
 - Approval timestamp (UTC): 2026-07-28T13:40:20Z
+- Deletion audit timestamp (UTC): 2026-07-28T13:48:41.887489Z
+- Recreation timestamp (UTC): 2026-07-28T13:55:07.091395Z

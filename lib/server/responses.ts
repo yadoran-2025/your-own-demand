@@ -143,10 +143,17 @@ export async function listResponsesForUser(actor: { uid: string; isTeacher: bool
   const survey = await surveyRef.get();
   if (!survey.exists) throw new Error("설문을 찾지 못했습니다.");
   const snapshots = await surveyRef.collection("responses").orderBy("createdAt", "desc").get();
-  return snapshots.docs.map((snapshot) => {
+  return snapshots.docs.map((snapshot, index) => {
     const response = responseFromSnapshot(snapshot);
     if (!actor.isTeacher && !(snapshot.id === revealResponseId && snapshot.get("submitterUid") === actor.uid)) {
-      return { ...response, student_name: "", student_number: 0 };
+      const id = `redacted-${index}`;
+      return {
+        ...response,
+        id,
+        student_name: "",
+        student_number: 0,
+        response_items: response.response_items.map((item) => ({ ...item, response_id: id })),
+      };
     }
     return response;
   });

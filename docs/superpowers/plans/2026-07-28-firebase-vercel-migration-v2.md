@@ -1,8 +1,8 @@
-# Firebase `inflation` + Vercel Migration Implementation Plan
+# Firebase `inflation` (`inflation-2e38b`) + Vercel Migration Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Replace Supabase and GitHub Pages with Firebase project `inflation` for authentication/Firestore and Vercel for Next.js hosting/API execution, start with an empty Firebase database, then permanently remove the old Supabase data only after production verification and explicit approval.
+**Goal:** Replace Supabase and GitHub Pages with Firebase project display name `inflation`, Project ID `inflation-2e38b`, for authentication/Firestore and Vercel for Next.js hosting/API execution, start with an empty Firebase database, then permanently remove the old Supabase data only after production verification and explicit approval.
 
 **Architecture:** The browser authenticates with Firebase Authentication, then calls same-origin Next.js Route Handlers on Vercel with a Firebase ID token. Route Handlers use Firebase Admin SDK for every Firestore read/write, while Firestore client access is denied by default. Surveys embed products and price points; responses embed response items; a per-class transaction counter gives each student one stable, round-robin price assignment per product.
 
@@ -10,7 +10,7 @@
 
 ## Global Constraints
 
-- Firebase project ID is `inflation`; verify the CLI-visible project before any deploy.
+- Firebase display name is `inflation`; the CLI-visible Project ID used by code, tests, environment variables, and deploy commands is `inflation-2e38b`.
 - Create the default Firestore database in regional location `asia-northeast3` (Seoul); Firebase lists this as the Seoul region, and the database location cannot be casually changed after creation.
 - Vercel hosts both the Next.js frontend and `/api/*` Route Handlers.
 - Existing Supabase records are not copied into Firestore.
@@ -58,7 +58,7 @@
 - `app/api/responses/[responseId]/route.ts` — update/delete a response.
 - `firestore.rules` — deny all direct client access.
 - `firebase.json` — Firestore emulator/rules configuration only.
-- `.firebaserc` — bind local tooling to `inflation`.
+- `.firebaserc` — bind local tooling to Project ID `inflation-2e38b`.
 - `tests/firebase/rules.test.ts` — prove direct Firestore access is denied.
 - `tests/server/firebase-test-env.ts` — point Admin SDK tests at the Firestore emulator and clear fixtures.
 - `tests/server/rooms.test.ts` — room normalization and ownership integration tests.
@@ -492,7 +492,7 @@ git commit -m "security: baseline accepted dependency advisories"
 
 ---
 
-### Task 2: Configure Firebase `inflation` and Deny Direct Firestore Access
+### Task 2: Configure Firebase `inflation-2e38b` and Deny Direct Firestore Access
 
 **Files:**
 - Create: `.firebaserc`
@@ -516,7 +516,7 @@ Run:
 npx firebase-tools projects:list
 ```
 
-Expected: one row has Project ID exactly `inflation`. Stop before configuration or deployment if it does not.
+Expected: one row has display name `inflation` and Project ID exactly `inflation-2e38b`. Stop before configuration or deployment if it does not.
 
 - [ ] **Step 2: Write the deny-all rules test**
 
@@ -536,7 +536,7 @@ let env: RulesTestEnvironment;
 
 beforeAll(async () => {
   env = await initializeTestEnvironment({
-    projectId: "inflation",
+    projectId: "inflation-2e38b",
     firestore: {
       rules: readFileSync("firestore.rules", "utf8"),
       host: "127.0.0.1",
@@ -567,7 +567,7 @@ Create `.firebaserc`:
 ```json
 {
   "projects": {
-    "default": "inflation"
+    "default": "inflation-2e38b"
   }
 }
 ```
@@ -653,7 +653,7 @@ import { cert, getApp, getApps, initializeApp } from "firebase-admin/app";
 import { getAuth } from "firebase-admin/auth";
 import { getFirestore } from "firebase-admin/firestore";
 
-const projectId = process.env.FIREBASE_PROJECT_ID ?? "inflation";
+const projectId = process.env.FIREBASE_PROJECT_ID ?? "inflation-2e38b";
 const privateKey = process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, "\n");
 const emulator = Boolean(process.env.FIRESTORE_EMULATOR_HOST);
 
@@ -683,9 +683,9 @@ Replace `.env.example` with:
 
 ```dotenv
 NEXT_PUBLIC_FIREBASE_API_KEY=your-web-api-key
-NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=inflation.firebaseapp.com
-NEXT_PUBLIC_FIREBASE_PROJECT_ID=inflation
-FIREBASE_PROJECT_ID=inflation
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=inflation-2e38b.firebaseapp.com
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=inflation-2e38b
+FIREBASE_PROJECT_ID=inflation-2e38b
 FIREBASE_CLIENT_EMAIL=firebase-adminsdk@example.iam.gserviceaccount.com
 FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\nreplace-with-vercel-secret\n-----END PRIVATE KEY-----\n"
 NEXT_PUBLIC_TEACHER_REVIEW_URL=https://blog.naver.com/yadoransw/224282983636
@@ -1019,7 +1019,7 @@ Create `tests/server/firebase-test-env.ts`:
 
 ```ts
 process.env.FIRESTORE_EMULATOR_HOST = "127.0.0.1:8080";
-process.env.FIREBASE_PROJECT_ID = "inflation";
+process.env.FIREBASE_PROJECT_ID = "inflation-2e38b";
 
 export async function clearFirebaseTestData() {
   const { adminDb } = await import("@/lib/firebase/admin");
@@ -1981,7 +1981,7 @@ Update `app/privacy/page.tsx` so it states:
 
 - Vercel hosts the site and executes server API requests.
 - Google Firebase Authentication verifies teachers and anonymous student sessions.
-- Cloud Firestore in Firebase project `inflation` stores survey and response data.
+- Cloud Firestore in Firebase Project ID `inflation-2e38b` stores survey and response data.
 - Direct client Firestore access is denied and Vercel server APIs enforce room ownership.
 - The operator must verify the actual Firebase/Firestore region, Vercel processing location, subprocessors, and overseas-transfer details before school submission.
 - The effective date is `2026년 7월 28일`.
@@ -2005,7 +2005,7 @@ npm run build
 
 Document Firebase Console setup:
 
-1. Select project `inflation`.
+1. Select display name `inflation`, Project ID `inflation-2e38b`.
 2. Enable Firestore.
 3. Enable Authentication providers `Anonymous` and `Google`.
 4. Add the Vercel production/preview domains under Authentication authorized domains.
@@ -2049,7 +2049,7 @@ git commit -m "docs: prepare Firebase app for Vercel"
 
 - [ ] **Step 1: Configure Firebase production services**
 
-In Firebase Console for project `inflation`:
+In Firebase Console for display name `inflation`, Project ID `inflation-2e38b`:
 
 1. Create Firestore in `asia-northeast3` (Seoul), as listed in the [official Firestore locations documentation](https://firebase.google.com/docs/firestore/locations).
 2. Enable Anonymous Authentication.
@@ -2063,11 +2063,11 @@ Expected: both providers show Enabled and both domains appear in Authorized doma
 Run:
 
 ```bash
-npx firebase-tools use inflation
+npx firebase-tools use inflation-2e38b
 npx firebase-tools deploy --only firestore:rules
 ```
 
-Expected: output identifies project `inflation` and reports a successful rules release.
+Expected: output identifies Project ID `inflation-2e38b` and reports a successful rules release.
 
 - [ ] **Step 3: Configure Vercel secrets and deploy Preview**
 
@@ -2269,13 +2269,13 @@ npx -y dorms-check@latest status
 
 Then verify teacher login, room creation, student submission, polling results, edit, and deletion once more.
 
-Expected: Production uses Firebase project `inflation`, remaining Supabase network requests are zero, and local security preparation evidence is updated. State that dorms-check preparation is not final dorms.school certification.
+Expected: Production uses Firebase Project ID `inflation-2e38b`, remaining Supabase network requests are zero, and local security preparation evidence is updated. State that dorms-check preparation is not final dorms.school certification.
 
 ---
 
 ## Self-Review Record
 
-- **Spec coverage:** dependency-risk acceptance and regression blocking are covered in Tasks 1, 10, 11, and 12; Firebase project `inflation` is covered in Tasks 2 and 11; Vercel hosting/API migration in Tasks 3-11; empty-database start in the global constraints and Task 11; permanent Supabase removal in Task 12 behind an explicit approval gate.
+- **Spec coverage:** dependency-risk acceptance and regression blocking are covered in Tasks 1, 10, 11, and 12; Firebase display name `inflation` and Project ID `inflation-2e38b` are covered in Tasks 2 and 11; Vercel hosting/API migration in Tasks 3-11; empty-database start in the global constraints and Task 11; permanent Supabase removal in Task 12 behind an explicit approval gate.
 - **Security coverage:** teacher ownership, anonymous student identity, API token verification, direct Firestore denial, response redaction, authoritative validation, CSP, privacy copy, and post-deploy scan each have an implementation and verification task.
 - **Behavior coverage:** default survey creation, survey CRUD, class budgets, balanced assignment, submission, teacher response CRUD, student result reveal, teacher polling, and localStorage fallback are retained.
 - **Type consistency:** room name remains the external lookup value; server services resolve it to `roomId`; assignment and response functions use `StudentProfile`, `QuantityMap`, and `Record<string, string>` consistently.

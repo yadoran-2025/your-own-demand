@@ -2174,6 +2174,9 @@ describe("deployment configuration", () => {
     expect(vercel).not.toContain("supabase.co");
     expect(vercel).toContain("https://*.googleapis.com");
     expect(vercel).toContain("https://*.firebaseapp.com");
+    expect(vercel).toContain(
+      "frame-src 'self' https://inflation-2e38b.firebaseapp.com",
+    );
   });
 
   it("documents Firebase and Vercel instead of Supabase and GitHub Pages", () => {
@@ -2194,9 +2197,9 @@ Run:
 npm test -- tests/lib/deployment-config.test.ts
 ```
 
-Expected: FAIL because current CSP and privacy copy mention Supabase and GitHub Pages.
+Expected for a fresh implementation: FAIL because current CSP and privacy copy mention Supabase and GitHub Pages. During the reviewed Task 10 fix, first add an assertion for the Firebase Auth iframe and expect failure because `frame-src` is absent.
 
-- [ ] **Step 3: Replace CSP connect sources**
+- [ ] **Step 3: Replace CSP Firebase sources**
 
 In `vercel.json`, use this `connect-src`:
 
@@ -2204,7 +2207,13 @@ In `vercel.json`, use this `connect-src`:
 connect-src 'self' https://*.googleapis.com https://*.firebaseapp.com https://securetoken.googleapis.com
 ```
 
-Keep the existing `default-src`, `script-src`, `style-src`, `font-src`, `img-src`, `object-src`, `base-uri`, `form-action`, and `frame-ancestors` directives unchanged.
+Add this narrowly scoped Firebase Auth iframe directive:
+
+```text
+frame-src 'self' https://inflation-2e38b.firebaseapp.com
+```
+
+Google popup authentication uses the configured Firebase Auth domain's `__/auth/iframe`; without this directive `default-src 'self'` blocks sign-in. Keep the existing `default-src`, `script-src`, `style-src`, `font-src`, `img-src`, `object-src`, `base-uri`, `form-action`, and `frame-ancestors` directives unchanged.
 
 - [ ] **Step 4: Replace processing and security disclosures**
 
@@ -2233,6 +2242,15 @@ npm run typecheck
 npm run lint
 npm run build
 ```
+
+Document that the emulator and Next.js run in separate terminals. The development-server terminal must set:
+
+```bash
+export FIRESTORE_EMULATOR_HOST=127.0.0.1:8080
+npm run dev
+```
+
+Warn operators not to combine production Admin SDK credentials with an unset `FIRESTORE_EMULATOR_HOST` during local emulator work. `npm run test:firebase` is safe because `firebase emulators:exec` injects the emulator host into its child process.
 
 Document Firebase Console setup:
 

@@ -1,6 +1,6 @@
 ﻿"use client";
 
-import { supabase } from "./supabase";
+import { apiFetch } from "./api-client";
 import {
   buildAssignmentSeed,
   buildAssignmentStorageKey,
@@ -11,7 +11,6 @@ import {
 import type {
   ClassBudget,
   QuantityMap,
-  ReservedAssignment,
   StudentProfile,
   StudentResponse,
   Survey,
@@ -52,30 +51,10 @@ type DbSurvey = {
   products: DbProduct[];
 };
 
-type DbResponse = {
-  id: string;
-  survey_id: string;
-  grade: number;
-  class_number: number;
-  student_number: number;
-  student_name: string;
-  created_at: string;
-  response_items: Array<{
-    id: string;
-    response_id: string;
-    product_id: string;
-    price_point_id: string;
-    quantity: number;
-  }>;
-};
-
-type DbResponseRpc = Omit<DbResponse, "response_items"> & {
-  response_items?: DbResponse["response_items"] | string | null;
-};
-
-type ReservedAssignmentRow = ReservedAssignment;
-
-export const hasRemoteDatabase = Boolean(supabase);
+export const hasRemoteDatabase = Boolean(
+  process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID &&
+  process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+);
 
 function readLocal<T>(key: string, fallback: T): T {
   if (typeof window === "undefined") {
@@ -216,50 +195,22 @@ export function surveyToDraft(survey: Survey): SurveyDraft {
 export async function fetchSurveys(roomName?: string, slim = false): Promise<Survey[]> {
   const normalizedRoomName = roomName?.trim();
 
-  if (!supabase) {
+  if (!hasRemoteDatabase) {
     const surveys = readLocal<DbSurvey[]>(SURVEYS_KEY, []).map(normalizeSurvey);
     return normalizedRoomName
       ? surveys.filter((survey) => survey.teacher_pin === normalizedRoomName)
       : surveys;
   }
 
-  if (slim) {
-    let query = supabase
-      .from("surveys")
-      .select("id,title,teacher_pin,created_at,products(id,survey_id,name,sort_order)")
-      .order("created_at", { ascending: false });
-
-    if (normalizedRoomName) {
-      query = query.eq("teacher_pin", normalizedRoomName);
-    }
-
-    const { data, error } = await query;
-
-    if (error) {
-      throw error;
-    }
-
-    return ((data ?? []) as DbSurvey[]).map(normalizeSurvey);
-  }
-
-  let query = supabase
-    .from("surveys")
-    .select(
-      "id,title,teacher_pin,created_at,class_budgets:survey_class_budgets(id,survey_id,grade,class_number,budget),products(id,survey_id,name,sort_order,price_points(id,product_id,description,price,sort_order))",
-    )
-    .order("created_at", { ascending: false });
-
-  if (normalizedRoomName) {
-    query = query.eq("teacher_pin", normalizedRoomName);
-  }
-
-  const { data, error } = await query;
-
-  if (error) {
-    throw error;
-  }
-
-  return ((data ?? []) as DbSurvey[]).map(normalizeSurvey);
+  const surveys = await apiFetch<Survey[]>(
+    `/api/surveys${normalizedRoomName ? `?room=${encodeURIComponent(normalizedRoomName)}` : ""}`,
+  );
+  return slim
+    ? surveys.map((survey) => ({
+        ...survey,
+        products: survey.products.map((product) => ({ ...product, price_points: [] })),
+      }))
+    : surveys;
 }
 
 export async function ensureRoomHasDefaultSurveys(roomName?: string): Promise<Survey[]> {
@@ -267,6 +218,13 @@ export async function ensureRoomHasDefaultSurveys(roomName?: string): Promise<Su
 
   if (!normalizedRoomName) {
     return [];
+  }
+
+  if (hasRemoteDatabase) {
+    await apiFetch("/api/rooms/ensure", {
+      method: "POST",
+      body: JSON.stringify({ name: normalizedRoomName }),
+    });
   }
 
   const existingSurveys = await fetchSurveys(normalizedRoomName);
@@ -305,7 +263,7 @@ export async function saveSurvey(draft: SurveyDraft, roomName?: string): Promise
 
   const cleanClassBudgets = normalizeClassBudgets(draft.classBudgets ?? []);
 
-  if (!supabase) {
+  if (!hasRemoteDatabase) {
     const surveys = readLocal<Survey[]>(SURVEYS_KEY, []);
     const responses = readLocal<StudentResponse[]>(RESPONSES_KEY, []);
     const surveyId = draft.id ?? makeId("survey");
@@ -363,183 +321,14 @@ export async function saveSurvey(draft: SurveyDraft, roomName?: string): Promise
     return survey;
   }
 
-  const surveyPayload = {
-    title: draft.title.trim() || "경제 수요설문",
-    teacher_pin: normalizedRoomName,
-  };
-
-  const { data: surveyData, error: surveyError } = draft.id
-    ? await supabase
-        .from("surveys")
-        .update(surveyPayload)
-        .eq("id", draft.id)
-        .eq("teacher_pin", normalizedRoomName)
-        .select("id,title,teacher_pin,created_at")
-        .single()
-    : await supabase
-        .from("surveys")
-        .insert(surveyPayload)
-        .select("id,title,teacher_pin,created_at")
-        .single();
-
-  if (surveyError) {
-    throw surveyError;
-  }
-
-  const surveyId = surveyData.id as string;
-
-  const previousSurvey = draft.id
-    ? (await fetchSurveys(normalizedRoomName)).find((survey) => survey.id === surveyId)
-    : undefined;
-
-  const { error: deleteBudgetError } = await supabase
-    .from("survey_class_budgets")
-    .delete()
-    .eq("survey_id", surveyId);
-
-  if (deleteBudgetError) {
-    throw deleteBudgetError;
-  }
-
-  if (cleanClassBudgets.length) {
-    const { error: budgetError } = await supabase
-      .from("survey_class_budgets")
-      .insert(
-        cleanClassBudgets.map((classBudget) => ({
-          survey_id: surveyId,
-          grade: classBudget.grade,
-          class_number: classBudget.class_number,
-          budget: classBudget.budget,
-        })),
-      );
-
-    if (budgetError) {
-      throw budgetError;
-    }
-  }
-
-  const previousProductIds = new Set(
-    previousSurvey?.products.map((product) => product.id) ?? [],
-  );
-  const keptProductIds = new Set<string>();
-
-  for (const [productIndex, product] of cleanProducts.entries()) {
-    let productId = product.id;
-
-    if (productId && previousProductIds.has(productId)) {
-      const { error } = await supabase
-        .from("products")
-        .update({
-          name: product.name,
-          sort_order: productIndex,
-        })
-        .eq("id", productId)
-        .eq("survey_id", surveyId);
-
-      if (error) {
-        throw error;
-      }
-    } else {
-      const { data, error } = await supabase
-        .from("products")
-        .insert({
-          survey_id: surveyId,
-          name: product.name,
-          sort_order: productIndex,
-        })
-        .select("id")
-        .single();
-
-      if (error) {
-        throw error;
-      }
-
-      productId = data.id as string;
-    }
-
-    keptProductIds.add(productId);
-
-    const previousProduct = previousSurvey?.products.find(
-      (item) => item.id === productId,
-    );
-    const previousPricePointIds = new Set(
-      previousProduct?.price_points.map((pricePoint) => pricePoint.id) ?? [],
-    );
-    const keptPricePointIds = new Set<string>();
-
-    for (const [priceIndex, pricePoint] of product.pricePoints.entries()) {
-      if (pricePoint.id && previousPricePointIds.has(pricePoint.id)) {
-        const { error } = await supabase
-          .from("price_points")
-          .update({
-            description: pricePoint.description,
-            price: pricePoint.price,
-            sort_order: priceIndex,
-          })
-          .eq("id", pricePoint.id)
-          .eq("product_id", productId);
-
-        if (error) {
-          throw error;
-        }
-
-        keptPricePointIds.add(pricePoint.id);
-      } else {
-        const { data, error } = await supabase
-          .from("price_points")
-          .insert({
-            product_id: productId,
-            description: pricePoint.description,
-            price: pricePoint.price,
-            sort_order: priceIndex,
-          })
-          .select("id")
-          .single();
-
-        if (error) {
-          throw error;
-        }
-
-        keptPricePointIds.add(data.id as string);
-      }
-    }
-
-    const removedPricePointIds = [...previousPricePointIds].filter(
-      (pricePointId) => !keptPricePointIds.has(pricePointId),
-    );
-
-    if (removedPricePointIds.length) {
-      const { error } = await supabase
-        .from("price_points")
-        .delete()
-        .in("id", removedPricePointIds);
-
-      if (error) {
-        throw error;
-      }
-    }
-  }
-
-  const removedProductIds = [...previousProductIds].filter(
-    (productId) => !keptProductIds.has(productId),
-  );
-
-  if (removedProductIds.length) {
-    const { error } = await supabase
-      .from("products")
-      .delete()
-      .in("id", removedProductIds);
-
-    if (error) {
-      throw error;
-    }
-  }
-
-  return (await fetchSurveys(normalizedRoomName)).find((survey) => survey.id === surveyId)!;
+  return apiFetch<Survey>("/api/surveys", {
+    method: draft.id ? "PATCH" : "POST",
+    body: JSON.stringify({ roomName: normalizedRoomName, draft }),
+  });
 }
 
-export async function deleteSurvey(surveyId: string) {
-  if (!supabase) {
+export async function deleteSurvey(surveyId: string, roomName?: string): Promise<void> {
+  if (!hasRemoteDatabase) {
     const surveys = readLocal<Survey[]>(SURVEYS_KEY, []);
     const responses = readLocal<StudentResponse[]>(RESPONSES_KEY, []);
 
@@ -554,11 +343,11 @@ export async function deleteSurvey(surveyId: string) {
     return;
   }
 
-  const { error } = await supabase.from("surveys").delete().eq("id", surveyId);
-
-  if (error) {
-    throw error;
-  }
+  const normalizedRoomName = roomName?.trim();
+  if (!normalizedRoomName) throw new Error("방 이름을 먼저 입력해 주세요.");
+  await apiFetch(`/api/surveys/${encodeURIComponent(surveyId)}?room=${encodeURIComponent(normalizedRoomName)}`, {
+    method: "DELETE",
+  });
 }
 
 export async function updateStudentResponse(
@@ -586,7 +375,7 @@ export async function updateStudentResponse(
     ]),
   );
 
-  if (!supabase) {
+  if (!hasRemoteDatabase) {
     const responses = readLocal<StudentResponse[]>(RESPONSES_KEY, []);
     writeLocal(
       RESPONSES_KEY,
@@ -611,23 +400,15 @@ export async function updateStudentResponse(
     throw new Error("방 이름을 먼저 입력해 주세요.");
   }
 
-  const { error } = await supabase.rpc("update_room_student_response", {
-    quantity_rows: Object.entries(cleanQuantities).map(([item_id, quantity]) => ({
-      item_id,
-      quantity,
-    })),
-    target_class_number: cleanProfile.class_number,
-    target_grade: cleanProfile.grade,
-    target_response_id: responseId,
-    target_room_name: normalizedRoomName,
-    target_student_name: cleanProfile.student_name,
-    target_student_number: cleanProfile.student_number,
-    target_survey_id: surveyId,
+  await apiFetch(`/api/responses/${encodeURIComponent(responseId)}`, {
+    method: "PATCH",
+    body: JSON.stringify({
+      roomName: normalizedRoomName,
+      surveyId,
+      profile: cleanProfile,
+      quantities: cleanQuantities,
+    }),
   });
-
-  if (error) {
-    throw error;
-  }
 }
 
 export async function deleteStudentResponse(
@@ -635,7 +416,7 @@ export async function deleteStudentResponse(
   responseId: string,
   roomName?: string,
 ) {
-  if (!supabase) {
+  if (!hasRemoteDatabase) {
     const responses = readLocal<StudentResponse[]>(RESPONSES_KEY, []);
     writeLocal(
       RESPONSES_KEY,
@@ -651,27 +432,9 @@ export async function deleteStudentResponse(
     throw new Error("방 이름을 먼저 입력해 주세요.");
   }
 
-  const { error } = await supabase.rpc("delete_room_student_response", {
-    target_response_id: responseId,
-    target_room_name: normalizedRoomName,
-    target_survey_id: surveyId,
+  await apiFetch(`/api/responses/${encodeURIComponent(responseId)}?room=${encodeURIComponent(normalizedRoomName)}&surveyId=${encodeURIComponent(surveyId)}`, {
+    method: "DELETE",
   });
-
-  if (error) {
-    throw error;
-  }
-}
-
-function normalizeResponseItems(items: DbResponseRpc["response_items"]) {
-  if (!items) {
-    return [];
-  }
-
-  if (typeof items === "string") {
-    return JSON.parse(items) as DbResponse["response_items"];
-  }
-
-  return items;
 }
 
 export async function fetchResponses(
@@ -680,7 +443,7 @@ export async function fetchResponses(
   roomName?: string,
   revealResponseId?: string | null,
 ): Promise<StudentResponse[]> {
-  if (!supabase) {
+  if (!hasRemoteDatabase) {
     const all = readLocal<StudentResponse[]>(RESPONSES_KEY, []).filter(
       (response) => response.survey_id === surveyId,
     );
@@ -692,21 +455,11 @@ export async function fetchResponses(
     throw new Error("방 이름을 먼저 입력해 주세요.");
   }
 
-  const { data, error } = await supabase.rpc("fetch_room_responses", {
-    include_response_items: !slim,
-    reveal_response_id: revealResponseId ?? null,
-    target_room_name: normalizedRoomName,
-    target_survey_id: surveyId,
-  });
-
-  if (error) {
-    throw error;
-  }
-
-  return ((data ?? []) as DbResponseRpc[]).map((response) => ({
-    ...response,
-    response_items: slim ? [] : normalizeResponseItems(response.response_items),
-  }));
+  const reveal = revealResponseId ? `&reveal=${encodeURIComponent(revealResponseId)}` : "";
+  const responses = await apiFetch<StudentResponse[]>(
+    `/api/responses?room=${encodeURIComponent(normalizedRoomName)}&surveyId=${encodeURIComponent(surveyId)}${reveal}`,
+  );
+  return slim ? responses.map((response) => ({ ...response, response_items: [] })) : responses;
 }
 
 function normalizeAssignmentProfile(profile: StudentProfile): StudentProfile {
@@ -721,6 +474,7 @@ function normalizeAssignmentProfile(profile: StudentProfile): StudentProfile {
 export async function reserveAssignments(
   survey: Survey,
   profile: StudentProfile,
+  roomName?: string,
 ): Promise<AssignmentMap> {
   const cleanProfile = normalizeAssignmentProfile(profile);
 
@@ -728,7 +482,7 @@ export async function reserveAssignments(
     throw new Error("학생 이름을 입력해 주세요.");
   }
 
-  if (!supabase) {
+  if (!hasRemoteDatabase) {
     const storageKey = buildAssignmentStorageKey(survey.id, cleanProfile);
     const stored =
       typeof window === "undefined" ? null : window.localStorage.getItem(storageKey);
@@ -757,52 +511,21 @@ export async function reserveAssignments(
     return nextAssignments;
   }
 
-  const { data, error } = await supabase.rpc("reserve_balanced_assignments", {
-    target_class_number: cleanProfile.class_number,
-    target_grade: cleanProfile.grade,
-    target_student_name: cleanProfile.student_name,
-    target_survey_id: survey.id,
+  const normalizedRoomName = roomName?.trim();
+  if (!normalizedRoomName) throw new Error("방 이름을 먼저 입력해 주세요.");
+  const { assignments } = await apiFetch<{ assignments: AssignmentMap }>("/api/assignments/reserve", {
+    method: "POST",
+    body: JSON.stringify({ roomName: normalizedRoomName, surveyId: survey.id, profile: cleanProfile }),
   });
-
-  if (error) {
-    throw error;
-  }
-
-  return Object.fromEntries(
-    ((data ?? []) as ReservedAssignmentRow[]).map((row) => [
-      row.product_id,
-      row.price_point_id,
-    ]),
-  );
-}
-
-export async function consumeAssignmentReservations(
-  surveyId: string,
-  profile: StudentProfile,
-) {
-  if (!supabase) {
-    return;
-  }
-
-  const cleanProfile = normalizeAssignmentProfile(profile);
-
-  const { error } = await supabase.rpc("consume_assignment_reservations", {
-    target_class_number: cleanProfile.class_number,
-    target_grade: cleanProfile.grade,
-    target_student_name: cleanProfile.student_name,
-    target_survey_id: surveyId,
-  });
-
-  if (error) {
-    throw error;
-  }
+  return assignments;
 }
 
 export async function submitResponse(
   survey: Survey,
   profile: StudentProfile,
   quantities: QuantityMap,
-) {
+  roomName?: string,
+): Promise<string> {
   const hasAssignedQuantity = (pricePointId: string) =>
     Object.prototype.hasOwnProperty.call(quantities, pricePointId);
 
@@ -832,7 +555,7 @@ export async function submitResponse(
     }
   }
 
-  if (!supabase) {
+  if (!hasRemoteDatabase) {
     const responseId = makeId("response");
     const stored = readLocal<StudentResponse[]>(RESPONSES_KEY, []);
     const response: StudentResponse = {
@@ -848,26 +571,19 @@ export async function submitResponse(
     };
 
     writeLocal(RESPONSES_KEY, [response, ...stored]);
-    return response;
+    return response.id;
   }
 
-  const { data: responseId, error: submitError } = await supabase.rpc("submit_student_response", {
-    item_rows: items,
-    target_class_number: profile.class_number,
-    target_grade: profile.grade,
-    target_student_name: profile.student_name,
-    target_student_number: profile.student_number,
-    target_survey_id: survey.id,
+  const normalizedRoomName = roomName?.trim();
+  if (!normalizedRoomName) throw new Error("방 이름을 먼저 입력해 주세요.");
+  const { id } = await apiFetch<{ id: string }>("/api/responses", {
+    method: "POST",
+    body: JSON.stringify({
+      roomName: normalizedRoomName,
+      surveyId: survey.id,
+      profile,
+      quantities,
+    }),
   });
-
-  if (submitError) {
-    throw submitError;
-  }
-
-  try {
-    await consumeAssignmentReservations(survey.id, profile);
-  } catch (error) {
-    console.warn("Failed to consume assignment reservations", error);
-  }
-  return responseId as string;
+  return id;
 }

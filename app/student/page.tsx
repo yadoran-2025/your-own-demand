@@ -123,7 +123,7 @@ export default function StudentPage() {
 
         {!hasRemoteDatabase ? (
           <div className="student-notice">
-            Supabase 환경변수가 없어서 이 브라우저의 localStorage에 저장됩니다.
+            Firebase 환경변수가 없어서 이 브라우저의 localStorage에 저장됩니다.
           </div>
         ) : null}
 
@@ -163,4 +163,3 @@ export default function StudentPage() {
     </RoomGate>
   );
 }
-

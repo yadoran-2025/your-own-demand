@@ -126,7 +126,7 @@ export function StudentResponseForm({
         student_number: 1,
         student_name: profile.student_name.trim(),
       };
-      const nextAssignments = await reserveAssignments(survey, cleanProfile);
+      const nextAssignments = await reserveAssignments(survey, cleanProfile, roomName);
 
       if (!hasCompleteAssignments(survey, nextAssignments)) {
         throw new Error("가격 배정을 완료하지 못했습니다. 새로고침 후 다시 시도해 주세요.");
@@ -249,6 +249,7 @@ export function StudentResponseForm({
         survey,
         trimmedProfile,
         assignedQuantities,
+        roomName,
       );
       if (typeof window !== "undefined") {
         window.localStorage.setItem(

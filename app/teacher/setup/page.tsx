@@ -91,7 +91,7 @@ export default function TeacherSetupPage() {
     }
 
     try {
-      await deleteSurvey(selectedSurvey.id);
+      await deleteSurvey(selectedSurvey.id, roomName);
       setMessage("설문이 삭제되었습니다.");
       setSelectedSurveyId("");
       await loadSurveys();
@@ -142,7 +142,7 @@ export default function TeacherSetupPage() {
 
       {!hasRemoteDatabase ? (
         <div className="teacher-alert" data-tone="warn">
-          Supabase 환경변수가 없어서 localStorage 데모 모드로 동작합니다.
+          Firebase 환경변수가 없어서 localStorage 데모 모드로 동작합니다.
         </div>
       ) : null}
       {message ? <div className="teacher-alert">{message}</div> : null}
@@ -214,4 +214,3 @@ export default function TeacherSetupPage() {
     </TeacherAuthGate>
   );
 }
-

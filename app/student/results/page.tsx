@@ -226,7 +226,7 @@ export default function StudentResultsPage() {
 
           {!hasRemoteDatabase ? (
             <div className="student-notice">
-              Supabase 환경변수가 없어서 이 브라우저의 localStorage 응답만 분석합니다.
+              Firebase 환경변수가 없어서 이 브라우저의 localStorage 응답만 분석합니다.
             </div>
           ) : null}
           {message ? <div className="student-notice" data-tone="error">{message}</div> : null}

@@ -90,4 +90,32 @@ describe("dependency audit regression", () => {
       "Unrecognized npm audit reference: missing-package",
     );
   });
+
+  it("resolves string references to their advisory objects", () => {
+    const report = {
+      vulnerabilities: {
+        next: { via: ["sharp"] },
+        sharp: {
+          via: [{
+            url: "https://github.com/advisories/GHSA-f88m-g3jw-g9cj",
+            severity: "high",
+          }],
+        },
+      },
+    };
+    expect(compareAudit(report, known)).toMatchObject({
+      accepted: ["https://github.com/advisories/GHSA-f88m-g3jw-g9cj"],
+      introduced: [],
+      ok: true,
+    });
+  });
+
+  it.each([
+    { aggregate: {} },
+    { aggregate: { via: [{ severity: "high" }] } },
+  ])("fails closed on malformed vulnerability data: %j", (vulnerabilities) => {
+    expect(() => compareAudit({ vulnerabilities } as never, known)).toThrow(
+      "Unrecognized npm audit",
+    );
+  });
 });

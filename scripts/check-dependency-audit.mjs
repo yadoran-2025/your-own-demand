@@ -14,7 +14,10 @@ export function collectAdvisories(report) {
     if (!vulnerability) {
       throw new Error(`Unrecognized npm audit reference: ${name}`);
     }
-    for (const via of vulnerability.via ?? []) {
+    if (!Array.isArray(vulnerability.via)) {
+      throw new Error(`Unrecognized npm audit vulnerability entry: ${name}`);
+    }
+    for (const via of vulnerability.via) {
       if (typeof via === "string") {
         visit(via);
         continue;

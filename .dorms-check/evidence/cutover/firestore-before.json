@@ -1,0 +1,7 @@
+{
+  "database": {
+    "name": "projects/inflation-2e38b/databases/(default)",
+    "locationId": "nam5",
+    "type": "FIRESTORE_NATIVE"
+  }
+}

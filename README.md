@@ -1,68 +1,41 @@
-﻿# 수요곡선 활동 시스템
+# 수요곡선 활동 시스템
 
-고등학교 경제 수업에서 상품별 가격 구간을 만들고, 학생 응답을 수요곡선으로 시각화하는 Next.js 앱입니다.
+고등학교 경제 수업에서 가격 구간별 학생 응답을 수요곡선으로 시각화하는 Next.js 앱입니다. Vercel이 웹사이트와 서버 API를 실행하고, Firebase Authentication과 Cloud Firestore(프로젝트 ID `inflation-2e38b`)가 인증과 데이터를 처리합니다.
 
-## 주요 기능
-
-- 교사: 설문 제목, 상품, 가격 설명, 가격 구간을 설정
-- 학생: 학년, 반, 번호, 이름을 입력하고 가격별 구매량 제출
-- 차트: 우리 반 평균과 전체 평균 수요곡선 비교
-- 응답 분포: 가격별 0개, 1개, 2개, 3개, 4개 이상 응답 분포 확인
-- 필터: 전체, 학년, 반 기준으로 결과 분석
-- 저장소: Supabase가 없으면 localStorage 데모 모드로 동작
-
-## 기술 스택
-
-- Next.js App Router
-- TypeScript
-- Tailwind CSS
-- Recharts
-- Supabase PostgreSQL
-- BOOONG Design System CSS
-
-## 로컬 실행
+## 로컬 설정
 
 ```bash
 npm install
 cp .env.example .env.local
+npx firebase-tools emulators:start --only firestore
 npm run dev
 ```
 
-브라우저에서 `http://localhost:3000`을 엽니다.
+다른 터미널에서 개발 서버를 실행한 뒤 `http://localhost:3000`을 엽니다. Firebase Emulator는 Java가 필요합니다. 현재 작업 환경에는 Java 런타임이 PATH에 없어 `npm run test:firebase`를 실행하려면 Java를 설치하거나 PATH를 설정해야 합니다.
 
-Supabase 환경변수가 없으면 localStorage 데모 모드로 동작합니다. 실제 반별/전체 실시간 데이터 저장에는 Supabase 설정이 필요합니다.
+`.env.example`의 모든 키에 각 환경의 값을 넣습니다. `FIREBASE_PRIVATE_KEY`와 서비스 계정 자격 증명은 절대 저장소에 커밋하지 않습니다. Firebase 환경변수가 없으면 앱은 브라우저 localStorage 데모 모드로 동작합니다.
 
-## Supabase 설정
+## Firebase Console 설정
 
-1. Supabase 프로젝트를 생성합니다.
-2. SQL Editor에서 `supabase/schema.sql` 내용을 실행합니다.
-3. Project Settings > API에서 URL과 anon key를 복사합니다.
-4. `.env.local`에 값을 넣습니다.
+1. 표시 이름 `inflation`, 프로젝트 ID `inflation-2e38b`를 선택합니다.
+2. Firestore를 활성화합니다.
+3. Authentication 제공업체 `Anonymous`와 `Google`을 활성화합니다.
+4. Authentication authorized domains에 Vercel Production/Preview 도메인을 추가합니다.
+5. Vercel Admin SDK 접근용 최소 권한 서비스 계정을 만듭니다.
+6. `.env.example`의 모든 키를 Vercel Production과 Preview에 추가합니다.
 
-```bash
-NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
-NEXT_PUBLIC_TEACHER_REVIEW_URL=https://blog.naver.com/yadoransw/224282983636
-```
+Cloud Firestore 보안 규칙은 클라이언트의 직접 읽기·쓰기를 거부합니다. 서버 API는 Firebase 토큰을 검증하고 수업 방 소유권을 확인합니다.
 
-교사용 화면을 5번 이상 방문한 브라우저에는 후기 요청 팝업이 표시됩니다.
-후기 링크를 바꾸려면 `NEXT_PUBLIC_TEACHER_REVIEW_URL` 값을 수정합니다.
+## Vercel 배포
 
-현재 MVP는 교실 활동용 단순 공개 정책을 사용합니다. 실제 배포에서는 교사용 비밀번호, 교사 계정, RLS 정책 분리를 추가하는 것을 권장합니다.
+Vercel에서 이 저장소를 연결하고 Production 및 Preview 환경 변수에 `.env.example`의 모든 키를 설정합니다. Firebase Authentication authorized domains에는 배포된 Production 도메인과 Vercel Preview 도메인을 모두 등록합니다. 서비스 계정은 필요한 Admin SDK 권한만 부여합니다.
 
-## 데이터베이스 구조
-
-- `surveys`: 설문 제목
-- `products`: 설문에 포함된 상품
-- `price_points`: 상품별 가격 구간과 설명
-- `responses`: 학생 기본 정보와 응답 묶음
-- `response_items`: 가격별 구매량
-
-상품 또는 가격 구조를 수정해 저장하면 기존 응답은 새 구조와 충돌하지 않도록 해당 설문 응답을 초기화합니다. 수업 중에는 응답을 받기 전에 구조를 확정하는 흐름을 권장합니다.
-
-## 검증 명령
+## 검증
 
 ```bash
+npm test
+npm run test:firebase
+npm run audit:regression
 npm run typecheck
 npm run lint
 npm run build

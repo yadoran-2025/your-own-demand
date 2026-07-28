@@ -12,7 +12,7 @@ export default function PrivacyPage() {
       <article className="legal-card">
         <p className="teacher-eyebrow">법률 및 운영 안내</p>
         <h1>개인정보 처리방침</h1>
-        <p className="legal-muted">시행일: 2026년 7월 18일</p>
+        <p className="legal-muted">시행일: 2026년 7월 28일</p>
 
         <section>
           <h2>1. 처리 목적</h2>
@@ -50,9 +50,10 @@ export default function PrivacyPage() {
         <section>
           <h2>4. 안전성 확보조치</h2>
           <p>
-            서비스는 HTTPS 연결을 사용하고, Supabase Row Level Security로
-            학생 응답 테이블의 직접 익명 조회를 차단합니다. 운영자는 방 이름과
-            설문 관리 권한이 외부에 노출되지 않도록 관리해야 합니다.
+            서비스는 HTTPS 연결을 사용합니다. Cloud Firestore의 직접 클라이언트
+            접근은 거부되며, Vercel 서버 API가 수업 방 소유권을 확인합니다.
+            운영자는 방 이름과 설문 관리 권한이 외부에 노출되지 않도록 관리해야
+            합니다.
           </p>
         </section>
 
@@ -69,11 +70,12 @@ export default function PrivacyPage() {
         <section>
           <h2>6. 처리 위탁 및 국외이전</h2>
           <p>
-            서비스 운영을 위해 GitHub Pages에 정적 웹사이트 호스팅을,
-            Supabase에 데이터베이스 저장 및 실시간 동기화 처리를 위탁합니다.
-            Supabase 프로젝트 리전이 국외인 경우 학생 응답 데이터가 해당 리전의
-            서버로 이전될 수 있으므로, 운영자는 실제 Supabase 리전과 위탁·국외
-            이전 세부 내용을 학교 제출 전 확인해야 합니다.
+            Vercel은 웹사이트를 호스팅하고 서버 API 요청을 처리합니다. Google
+            Firebase Authentication은 교사와 익명 학생 세션을 인증·검증하며, Firebase
+            프로젝트 ID <code>inflation-2e38b</code>의 Cloud Firestore는 설문과
+            응답 데이터를 저장합니다. 운영자는 학교 제출 전에 실제 Firebase/
+            Firestore 리전, Vercel 처리 위치, 하위 처리자, 국외이전 세부 내용을
+            확인해야 합니다.
           </p>
         </section>
 

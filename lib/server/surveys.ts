@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { Timestamp } from "firebase-admin/firestore";
+import { FieldValue, type Timestamp } from "firebase-admin/firestore";
 import { adminDb } from "@/lib/firebase/admin";
 import type { Product, ResponseItem, Survey, SurveyDraft } from "@/lib/types";
 import { ensureTeacherRoom, resolveRoom } from "@/lib/server/rooms";
@@ -79,14 +79,17 @@ export async function saveTeacherSurvey(uid: string, roomName: string, draft: Su
   });
   const surveyRef = adminDb.doc(`rooms/${room.id}/surveys/${surveyId}`);
   const existing = await surveyRef.get();
-  const now = Timestamp.now();
-  await surveyRef.set({
+  const surveyData = {
     title: clean.title,
     classBudgets: clean.classBudgets,
     products,
-    createdAt: existing.exists ? existing.get("createdAt") : now,
-    updatedAt: now,
-  });
+    updatedAt: FieldValue.serverTimestamp(),
+  };
+  if (existing.exists) {
+    await surveyRef.update(surveyData);
+  } else {
+    await surveyRef.create({ ...surveyData, createdAt: FieldValue.serverTimestamp() });
+  }
 
   if (existing.exists) {
     const productIds = new Set(products.map((product) => product.id));
@@ -96,7 +99,9 @@ export async function saveTeacherSurvey(uid: string, roomName: string, draft: Su
     for (const response of responses.docs) {
       const items = (response.get("items") as ResponseItem[] | undefined) ?? [];
       const kept = items.filter((item) => productIds.has(item.product_id) && pricePointIds.has(item.price_point_id));
-      if (kept.length !== items.length) writer.update(response.ref, { items: kept, updatedAt: now });
+      if (kept.length !== items.length) {
+        writer.update(response.ref, { items: kept, updatedAt: FieldValue.serverTimestamp() });
+      }
     }
     await writer.close();
   }

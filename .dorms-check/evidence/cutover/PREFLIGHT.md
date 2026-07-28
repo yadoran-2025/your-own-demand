@@ -14,3 +14,9 @@
 - Approval timestamp (UTC): 2026-07-28T13:40:20Z
 - Deletion audit timestamp (UTC): 2026-07-28T13:48:41.887489Z
 - Recreation timestamp (UTC): 2026-07-28T13:55:07.091395Z
+- Authentication providers enabled: Anonymous, Google
+- Authorized Production domain: inflation-classroom.vercel.app
+- Vercel framework: Next.js
+- Service account: vercel-firestore-api@inflation-2e38b.iam.gserviceaccount.com
+- IAM role: roles/datastore.user
+- Vercel secret values were transferred through stdin and removed locally.

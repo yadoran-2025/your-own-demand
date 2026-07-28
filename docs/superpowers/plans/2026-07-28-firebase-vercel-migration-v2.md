@@ -24,6 +24,11 @@
 - Use Firestore transactions for room-name uniqueness, assignment reservation, and response submission.
 - Use server timestamps for persisted creation/update times; serialize timestamps as ISO 8601 strings at the HTTP boundary.
 - Do not add Cloud Functions, a custom session-cookie system, Redux, an ORM, or a second API framework.
+- Do not use `npm audit fix --force`, dependency downgrades, or untested package overrides to chase an audit count of zero.
+- Treat the six production advisory IDs recorded in `docs/security/dependency-audit-baseline.json` as a temporary, owner-accepted baseline only; any new production advisory or any critical advisory blocks further work.
+- The accepted advisories remain non-exploitable only while the app accepts no user-controlled CSS/source maps, uses no `next/image` or untrusted image processing, and imports no Firebase Admin Storage API.
+- Run `npm run audit:regression` after dependency changes and immediately before Vercel Preview and Production promotion.
+- Reassess every accepted advisory against actual application paths before production; a newly reachable advisory blocks deployment even when its ID is in the baseline.
 - Every task ends with its listed checks passing before its commit.
 
 ---
@@ -61,6 +66,11 @@
 - `tests/server/assignments.test.ts` — stable and balanced assignment integration tests.
 - `tests/server/responses.test.ts` — submission, redaction, budget, edit, and deletion tests.
 - `tests/lib/api-client.test.ts` — bearer-token and API error tests.
+- `docs/security/dependency-risk.md` — accepted advisory scope, exposure analysis, and production recheck rules.
+- `docs/security/dependency-audit-baseline.json` — exact accepted production advisory IDs.
+- `scripts/check-dependency-audit.mjs` — fail on new or critical production advisories.
+- `scripts/check-dependency-audit.d.mts` — TypeScript declarations for the audit checker imported by tests.
+- `tests/lib/dependency-audit.test.ts` — regression tests for audit comparison.
 
 **Modify**
 
@@ -94,117 +104,309 @@
 
 ---
 
-### Task 1: Establish a Server-Capable Next.js and Test Baseline
+### Task 1: Record and Enforce the Temporary Dependency-Risk Baseline
 
 **Files:**
 - Modify: `package.json`
-- Modify: `package-lock.json`
-- Modify: `next.config.ts:1-14`
-- Create: `vitest.config.ts`
-- Create: `tests/lib/next-runtime.test.ts`
+- Create: `docs/security/dependency-risk.md`
+- Create: `docs/security/dependency-audit-baseline.json`
+- Create: `scripts/check-dependency-audit.mjs`
+- Create: `scripts/check-dependency-audit.d.mts`
+- Create: `tests/lib/dependency-audit.test.ts`
 
 **Interfaces:**
-- Consumes: existing `@/*` TypeScript alias from `tsconfig.json`.
-- Produces: `npm test`, `npm run test:firebase`, and a Next.js build that permits Route Handlers.
+- Consumes: current committed dependency state after commits `1c3f7dd` and `0a6456f`, plus `npm audit --omit=dev --json`.
+- Produces: `collectAdvisories(report)`, `compareAudit(report, baseline)`, and `npm run audit:regression`.
 
-- [ ] **Step 1: Install runtime and test dependencies**
+- [ ] **Step 1: Write the failing comparison tests**
 
-Run:
-
-```bash
-npm install firebase firebase-admin
-npm install --save-dev vitest @firebase/rules-unit-testing firebase-tools
-```
-
-Expected: `package.json` contains `firebase`, `firebase-admin`, `vitest`, `@firebase/rules-unit-testing`, and `firebase-tools`.
-
-- [ ] **Step 2: Add test scripts**
-
-Add these entries under `scripts` in `package.json`:
-
-```json
-"test": "vitest run --exclude tests/firebase/** --exclude tests/server/**",
-"test:watch": "vitest --exclude tests/firebase/** --exclude tests/server/**",
-"test:firebase": "firebase emulators:exec --only firestore \"vitest run tests/firebase tests/server\""
-```
-
-- [ ] **Step 3: Write the failing runtime configuration test**
-
-Create `tests/lib/next-runtime.test.ts`:
+Create `tests/lib/dependency-audit.test.ts`:
 
 ```ts
 import { describe, expect, it } from "vitest";
-import nextConfig from "@/next.config";
+import {
+  collectAdvisories,
+  compareAudit,
+} from "@/scripts/check-dependency-audit.mjs";
 
-describe("Next runtime", () => {
-  it("does not use a static export or GitHub Pages base path", () => {
-    expect(nextConfig.output).toBeUndefined();
-    expect(nextConfig.basePath).toBeUndefined();
+const known = {
+  advisories: [
+    {
+      url: "https://github.com/advisories/GHSA-f88m-g3jw-g9cj",
+      severity: "high",
+    },
+  ],
+};
+
+describe("dependency audit regression", () => {
+  it("accepts only recorded production advisories", () => {
+    const report = {
+      vulnerabilities: {
+        sharp: {
+          via: [{
+            url: "https://github.com/advisories/GHSA-f88m-g3jw-g9cj",
+            severity: "high",
+          }],
+        },
+      },
+    };
+    expect(compareAudit(report, known)).toEqual({
+      accepted: ["https://github.com/advisories/GHSA-f88m-g3jw-g9cj"],
+      critical: [],
+      introduced: [],
+      ok: true,
+    });
+  });
+
+  it("rejects a new advisory and every critical advisory", () => {
+    const report = {
+      vulnerabilities: {
+        packageA: {
+          via: [
+            {
+              url: "https://github.com/advisories/GHSA-new1-new2-new3",
+              severity: "high",
+            },
+            {
+              url: "https://github.com/advisories/GHSA-crit-ical-risk",
+              severity: "critical",
+            },
+          ],
+        },
+      },
+    };
+    expect(collectAdvisories(report)).toHaveLength(2);
+    expect(compareAudit(report, known)).toMatchObject({
+      critical: ["https://github.com/advisories/GHSA-crit-ical-risk"],
+      introduced: [
+        "https://github.com/advisories/GHSA-crit-ical-risk",
+        "https://github.com/advisories/GHSA-new1-new2-new3",
+      ],
+      ok: false,
+    });
   });
 });
 ```
 
-Create `vitest.config.ts`:
-
-```ts
-import { fileURLToPath } from "node:url";
-import { defineConfig } from "vitest/config";
-
-export default defineConfig({
-  resolve: {
-    alias: {
-      "@": fileURLToPath(new URL(".", import.meta.url)),
-    },
-  },
-  test: {
-    environment: "node",
-  },
-});
-```
-
-- [ ] **Step 4: Run the test and verify the old static configuration fails**
+- [ ] **Step 2: Run the test and verify the missing module failure**
 
 Run:
 
 ```bash
-npm test -- tests/lib/next-runtime.test.ts
+npm test -- tests/lib/dependency-audit.test.ts
 ```
 
-Expected: FAIL because `output` is `"export"` and production `basePath` is `"/your-own-demand"`.
+Expected: FAIL because `scripts/check-dependency-audit.mjs` does not exist.
 
-- [ ] **Step 5: Remove static export and base path**
+- [ ] **Step 3: Record the exact accepted advisory IDs**
 
-Replace `next.config.ts` with:
+Create `docs/security/dependency-audit-baseline.json`:
+
+```json
+{
+  "recordedAt": "2026-07-28",
+  "scope": "npm audit --omit=dev",
+  "advisories": [
+    {
+      "url": "https://github.com/advisories/GHSA-mh99-v99m-4gvg",
+      "severity": "high"
+    },
+    {
+      "url": "https://github.com/advisories/GHSA-qx2v-qp2m-jg93",
+      "severity": "moderate"
+    },
+    {
+      "url": "https://github.com/advisories/GHSA-6g55-p6wh-862q",
+      "severity": "high"
+    },
+    {
+      "url": "https://github.com/advisories/GHSA-r28c-9q8g-f849",
+      "severity": "high"
+    },
+    {
+      "url": "https://github.com/advisories/GHSA-f88m-g3jw-g9cj",
+      "severity": "high"
+    },
+    {
+      "url": "https://github.com/advisories/GHSA-w5hq-g745-h8pq",
+      "severity": "moderate"
+    }
+  ]
+}
+```
+
+- [ ] **Step 4: Implement the comparison and CLI**
+
+Create `scripts/check-dependency-audit.mjs`:
+
+```js
+import { readFile } from "node:fs/promises";
+import { spawnSync } from "node:child_process";
+import { fileURLToPath } from "node:url";
+
+export function collectAdvisories(report) {
+  const byUrl = new Map();
+  for (const vulnerability of Object.values(report.vulnerabilities ?? {})) {
+    for (const via of vulnerability.via ?? []) {
+      if (typeof via !== "object" || !via.url) continue;
+      byUrl.set(via.url, {
+        severity: via.severity,
+        url: via.url,
+      });
+    }
+  }
+  return [...byUrl.values()].sort((left, right) =>
+    left.url.localeCompare(right.url),
+  );
+}
+
+export function compareAudit(report, baseline) {
+  const allowed = new Set(baseline.advisories.map((item) => item.url));
+  const advisories = collectAdvisories(report);
+  const accepted = advisories
+    .filter((item) => allowed.has(item.url))
+    .map((item) => item.url);
+  const introduced = advisories
+    .filter((item) => !allowed.has(item.url))
+    .map((item) => item.url);
+  const critical = advisories
+    .filter((item) => item.severity === "critical")
+    .map((item) => item.url);
+  return {
+    accepted,
+    critical,
+    introduced,
+    ok: introduced.length === 0 && critical.length === 0,
+  };
+}
+
+async function main() {
+  const audit = spawnSync("npm", ["audit", "--omit=dev", "--json"], {
+    encoding: "utf8",
+  });
+  if (!audit.stdout.trim()) {
+    console.error(audit.stderr || "npm audit returned no JSON.");
+    process.exit(2);
+  }
+  const report = JSON.parse(audit.stdout);
+  const baseline = JSON.parse(
+    await readFile(
+      new URL("../docs/security/dependency-audit-baseline.json", import.meta.url),
+      "utf8",
+    ),
+  );
+  const result = compareAudit(report, baseline);
+  console.log(
+    `${result.accepted.length} accepted advisories; ` +
+    `${result.introduced.length} new; ${result.critical.length} critical`,
+  );
+  if (!result.ok) {
+    for (const url of result.introduced) console.error(`NEW ${url}`);
+    for (const url of result.critical) console.error(`CRITICAL ${url}`);
+    process.exit(1);
+  }
+}
+
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
+  await main();
+}
+```
+
+Create `scripts/check-dependency-audit.d.mts`:
 
 ```ts
-import type { NextConfig } from "next";
-
-const nextConfig: NextConfig = {
-  turbopack: {
-    root: process.cwd(),
-  },
+export type AuditAdvisory = {
+  severity: string;
+  url: string;
 };
 
-export default nextConfig;
+export type AuditReport = {
+  vulnerabilities?: Record<string, {
+    via?: Array<string | AuditAdvisory>;
+  }>;
+};
+
+export type AuditBaseline = {
+  advisories: AuditAdvisory[];
+};
+
+export function collectAdvisories(report: AuditReport): AuditAdvisory[];
+export function compareAudit(
+  report: AuditReport,
+  baseline: AuditBaseline,
+): {
+  accepted: string[];
+  critical: string[];
+  introduced: string[];
+  ok: boolean;
+};
 ```
 
-- [ ] **Step 6: Verify the runtime test and baseline build**
+Add to `package.json`:
+
+```json
+"audit:regression": "node scripts/check-dependency-audit.mjs"
+```
+
+- [ ] **Step 5: Document why the current baseline is temporarily accepted**
+
+Create `docs/security/dependency-risk.md` with these exact operational conclusions:
+
+```markdown
+# Dependency advisory baseline
+
+Recorded: 2026-07-28
+
+`npm audit --omit=dev` currently resolves six distinct advisory IDs through
+Next.js and Firebase Admin dependency trees. Safe compatible upgrades were
+applied in commit `0a6456f`; `npm audit fix --force` proposes breaking
+downgrades and is prohibited.
+
+Temporary exposure ruling:
+
+- PostCSS advisories are not reachable because the application accepts no
+  user-controlled CSS, source maps, or build input.
+- The Sharp/libvips advisory is not reachable while the application imports no
+  `next/image`, exposes no image-optimization endpoint in its UI, and processes
+  no user-supplied images.
+- Firebase Admin Storage/UUID advisories are not reachable while server code
+  imports only `firebase-admin/app`, `firebase-admin/auth`, and
+  `firebase-admin/firestore`; Storage APIs and user-provided UUID buffers are
+  forbidden.
+- Brace-expansion/minimatch/glob/rimraf findings are transitive tooling paths;
+  application request data must never be passed to those packages.
+
+This is not blanket acceptance of high-severity findings. Run
+`npm run audit:regression` after every dependency change and before Preview and
+Production deployment. Any new advisory, any critical advisory, use of
+`next/image`, user-controlled CSS/source maps/images, Firebase Admin Storage, or
+changed request flow into the listed packages blocks deployment until this
+document and baseline are reviewed again.
+```
+
+- [ ] **Step 6: Verify RED became GREEN and validate exposure assumptions**
 
 Run:
 
 ```bash
-npm test -- tests/lib/next-runtime.test.ts
+npm test -- tests/lib/dependency-audit.test.ts
+npm run audit:regression
+rg -n "from ['\"]next/image|<Image" app components lib
+rg -n "firebase-admin/storage|getStorage" app components lib
 npm run typecheck
+npm run lint
 npm run build
 ```
 
-Expected: all commands exit 0; build output no longer reports a static export to `out`.
+Expected: test, audit regression, typecheck, lint, and build exit 0. Both `rg`
+commands print no matches. Audit output reports `6 accepted advisories; 0 new;
+0 critical`.
 
 - [ ] **Step 7: Commit**
 
 ```bash
-git add package.json package-lock.json next.config.ts vitest.config.ts tests/lib/next-runtime.test.ts
-git commit -m "build: prepare Next app for Firebase and Vercel"
+git add package.json docs/security scripts/check-dependency-audit.mjs scripts/check-dependency-audit.d.mts tests/lib/dependency-audit.test.ts
+git commit -m "security: baseline accepted dependency advisories"
 ```
 
 ---
@@ -1714,6 +1916,7 @@ npx firebase-tools emulators:start --only firestore
 npm run dev
 npm test
 npm run test:firebase
+npm run audit:regression
 npm run typecheck
 npm run lint
 npm run build
@@ -1735,6 +1938,7 @@ Run:
 ```bash
 npm test -- tests/lib/deployment-config.test.ts
 npm test
+npm run audit:regression
 npm run typecheck
 npm run lint
 npm run build
@@ -1789,6 +1993,7 @@ Expected: output identifies project `inflation` and reports a successful rules r
 Add each `.env.example` key in Vercel Project Settings. Store `FIREBASE_PRIVATE_KEY` as the complete PEM value with newline characters. Link the repository and capture the generated Preview URL:
 
 ```bash
+npm run audit:regression
 npx vercel pull --yes
 npx vercel deploy --yes | tail -n 1 > .vercel/firebase-migration-preview-url
 tr -d '\n' < .vercel/firebase-migration-preview-url
@@ -1837,6 +2042,9 @@ Run:
 ```bash
 npm test
 npm run test:firebase
+npm run audit:regression
+rg -n "from ['\"]next/image|<Image" app components lib
+rg -n "firebase-admin/storage|getStorage" app components lib
 npm run typecheck
 npm run lint
 npm run build
@@ -1845,7 +2053,7 @@ npx -y dorms-check@latest scan --url "$preview_url"
 npx -y dorms-check@latest status
 ```
 
-Expected: local commands exit 0; dorms-check reports no newly introduced Firebase public-read or unauthenticated-endpoint finding. Do not judge or remediate dorms-check findings without following the `dorms-security-check` consent workflow.
+Expected: tests and audit regression exit 0; both exposure-path `rg` commands print no matches; dorms-check reports no newly introduced Firebase public-read or unauthenticated-endpoint finding. Do not judge or remediate dorms-check findings without following the `dorms-security-check` consent workflow.
 
 - [ ] **Step 8: Promote the verified build to Vercel Production**
 
@@ -1932,6 +2140,7 @@ rg -n -i "supabase|github pages|deploy-pages" \
   next.config.ts vercel.json .env.example .github || true
 npm test
 npm run test:firebase
+npm run audit:regression
 npm run typecheck
 npm run lint
 npm run build
@@ -1972,6 +2181,7 @@ Run:
 
 ```bash
 production_deployment_url="$(tr -d '\n' < .vercel/firebase-migration-preview-url)"
+npm run audit:regression
 npx -y dorms-check@latest scan --url "$production_deployment_url"
 npx -y dorms-check@latest status
 ```
@@ -1984,7 +2194,7 @@ Expected: Production uses Firebase project `inflation`, remaining Supabase netwo
 
 ## Self-Review Record
 
-- **Spec coverage:** Firebase project `inflation` is covered in Tasks 2 and 11; Vercel hosting/API migration in Tasks 1, 3-10, and 11; empty-database start in the global constraints and Task 11; permanent Supabase removal in Task 12 behind an explicit approval gate.
+- **Spec coverage:** dependency-risk acceptance and regression blocking are covered in Tasks 1, 10, 11, and 12; Firebase project `inflation` is covered in Tasks 2 and 11; Vercel hosting/API migration in Tasks 3-11; empty-database start in the global constraints and Task 11; permanent Supabase removal in Task 12 behind an explicit approval gate.
 - **Security coverage:** teacher ownership, anonymous student identity, API token verification, direct Firestore denial, response redaction, authoritative validation, CSP, privacy copy, and post-deploy scan each have an implementation and verification task.
 - **Behavior coverage:** default survey creation, survey CRUD, class budgets, balanced assignment, submission, teacher response CRUD, student result reveal, teacher polling, and localStorage fallback are retained.
 - **Type consistency:** room name remains the external lookup value; server services resolve it to `roomId`; assignment and response functions use `StudentProfile`, `QuantityMap`, and `Record<string, string>` consistently.

@@ -32,6 +32,16 @@ function validateProducts(products: unknown): asserts products is Product[] {
   }
 }
 
+function hasCurrentAssignments(assignments: unknown, products: Product[]): assignments is Record<string, string> {
+  if (!assignments || Array.isArray(assignments) || Object.getPrototypeOf(assignments) !== Object.prototype) return false;
+  const record = assignments as Record<string, unknown>;
+  const entries = Object.entries(record);
+  return entries.length === products.length && products.every((product) =>
+    typeof record[product.id] === "string" &&
+    product.price_points.some((point) => point.id === record[product.id]),
+  );
+}
+
 export async function reserveAssignmentsForUser(
   uid: string,
   roomName: string,
@@ -58,19 +68,18 @@ export async function reserveAssignmentsForUser(
     ]);
     if (!surveySnapshot.exists) throw new Error("설문을 찾지 못했습니다.");
 
-    const existing = reservationSnapshot.data();
-    if (existing && existing.consumedAt == null && existing.expiresAt instanceof Timestamp && existing.expiresAt.toMillis() > Date.now() &&
-      existing.assignments && typeof existing.assignments === "object") {
-      return existing.assignments as Record<string, string>;
-    }
-
     const products = surveySnapshot.get("products");
     validateProducts(products);
+    const existing = reservationSnapshot.data();
+    if (existing && existing.consumedAt == null && existing.expiresAt instanceof Timestamp && existing.expiresAt.toMillis() > Date.now() &&
+      hasCurrentAssignments(existing.assignments, products)) {
+      return existing.assignments;
+    }
     const state = (stateSnapshot.data() as AssignmentState | undefined) ?? { nextByProduct: {} };
     const nextByProduct = { ...(state.nextByProduct ?? {}) };
     const assignments: Record<string, string> = {};
-    for (const product of [...products].sort((left, right) => left.sort_order - right.sort_order)) {
-      const points = [...product.price_points].sort((left, right) => left.sort_order - right.sort_order);
+    for (const product of [...products].sort((left, right) => left.sort_order - right.sort_order || left.id.localeCompare(right.id))) {
+      const points = [...product.price_points].sort((left, right) => left.sort_order - right.sort_order || left.id.localeCompare(right.id));
       const next = Number.isSafeInteger(nextByProduct[product.id]) && nextByProduct[product.id] >= 0
         ? nextByProduct[product.id]
         : 0;

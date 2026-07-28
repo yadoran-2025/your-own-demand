@@ -143,10 +143,13 @@ export async function listResponsesForUser(actor: { uid: string; isTeacher: bool
   const survey = await surveyRef.get();
   if (!survey.exists) throw new Error("설문을 찾지 못했습니다.");
   const snapshots = await surveyRef.collection("responses").orderBy("createdAt", "desc").get();
+  const usedIds = new Set(snapshots.docs.map((snapshot) => snapshot.id));
   return snapshots.docs.map((snapshot, index) => {
     const response = responseFromSnapshot(snapshot);
     if (!actor.isTeacher && !(snapshot.id === revealResponseId && snapshot.get("submitterUid") === actor.uid)) {
-      const id = `redacted-${index}`;
+      let id = `redacted-${index}`;
+      for (let suffix = index; usedIds.has(id); suffix += 1) id = `redacted-${suffix + 1}`;
+      usedIds.add(id);
       return {
         ...response,
         id,

@@ -21,6 +21,12 @@ const profileB: StudentProfile = {
   student_number: 2,
   student_name: "학생B",
 };
+const profileC: StudentProfile = {
+  grade: 1,
+  class_number: 1,
+  student_number: 3,
+  student_name: "학생C",
+};
 
 async function fixture() {
   const { saveTeacherSurvey } = await import("@/lib/server/surveys");
@@ -100,6 +106,29 @@ it("redacts foreign UID and identity even when student spoofs reveal ID", async 
   expect(foreign?.response_items[0].response_id).toBe(foreign?.id);
   expect(rows.every((row) => row.student_name === "" && row.student_number === 0)).toBe(true);
   expect(JSON.stringify(rows)).not.toContain("student-b");
+});
+
+it("uses collision-free opaque IDs while preserving own reveal and teacher rows", async () => {
+  const { submitResponseForUser, listResponsesForUser } = await import("@/lib/server/responses");
+  const { reserveAssignmentsForUser } = await import("@/lib/server/assignments");
+  const { survey, assignmentsA } = await fixture();
+  const collisionAssignments = await reserveAssignmentsForUser("redacted-0", roomName, survey.id, profileC);
+  const assignmentsB = await reserveAssignmentsForUser("student-b", roomName, survey.id, profileB);
+  await submitResponseForUser("student-a", roomName, survey.id, profileA, { [Object.values(assignmentsA)[0]]: 1 });
+  await submitResponseForUser("student-b", roomName, survey.id, profileB, { [Object.values(assignmentsB)[0]]: 1 });
+  await submitResponseForUser("redacted-0", roomName, survey.id, profileC, { [Object.values(collisionAssignments)[0]]: 1 });
+  const studentRows = await listResponsesForUser({ uid: "student-a", isTeacher: false }, roomName, survey.id, "student-a");
+  expect(new Set(studentRows.map((row) => row.id)).size).toBe(studentRows.length);
+  expect(JSON.stringify(studentRows)).not.toContain("redacted-0");
+  const own = studentRows.find((row) => row.id === "student-a");
+  expect(own).toMatchObject({ student_name: "학생A", student_number: 1 });
+  expect(own?.response_items[0].response_id).toBe("student-a");
+  expect(studentRows.filter((row) => row.id !== "student-a").every((row) =>
+    row.student_name === "" && row.student_number === 0 && row.response_items.every((item) => item.response_id === row.id),
+  )).toBe(true);
+  const teacherRows = await listResponsesForUser({ uid: "teacher-a", isTeacher: true }, roomName, survey.id);
+  expect(teacherRows.find((row) => row.id === "redacted-0")).toMatchObject({ student_name: "학생C", student_number: 3 });
+  expect(teacherRows.find((row) => row.id === "redacted-0")?.response_items[0].response_id).toBe("redacted-0");
 });
 
 it("rejects missing, expired, consumed, and profile-mismatched reservations", async () => {

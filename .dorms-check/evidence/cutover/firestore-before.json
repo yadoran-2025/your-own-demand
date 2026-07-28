@@ -1,7 +1,22 @@
 {
-  "database": {
+  "status": "success",
+  "result": {
     "name": "projects/inflation-2e38b/databases/(default)",
+    "uid": "db65a4a0-a7ab-4031-83f5-30b3620a8ffa",
+    "createTime": "2026-06-01T14:32:16.286765Z",
+    "updateTime": "2026-06-01T14:32:16.286765Z",
     "locationId": "nam5",
-    "type": "FIRESTORE_NATIVE"
+    "type": "FIRESTORE_NATIVE",
+    "concurrencyMode": "PESSIMISTIC",
+    "versionRetentionPeriod": "3600s",
+    "earliestVersionTime": "2026-07-28T12:43:30.867659Z",
+    "appEngineIntegrationMode": "DISABLED",
+    "keyPrefix": "s",
+    "pointInTimeRecoveryEnablement": "POINT_IN_TIME_RECOVERY_DISABLED",
+    "deleteProtectionState": "DELETE_PROTECTION_DISABLED",
+    "databaseEdition": "STANDARD",
+    "freeTier": true,
+    "realtimeUpdatesMode": "REALTIME_UPDATES_MODE_ENABLED",
+    "etag": "IJ7+8LHA9ZUDMOXwlryh5pQD"
   }
 }

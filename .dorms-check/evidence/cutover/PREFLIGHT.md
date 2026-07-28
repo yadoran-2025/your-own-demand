@@ -10,5 +10,5 @@
 - Supabase remains untouched until Production verification and a separate approval.
 - Firestore Seoul storage does not remove Firebase Authentication or Vercel overseas processing.
 - Resolved root collection IDs: `classes`, `spaces`
-- Destructive approval: explicitly confirmed by human via controller for deletion of all records in this database and empty recreation at target location.
+- Destructive approval: human explicitly approved permanent deletion of Firebase project `inflation-2e38b`, database `(default)`, currently in `nam5`, including resolved root collections `classes` and `spaces`, and empty recreation as `(default)` in `asia-northeast3`.
 - Approval timestamp (UTC): 2026-07-28T13:40:20Z

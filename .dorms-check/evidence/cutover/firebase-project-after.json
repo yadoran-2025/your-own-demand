@@ -1,0 +1,10 @@
+{
+  "status": "success",
+  "result": [
+    {
+      "projectId": "inflation-2e38b",
+      "displayName": "inflation",
+      "state": "ACTIVE"
+    }
+  ]
+}

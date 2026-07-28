@@ -1,0 +1,12 @@
+{
+  "status": "success",
+  "result": [
+    {
+      "name": "projects/inflation-2e38b/databases/(default)",
+      "locationId": "asia-northeast3",
+      "type": "FIRESTORE_NATIVE",
+      "databaseEdition": "STANDARD",
+      "deleteProtectionState": "DELETE_PROTECTION_ENABLED"
+    }
+  ]
+}

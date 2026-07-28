@@ -62,6 +62,58 @@ describe("startPolling", () => {
     stop();
   });
 
+  it("reports a synchronous custom reporter failure without leaking rejection", async () => {
+    vi.useFakeTimers();
+    const callbackError = new Error("callback failed");
+    const reporterError = new Error("reporter failed");
+    const consoleError = vi.spyOn(console, "error").mockImplementation(() => undefined);
+    const stop = startPolling(
+      () => Promise.reject(callbackError),
+      {
+        intervalMs: 100,
+        onError: () => {
+          throw reporterError;
+        },
+      },
+    );
+
+    await vi.advanceTimersByTimeAsync(100);
+    expect(consoleError).toHaveBeenCalledExactlyOnceWith(
+      "Polling error reporter failed",
+      reporterError,
+    );
+    stop();
+  });
+
+  it("waits for and reports an asynchronously rejected custom reporter", async () => {
+    vi.useFakeTimers();
+    let rejectReporter!: (error: Error) => void;
+    const callbackError = new Error("callback failed");
+    const reporterError = new Error("reporter failed");
+    const consoleError = vi.spyOn(console, "error").mockImplementation(() => undefined);
+    const callback = vi.fn(() => Promise.reject(callbackError));
+    const stop = startPolling(callback, {
+      intervalMs: 100,
+      onError: () => new Promise<void>((_resolve, reject) => {
+        rejectReporter = reject;
+      }),
+    });
+
+    await vi.advanceTimersByTimeAsync(300);
+    expect(callback).toHaveBeenCalledExactlyOnceWith();
+
+    rejectReporter(reporterError);
+    await vi.advanceTimersByTimeAsync(0);
+    expect(consoleError).toHaveBeenCalledExactlyOnceWith(
+      "Polling error reporter failed",
+      reporterError,
+    );
+
+    await vi.advanceTimersByTimeAsync(100);
+    expect(callback).toHaveBeenCalledTimes(2);
+    stop();
+  });
+
   it("stops pending callbacks without scheduling another poll", async () => {
     vi.useFakeTimers();
     let resolve!: () => void;

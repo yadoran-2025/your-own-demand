@@ -1,6 +1,6 @@
 type PollingOptions = {
   intervalMs?: number;
-  onError?: (error: unknown) => void;
+  onError?: (error: unknown) => void | Promise<void>;
 };
 
 export function startPolling(
@@ -15,11 +15,11 @@ export function startPolling(
     running = true;
     void Promise.resolve()
       .then(() => callback())
-      .catch((error: unknown) => {
+      .catch(async (error: unknown) => {
         try {
-          onError(error);
+          await onError(error);
         } catch (reportError) {
-          console.error("Polling error reporter failed", reportError);
+          safeConsoleError("Polling error reporter failed", reportError);
         }
       })
       .finally(() => {
@@ -35,5 +35,13 @@ export function startPolling(
 }
 
 function defaultOnError(error: unknown) {
-  console.error("Polling callback failed", error);
+  safeConsoleError("Polling callback failed", error);
+}
+
+function safeConsoleError(...args: unknown[]) {
+  try {
+    console.error(...args);
+  } catch {
+    // Logging must not turn a handled polling failure into an unhandled rejection.
+  }
 }

@@ -1111,6 +1111,7 @@ git commit -m "feat: add Firebase teacher and student authentication"
 - Create: `lib/server/rooms.ts`
 - Create: `app/api/rooms/ensure/route.ts`
 - Create: `tests/server/rooms.test.ts`
+- Create: `tests/server/auth.test.ts`
 - Create: `tests/server/firebase-test-env.ts`
 
 **Interfaces:**
@@ -1203,6 +1204,69 @@ it("creates one owner-bound room and rejects a second owner", async () => {
 });
 ```
 
+Create `tests/server/auth.test.ts`:
+
+```ts
+import { beforeEach, expect, it, vi } from "vitest";
+
+const { verifyIdToken } = vi.hoisted(() => ({
+  verifyIdToken: vi.fn(),
+}));
+
+vi.mock("server-only", () => ({}));
+vi.mock("@/lib/firebase/admin", () => ({
+  adminAuth: { verifyIdToken },
+}));
+
+beforeEach(() => verifyIdToken.mockReset());
+
+function bearerRequest() {
+  return new Request("http://localhost/api/test", {
+    headers: { Authorization: "Bearer test-token" },
+  });
+}
+
+it("classifies a rejected Firebase token as 401", async () => {
+  verifyIdToken.mockRejectedValue(new Error("auth/id-token-expired"));
+  const { requireUser } = await import("@/lib/server/auth");
+  await expect(requireUser(bearerRequest())).rejects.toMatchObject({
+    message: "유효한 로그인이 필요합니다.",
+    status: 401,
+  });
+});
+
+it.each([
+  { firebase: { sign_in_provider: "anonymous" }, uid: "student" },
+  { firebase: {}, uid: "missing-provider" },
+])("classifies a non-teacher token as 403: %j", async (token) => {
+  verifyIdToken.mockResolvedValue(token);
+  const { requireTeacher } = await import("@/lib/server/auth");
+  await expect(requireTeacher(bearerRequest())).rejects.toMatchObject({
+    message: "교사 권한이 필요합니다.",
+    status: 403,
+  });
+});
+
+it("accepts a verified non-anonymous teacher", async () => {
+  const teacher = {
+    firebase: { sign_in_provider: "google.com" },
+    uid: "teacher",
+  };
+  verifyIdToken.mockResolvedValue(teacher);
+  const { requireTeacher } = await import("@/lib/server/auth");
+  await expect(requireTeacher(bearerRequest())).resolves.toBe(teacher);
+});
+
+it("uses an explicit HttpError status in the JSON response", async () => {
+  const { HttpError, jsonError } = await import("@/lib/server/http");
+  const response = jsonError(new HttpError(403, "교사 권한이 필요합니다."));
+  expect(response.status).toBe(403);
+  await expect(response.json()).resolves.toEqual({
+    error: "교사 권한이 필요합니다.",
+  });
+});
+```
+
 - [ ] **Step 3: Run tests and verify missing implementation failure**
 
 Run:
@@ -1211,7 +1275,7 @@ Run:
 npm run test:firebase
 ```
 
-Expected: FAIL because `lib/server/rooms.ts` does not exist.
+Expected for a fresh implementation: FAIL because `lib/server/rooms.ts` does not exist. During the reviewed Task 4 fix, run `tests/server/auth.test.ts` against the existing implementation and expect failures because rejected tokens have no explicit `status`, anonymous tokens report 401 semantics, and missing providers pass.
 
 - [ ] **Step 4: Implement auth and JSON helpers**
 
@@ -1220,17 +1284,25 @@ Create `lib/server/auth.ts`:
 ```ts
 import type { DecodedIdToken } from "firebase-admin/auth";
 import { adminAuth } from "@/lib/firebase/admin";
+import { HttpError } from "@/lib/server/http";
 
 export async function requireUser(request: Request): Promise<DecodedIdToken> {
   const value = request.headers.get("authorization");
-  if (!value?.startsWith("Bearer ")) throw new Error("로그인이 필요합니다.");
-  return adminAuth.verifyIdToken(value.slice(7));
+  if (!value?.startsWith("Bearer ")) {
+    throw new HttpError(401, "로그인이 필요합니다.");
+  }
+  try {
+    return await adminAuth.verifyIdToken(value.slice(7));
+  } catch {
+    throw new HttpError(401, "유효한 로그인이 필요합니다.");
+  }
 }
 
 export async function requireTeacher(request: Request): Promise<DecodedIdToken> {
   const token = await requireUser(request);
-  if (token.firebase.sign_in_provider === "anonymous") {
-    throw new Error("교사 로그인이 필요합니다.");
+  const provider = token.firebase?.sign_in_provider;
+  if (!provider || provider === "anonymous") {
+    throw new HttpError(403, "교사 권한이 필요합니다.");
   }
   return token;
 }
@@ -1241,11 +1313,21 @@ Create `lib/server/http.ts`:
 ```ts
 import { NextResponse } from "next/server";
 
+export class HttpError extends Error {
+  constructor(
+    readonly status: number,
+    message: string,
+  ) {
+    super(message);
+    this.name = "HttpError";
+  }
+}
+
 export const jsonOk = <T>(body: T, status = 200) => NextResponse.json(body, { status });
 
 export function jsonError(error: unknown) {
   const message = error instanceof Error ? error.message : "요청을 처리하지 못했습니다.";
-  const status = message.includes("로그인") ? 401
+  const status = error instanceof HttpError ? error.status
     : message.includes("권한") || message.includes("다른 교사") ? 403
     : message.includes("찾지 못") ? 404
     : 400;
@@ -1341,7 +1423,7 @@ Expected: all commands exit 0.
 - [ ] **Step 8: Commit**
 
 ```bash
-git add lib/firebase/documents.ts lib/server/auth.ts lib/server/http.ts lib/server/rooms.ts app/api/rooms/ensure/route.ts tests/server/firebase-test-env.ts tests/server/rooms.test.ts
+git add lib/firebase/documents.ts lib/server/auth.ts lib/server/http.ts lib/server/rooms.ts app/api/rooms/ensure/route.ts tests/server/firebase-test-env.ts tests/server/rooms.test.ts tests/server/auth.test.ts
 git commit -m "feat: add owner-bound Firebase rooms"
 ```
 

@@ -185,6 +185,36 @@ describe("dependency audit regression", () => {
       ok: false,
     });
   });
+
+  it("rejects a recorded advisory when its severity becomes critical", () => {
+    const report = {
+      vulnerabilities: {
+        sharp: {
+          via: [{
+            url: "https://github.com/advisories/GHSA-f88m-g3jw-g9cj",
+            severity: "critical",
+          }],
+        },
+      },
+    };
+    expect(compareAudit(report, known)).toEqual({
+      accepted: ["https://github.com/advisories/GHSA-f88m-g3jw-g9cj"],
+      critical: ["https://github.com/advisories/GHSA-f88m-g3jw-g9cj"],
+      introduced: [],
+      ok: false,
+    });
+  });
+
+  it("fails closed on unresolved npm audit references", () => {
+    const report = {
+      vulnerabilities: {
+        aggregate: { via: ["missing-package"] },
+      },
+    };
+    expect(() => compareAudit(report, known)).toThrow(
+      "Unrecognized npm audit reference: missing-package",
+    );
+  });
 });
 ```
 
@@ -246,15 +276,35 @@ import { fileURLToPath } from "node:url";
 
 export function collectAdvisories(report) {
   const byUrl = new Map();
-  for (const vulnerability of Object.values(report.vulnerabilities ?? {})) {
+  const vulnerabilities = report.vulnerabilities ?? {};
+  const visited = new Set();
+
+  function visit(name) {
+    if (visited.has(name)) return;
+    visited.add(name);
+    const vulnerability = vulnerabilities[name];
+    if (!vulnerability) {
+      throw new Error(`Unrecognized npm audit reference: ${name}`);
+    }
     for (const via of vulnerability.via ?? []) {
-      if (typeof via !== "object" || !via.url) continue;
+      if (typeof via === "string") {
+        visit(via);
+        continue;
+      }
+      if (!via?.url || !via?.severity) {
+        throw new Error(
+          `Unrecognized npm audit advisory entry: ${JSON.stringify(via)}`,
+        );
+      }
       byUrl.set(via.url, {
         severity: via.severity,
         url: via.url,
       });
     }
   }
+
+  for (const name of Object.keys(vulnerabilities)) visit(name);
+
   return [...byUrl.values()].sort((left, right) =>
     left.url.localeCompare(right.url),
   );

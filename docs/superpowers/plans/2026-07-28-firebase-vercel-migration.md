@@ -223,7 +223,7 @@ git commit -m "build: prepare Next app for Firebase and Vercel"
 
 **Interfaces:**
 - Consumes: Firebase packages installed in Task 1.
-- Produces: `getClientAuth(): Auth`, `adminAuth: Auth`, `adminDb: Firestore`.
+- Produces: `isFirebaseConfigured: boolean`, `getClientAuth(): Auth`, `adminAuth: Auth`, `adminDb: Firestore`.
 
 - [ ] **Step 1: Verify the exact Firebase project**
 
@@ -339,18 +339,26 @@ Create `lib/firebase/client.ts`:
 ```ts
 "use client";
 
-import { getApp, getApps, initializeApp } from "firebase/app";
+import { getApp, getApps, initializeApp, type FirebaseOptions } from "firebase/app";
 import { getAuth } from "firebase/auth";
 
-const app = getApps().length
-  ? getApp()
-  : initializeApp({
-      apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
-      authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
-      projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-    });
+const firebaseConfig: FirebaseOptions = {
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+};
 
-export const getClientAuth = () => getAuth(app);
+export const isFirebaseConfigured = Boolean(
+  firebaseConfig.apiKey && firebaseConfig.authDomain && firebaseConfig.projectId,
+);
+
+export function getClientAuth() {
+  if (!isFirebaseConfigured) {
+    throw new Error("Firebase browser environment variables are missing.");
+  }
+  const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+  return getAuth(app);
+}
 ```
 
 Create `lib/firebase/admin.ts`:
@@ -446,7 +454,7 @@ git commit -m "feat: configure locked-down Firebase backend"
 
 **Interfaces:**
 - Consumes: `getClientAuth()` from Task 2.
-- Produces: `useAuth(): { user: User | null; ready: boolean; isTeacher: boolean; signInTeacher(): Promise<void>; signOutUser(): Promise<void> }`, `apiFetch<T>(input: string, init?: RequestInit): Promise<T>`.
+- Produces: `useAuth(): { user: User | null; ready: boolean; isTeacher: boolean; demoMode: boolean; signInTeacher(): Promise<void>; signOutUser(): Promise<void> }`, `apiFetch<T>(input: string, init?: RequestInit): Promise<T>`.
 
 - [ ] **Step 1: Write the failing API client test**
 
@@ -502,7 +510,7 @@ Create `lib/api-client.ts`:
 ```ts
 "use client";
 
-import { getClientAuth } from "@/lib/firebase/client";
+import { getClientAuth, isFirebaseConfigured } from "@/lib/firebase/client";
 
 export async function apiFetch<T>(input: string, init: RequestInit = {}): Promise<T> {
   const token = await getClientAuth().currentUser?.getIdToken();
@@ -544,6 +552,7 @@ type AuthContextValue = {
   user: User | null;
   ready: boolean;
   isTeacher: boolean;
+  demoMode: boolean;
   signInTeacher: () => Promise<void>;
   signOutUser: () => Promise<void>;
 };
@@ -555,6 +564,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
+    if (!isFirebaseConfigured) {
+      setReady(true);
+      return;
+    }
     const auth = getClientAuth();
     return onAuthStateChanged(auth, async (nextUser) => {
       if (!nextUser) {
@@ -569,11 +582,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const value = useMemo<AuthContextValue>(() => ({
     user,
     ready,
-    isTeacher: Boolean(user && !user.isAnonymous),
+    demoMode: !isFirebaseConfigured,
+    isTeacher: !isFirebaseConfigured || Boolean(user && !user.isAnonymous),
     signInTeacher: async () => {
+      if (!isFirebaseConfigured) return;
       await signInWithPopup(getClientAuth(), new GoogleAuthProvider());
     },
     signOutUser: async () => {
+      if (!isFirebaseConfigured) return;
       await signOut(getClientAuth());
       await signInAnonymously(getClientAuth());
     },
@@ -597,8 +613,9 @@ Create `components/TeacherAuthGate.tsx`:
 import { useAuth } from "@/components/AuthProvider";
 
 export function TeacherAuthGate({ children }: { children: React.ReactNode }) {
-  const { ready, isTeacher, signInTeacher } = useAuth();
+  const { ready, isTeacher, demoMode, signInTeacher } = useAuth();
   if (!ready) return <main className="teacher-login">로그인 상태를 확인하는 중입니다.</main>;
+  if (demoMode) return children;
   if (!isTeacher) {
     return (
       <main className="teacher-login">

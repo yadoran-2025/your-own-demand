@@ -60,4 +60,34 @@ describe("dependency audit regression", () => {
       ok: false,
     });
   });
+
+  it("rejects a recorded advisory when its severity becomes critical", () => {
+    const report = {
+      vulnerabilities: {
+        sharp: {
+          via: [{
+            url: "https://github.com/advisories/GHSA-f88m-g3jw-g9cj",
+            severity: "critical",
+          }],
+        },
+      },
+    };
+    expect(compareAudit(report, known)).toEqual({
+      accepted: ["https://github.com/advisories/GHSA-f88m-g3jw-g9cj"],
+      critical: ["https://github.com/advisories/GHSA-f88m-g3jw-g9cj"],
+      introduced: [],
+      ok: false,
+    });
+  });
+
+  it("fails closed on unresolved npm audit references", () => {
+    const report = {
+      vulnerabilities: {
+        aggregate: { via: ["missing-package"] },
+      },
+    };
+    expect(() => compareAudit(report, known)).toThrow(
+      "Unrecognized npm audit reference: missing-package",
+    );
+  });
 });

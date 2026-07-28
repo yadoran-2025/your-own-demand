@@ -7,13 +7,24 @@
 ```bash
 npm install
 cp .env.example .env.local
+```
+
+터미널 1에서 Firestore Emulator를 실행합니다.
+
+```bash
 npx firebase-tools emulators:start --only firestore
+```
+
+터미널 2에서 개발 서버가 Emulator를 사용하도록 설정하고 실행합니다.
+
+```bash
+export FIRESTORE_EMULATOR_HOST=127.0.0.1:8080
 npm run dev
 ```
 
-다른 터미널에서 개발 서버를 실행한 뒤 `http://localhost:3000`을 엽니다. Firebase Emulator는 Java가 필요합니다. 현재 작업 환경에는 Java 런타임이 PATH에 없어 `npm run test:firebase`를 실행하려면 Java를 설치하거나 PATH를 설정해야 합니다.
+그 뒤 `http://localhost:3000`을 엽니다. Firebase Emulator는 Java가 필요합니다. 현재 작업 환경에는 Java 런타임이 PATH에 없어 `npm run test:firebase`를 실행하려면 Java를 설치하거나 PATH를 설정해야 합니다. `npm run test:firebase`는 `firebase emulators:exec`가 자식 프로세스에 Emulator host를 주입하므로 안전합니다.
 
-`.env.example`의 모든 키에 각 환경의 값을 넣습니다. `FIREBASE_PRIVATE_KEY`와 서비스 계정 자격 증명은 절대 저장소에 커밋하지 않습니다. Firebase 환경변수가 없으면 앱은 브라우저 localStorage 데모 모드로 동작합니다.
+`.env.example`의 모든 키에 각 환경의 값을 넣습니다. `FIREBASE_PRIVATE_KEY`와 서비스 계정 자격 증명은 절대 저장소에 커밋하지 않습니다. 로컬 Emulator 작업에서 production Admin SDK credentials와 설정되지 않은 `FIRESTORE_EMULATOR_HOST`를 함께 사용하지 마세요. Firebase 환경변수가 없으면 앱은 브라우저 localStorage 데모 모드로 동작합니다.
 
 ## Firebase Console 설정
 

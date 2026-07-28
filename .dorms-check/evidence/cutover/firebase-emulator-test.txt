@@ -1,0 +1,31 @@
+timestamp_utc=2026-07-28T14:00:21Z
+java_home=/opt/homebrew/opt/openjdk@21/libexec/openjdk.jdk/Contents/Home
+command=JAVA_HOME="…/openjdk@21/…" npm run test:firebase
+--- stdout-stderr ---
+
+> supply-demand@1.0.0 test:firebase
+> firebase emulators:exec --only firestore "vitest run --no-file-parallelism tests/firebase tests/server"
+
+i  emulators: Starting emulators: firestore
+i  firestore: Firestore Emulator logging to firestore-debug.log
+✔  firestore: Firestore Emulator was started in standard edition.
+✔  firestore: Firestore Emulator UI websocket is running on 9150.
+i  Running script: vitest run --no-file-parallelism tests/firebase tests/server
+
+ RUN  v4.1.10 /Users/a/your-own-demand
+
+(node:79511) [DEP0205] DeprecationWarning: `module.register()` is deprecated. Use `module.registerHooks()` instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+
+ Test Files  6 passed (6)
+      Tests  31 passed (31)
+   Start at  23:00:22
+   Duration  13.19s (transform 63ms, setup 0ms, import 486ms, tests 12.21s, environment 0ms)
+
+✔  Script exited successfully (code 0)
+i  emulators: Shutting down emulators.
+i  firestore: Stopping Firestore Emulator
+i  hub: Stopping emulator hub
+i  logging: Stopping Logging Emulator
+
+exit_status=0

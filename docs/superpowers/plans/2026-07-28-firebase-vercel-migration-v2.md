@@ -726,8 +726,12 @@ git commit -m "feat: configure locked-down Firebase backend"
 **Files:**
 - Create: `components/AuthProvider.tsx`
 - Create: `components/TeacherAuthGate.tsx`
+- Create: `lib/auth-state.ts`
+- Create: `lib/teacher-access.ts`
 - Create: `lib/api-client.ts`
 - Create: `tests/lib/api-client.test.ts`
+- Create: `tests/lib/auth-state.test.ts`
+- Create: `tests/lib/teacher-access.test.ts`
 - Modify: `app/layout.tsx`
 - Modify: `app/teacher/page.tsx`
 - Modify: `app/teacher/setup/page.tsx`
@@ -737,9 +741,9 @@ git commit -m "feat: configure locked-down Firebase backend"
 
 **Interfaces:**
 - Consumes: `getClientAuth()` from Task 2.
-- Produces: `useAuth(): { user: User | null; ready: boolean; isTeacher: boolean; demoMode: boolean; signInTeacher(): Promise<void>; signOutUser(): Promise<void> }`, `apiFetch<T>(input: string, init?: RequestInit): Promise<T>`.
+- Produces: `useAuth(): { user: User | null; ready: boolean; isTeacher: boolean; demoMode: boolean; signInTeacher(): Promise<void>; signOutUser(): Promise<void> }`, `applyAuthState<T>(nextUser, handlers): Promise<void>`, `canAccessTeacherData(state): boolean`, `apiFetch<T>(input: string, init?: RequestInit): Promise<T>`.
 
-- [ ] **Step 1: Write the failing API client test**
+- [ ] **Step 1: Write failing API-header, auth-state, and teacher-access tests**
 
 Create `tests/lib/api-client.test.ts`:
 
@@ -747,14 +751,18 @@ Create `tests/lib/api-client.test.ts`:
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const getIdToken = vi.fn().mockResolvedValue("firebase-token");
+const auth = {
+  currentUser: { getIdToken },
+};
 
 vi.mock("@/lib/firebase/client", () => ({
-  getClientAuth: () => ({ currentUser: { getIdToken } }),
+  getClientAuth: () => auth,
 }));
 
 describe("apiFetch", () => {
   beforeEach(() => {
     vi.restoreAllMocks();
+    auth.currentUser = { getIdToken };
   });
 
   it("adds the Firebase bearer token and surfaces API messages", async () => {
@@ -767,43 +775,109 @@ describe("apiFetch", () => {
     const { apiFetch } = await import("@/lib/api-client");
 
     await expect(apiFetch<{ ok: boolean }>("/api/check")).resolves.toEqual({ ok: true });
-    expect(fetchMock.mock.calls[0][1]?.headers).toMatchObject({
-      Authorization: "Bearer firebase-token",
-      "Content-Type": "application/json",
-    });
+    const headers = new Headers(fetchMock.mock.calls[0][1]?.headers);
+    expect(headers.get("Authorization")).toBe("Bearer firebase-token");
+    expect(headers.get("Content-Type")).toBe("application/json");
     await expect(apiFetch("/api/missing")).rejects.toThrow("방을 찾지 못했습니다.");
+  });
+
+  it("preserves Headers input but cannot be given a spoofed authorization", async () => {
+    const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      new Response(JSON.stringify({ ok: true }), { status: 200 }),
+    );
+    const { apiFetch } = await import("@/lib/api-client");
+    await apiFetch("/api/check", {
+      headers: new Headers({
+        Authorization: "Bearer attacker-token",
+        "X-Request-ID": "request-1",
+      }),
+    });
+    const headers = new Headers(fetchMock.mock.calls[0][1]?.headers);
+    expect(headers.get("Authorization")).toBe("Bearer firebase-token");
+    expect(headers.get("X-Request-ID")).toBe("request-1");
+  });
+
+  it("rejects before fetch when no Firebase user exists", async () => {
+    auth.currentUser = null as never;
+    const fetchMock = vi.spyOn(globalThis, "fetch");
+    const { apiFetch } = await import("@/lib/api-client");
+    await expect(apiFetch("/api/check")).rejects.toThrow("로그인이 필요합니다.");
+    expect(fetchMock).not.toHaveBeenCalled();
   });
 });
 ```
 
-- [ ] **Step 2: Run the test and verify the missing module failure**
+Create `tests/lib/auth-state.test.ts`:
+
+```ts
+import { expect, it, vi } from "vitest";
+import { applyAuthState } from "@/lib/auth-state";
+
+it("clears stale teacher state and starts anonymous auth exactly once", async () => {
+  const setUser = vi.fn();
+  const setReady = vi.fn();
+  const signInGuest = vi.fn().mockResolvedValue(undefined);
+  await applyAuthState(null, { setReady, setUser, signInGuest });
+  expect(setUser).toHaveBeenCalledWith(null);
+  expect(setReady).toHaveBeenCalledWith(false);
+  expect(signInGuest).toHaveBeenCalledTimes(1);
+});
+
+it("marks a resolved Firebase user ready without anonymous auth", async () => {
+  const user = { isAnonymous: false };
+  const setUser = vi.fn();
+  const setReady = vi.fn();
+  const signInGuest = vi.fn();
+  await applyAuthState(user, { setReady, setUser, signInGuest });
+  expect(setUser).toHaveBeenCalledWith(user);
+  expect(setReady).toHaveBeenCalledWith(true);
+  expect(signInGuest).not.toHaveBeenCalled();
+});
+```
+
+Create `tests/lib/teacher-access.test.ts`:
+
+```ts
+import { expect, it } from "vitest";
+import { canAccessTeacherData } from "@/lib/teacher-access";
+
+it("allows local demo and authenticated teachers only", () => {
+  expect(canAccessTeacherData({ demoMode: true, isTeacher: false, ready: true })).toBe(true);
+  expect(canAccessTeacherData({ demoMode: false, isTeacher: true, ready: true })).toBe(true);
+  expect(canAccessTeacherData({ demoMode: false, isTeacher: true, ready: false })).toBe(false);
+  expect(canAccessTeacherData({ demoMode: false, isTeacher: false, ready: true })).toBe(false);
+});
+```
+
+- [ ] **Step 2: Run tests and verify the missing behavior**
 
 Run:
 
 ```bash
-npm test -- tests/lib/api-client.test.ts
+npm test -- tests/lib/api-client.test.ts tests/lib/auth-state.test.ts tests/lib/teacher-access.test.ts
 ```
 
-Expected: FAIL because `lib/api-client.ts` does not exist.
+Expected: FAIL because `lib/auth-state.ts` and `lib/teacher-access.ts` do not exist; the existing API client also fails the `Headers` and missing-user cases.
 
-- [ ] **Step 3: Implement the authenticated API client**
+- [ ] **Step 3: Implement fail-safe header construction**
 
-Create `lib/api-client.ts`:
+Replace `lib/api-client.ts` with:
 
 ```ts
 "use client";
 
-import { getClientAuth, isFirebaseConfigured } from "@/lib/firebase/client";
+import { getClientAuth } from "@/lib/firebase/client";
 
 export async function apiFetch<T>(input: string, init: RequestInit = {}): Promise<T> {
-  const token = await getClientAuth().currentUser?.getIdToken();
+  const user = getClientAuth().currentUser;
+  if (!user) throw new Error("로그인이 필요합니다.");
+  const token = await user.getIdToken();
+  const headers = new Headers(init.headers);
+  headers.set("Content-Type", "application/json");
+  headers.set("Authorization", `Bearer ${token}`);
   const response = await fetch(input, {
     ...init,
-    headers: {
-      "Content-Type": "application/json",
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      ...init.headers,
-    },
+    headers,
   });
   const body = (await response.json()) as T & { error?: string };
   if (!response.ok) {
@@ -813,9 +887,32 @@ export async function apiFetch<T>(input: string, init: RequestInit = {}): Promis
 }
 ```
 
-- [ ] **Step 4: Implement anonymous bootstrap and Google teacher sign-in**
+- [ ] **Step 4: Implement single-path auth transitions**
 
-Create `components/AuthProvider.tsx` with this public contract:
+Create `lib/auth-state.ts`:
+
+```ts
+type AuthStateHandlers<T> = {
+  setUser: (user: T | null) => void;
+  setReady: (ready: boolean) => void;
+  signInGuest: () => Promise<unknown>;
+};
+
+export async function applyAuthState<T>(
+  nextUser: T | null,
+  handlers: AuthStateHandlers<T>,
+) {
+  handlers.setUser(nextUser);
+  if (nextUser) {
+    handlers.setReady(true);
+    return;
+  }
+  handlers.setReady(false);
+  await handlers.signInGuest();
+}
+```
+
+Update `components/AuthProvider.tsx` so `onAuthStateChanged` is the only place that starts anonymous auth:
 
 ```tsx
 "use client";
@@ -829,7 +926,8 @@ import {
   type User,
 } from "firebase/auth";
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
-import { getClientAuth } from "@/lib/firebase/client";
+import { getClientAuth, isFirebaseConfigured } from "@/lib/firebase/client";
+import { applyAuthState } from "@/lib/auth-state";
 
 type AuthContextValue = {
   user: User | null;
@@ -852,13 +950,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return;
     }
     const auth = getClientAuth();
-    return onAuthStateChanged(auth, async (nextUser) => {
-      if (!nextUser) {
-        await signInAnonymously(auth);
-        return;
-      }
-      setUser(nextUser);
-      setReady(true);
+    return onAuthStateChanged(auth, (nextUser) => {
+      void applyAuthState(nextUser, {
+        setReady,
+        setUser,
+        signInGuest: () => signInAnonymously(auth),
+      }).catch(() => setReady(true));
     });
   }, []);
 
@@ -873,8 +970,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     },
     signOutUser: async () => {
       if (!isFirebaseConfigured) return;
+      setReady(false);
       await signOut(getClientAuth());
-      await signInAnonymously(getClientAuth());
     },
   }), [user, ready]);
 
@@ -888,7 +985,7 @@ export function useAuth() {
 }
 ```
 
-Create `components/TeacherAuthGate.tsx`:
+Keep `components/TeacherAuthGate.tsx` as the visible login/loading boundary:
 
 ```tsx
 "use client";
@@ -914,7 +1011,21 @@ export function TeacherAuthGate({ children }: { children: React.ReactNode }) {
 }
 ```
 
-- [ ] **Step 5: Mount auth and gate every teacher page**
+- [ ] **Step 5: Make auth state gate the teacher data effects**
+
+Create `lib/teacher-access.ts`:
+
+```ts
+export type TeacherAccessState = {
+  ready: boolean;
+  isTeacher: boolean;
+  demoMode: boolean;
+};
+
+export function canAccessTeacherData(state: TeacherAccessState) {
+  return state.demoMode || (state.ready && state.isTeacher);
+}
+```
 
 Wrap `app/layout.tsx` body content:
 
@@ -932,14 +1043,52 @@ Wrap each teacher page's current top-level returned UI:
 
 Add imports from `@/components/AuthProvider` and `@/components/TeacherAuthGate` as required.
 
-- [ ] **Step 6: Verify auth transport and UI compilation**
+In each of these five pages:
+
+```text
+app/teacher/page.tsx
+app/teacher/setup/page.tsx
+app/teacher/results/page.tsx
+app/teacher/budget-results/page.tsx
+app/teacher/responses/page.tsx
+```
+
+read auth state unconditionally:
+
+```tsx
+const { ready: authReady, isTeacher, demoMode } = useAuth();
+const canUseTeacherData = canAccessTeacherData({
+  ready: authReady,
+  isTeacher,
+  demoMode,
+});
+```
+
+Every callback that reads, creates, updates, or deletes teacher data must start with:
+
+```ts
+if (!canUseTeacherData) return;
+```
+
+Every `useEffect` that triggers teacher data work must also return before invoking it:
+
+```ts
+if (!canUseTeacherData) return;
+```
+
+Include `canUseTeacherData` in callback/effect dependency arrays. Keep all Hooks unconditional.
+
+- [ ] **Step 6: Verify auth transport, auth gating, and UI compilation**
 
 Run:
 
 ```bash
-npm test -- tests/lib/api-client.test.ts
+npm test -- tests/lib/api-client.test.ts tests/lib/auth-state.test.ts tests/lib/teacher-access.test.ts
+npm test
+npm run audit:regression
 npm run typecheck
 npm run lint
+npm run build
 ```
 
 Expected: all commands exit 0.
@@ -947,7 +1096,7 @@ Expected: all commands exit 0.
 - [ ] **Step 7: Commit**
 
 ```bash
-git add components/AuthProvider.tsx components/TeacherAuthGate.tsx lib/api-client.ts tests/lib/api-client.test.ts app/layout.tsx app/teacher
+git add components/AuthProvider.tsx components/TeacherAuthGate.tsx lib/api-client.ts lib/auth-state.ts lib/teacher-access.ts tests/lib/api-client.test.ts tests/lib/auth-state.test.ts tests/lib/teacher-access.test.ts app/layout.tsx app/teacher
 git commit -m "feat: add Firebase teacher and student authentication"
 ```
 

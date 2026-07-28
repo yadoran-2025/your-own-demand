@@ -3,6 +3,7 @@
 import { Plus, RefreshCw, Trash2 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { TeacherAuthGate } from "@/components/TeacherAuthGate";
+import { useAuth } from "@/components/AuthProvider";
 import {
   StatusBadge,
   TeacherPageHeader,
@@ -19,10 +20,13 @@ import {
   surveyToDraft,
 } from "@/lib/data";
 import { TEACHER_ROOM_KEY, useStoredRoomName } from "@/lib/roomName";
+import { canAccessTeacherData } from "@/lib/teacher-access";
 import type { Survey } from "@/lib/types";
 
 export default function TeacherSetupPage() {
   const { roomName, ready, setRoomName } = useStoredRoomName(TEACHER_ROOM_KEY);
+  const { ready: authReady, isTeacher, demoMode } = useAuth();
+  const canUseTeacherData = canAccessTeacherData({ ready: authReady, isTeacher, demoMode });
   const [surveys, setSurveys] = useState<Survey[]>([]);
   const [selectedSurveyId, setSelectedSurveyId] = useState("");
   const [loading, setLoading] = useState(true);
@@ -38,6 +42,7 @@ export default function TeacherSetupPage() {
   );
 
   const loadSurveys = useCallback(async (preferredSurveyId?: string) => {
+    if (!canUseTeacherData) return;
     if (!roomName) {
       return;
     }
@@ -56,21 +61,23 @@ export default function TeacherSetupPage() {
     } finally {
       setLoading(false);
     }
-  }, [roomName]);
+  }, [canUseTeacherData, roomName]);
 
   useEffect(() => {
-    if (ready && roomName) {
+    if (canUseTeacherData && ready && roomName) {
       void loadSurveys();
     }
-  }, [loadSurveys, roomName, ready]);
+  }, [canUseTeacherData, loadSurveys, roomName, ready]);
 
   async function handleSaveSurvey(draft: Parameters<typeof saveSurvey>[0]) {
+    if (!canUseTeacherData) return;
     const saved = await saveSurvey(draft, roomName);
     setMessage("설문이 저장되었습니다. 기존 응답은 유지됩니다.");
     await loadSurveys(saved.id);
   }
 
   async function handleDeleteSurvey() {
+    if (!canUseTeacherData) return;
     if (!selectedSurvey) {
       return;
     }
@@ -207,5 +214,4 @@ export default function TeacherSetupPage() {
     </TeacherAuthGate>
   );
 }
-
 

@@ -3,6 +3,7 @@
 import { RefreshCw, Save, Trash2 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { TeacherAuthGate } from "@/components/TeacherAuthGate";
+import { useAuth } from "@/components/AuthProvider";
 import { RoomBadge, RoomGate } from "@/components/RoomGate";
 import {
   TeacherPageHeader,
@@ -17,6 +18,7 @@ import {
   updateStudentResponse,
 } from "@/lib/data";
 import { TEACHER_ROOM_KEY, useStoredRoomName } from "@/lib/roomName";
+import { canAccessTeacherData } from "@/lib/teacher-access";
 import type {
   PricePoint,
   Product,
@@ -73,6 +75,8 @@ function buildItemRows(survey: Survey | undefined, response: StudentResponse | u
 
 export default function TeacherResponsesPage() {
   const { roomName, ready, setRoomName } = useStoredRoomName(TEACHER_ROOM_KEY);
+  const { ready: authReady, isTeacher, demoMode } = useAuth();
+  const canUseTeacherData = canAccessTeacherData({ ready: authReady, isTeacher, demoMode });
   const [surveys, setSurveys] = useState<Survey[]>([]);
   const [responses, setResponses] = useState<StudentResponse[]>([]);
   const [selectedSurveyId, setSelectedSurveyId] = useState("");
@@ -99,6 +103,7 @@ export default function TeacherResponsesPage() {
   );
 
   const loadSurveys = useCallback(async (preferredSurveyId?: string) => {
+    if (!canUseTeacherData) return;
     if (!roomName) {
       return;
     }
@@ -120,9 +125,10 @@ export default function TeacherResponsesPage() {
     } finally {
       setLoading(false);
     }
-  }, [roomName]);
+  }, [canUseTeacherData, roomName]);
 
   const loadResponses = useCallback(async (surveyId: string, preferredResponseId?: string) => {
+    if (!canUseTeacherData) return;
     if (!surveyId) {
       setResponses([]);
       setSelectedResponseId("");
@@ -141,17 +147,18 @@ export default function TeacherResponsesPage() {
         error instanceof Error ? error.message : "응답을 불러오지 못했습니다.",
       );
     }
-  }, [roomName]);
+  }, [canUseTeacherData, roomName]);
 
   useEffect(() => {
-    if (ready && roomName) {
+    if (canUseTeacherData && ready && roomName) {
       void loadSurveys();
     }
-  }, [loadSurveys, ready, roomName]);
+  }, [canUseTeacherData, loadSurveys, ready, roomName]);
 
   useEffect(() => {
+    if (!canUseTeacherData) return;
     void loadResponses(selectedSurvey?.id ?? "");
-  }, [loadResponses, selectedSurvey?.id]);
+  }, [canUseTeacherData, loadResponses, selectedSurvey?.id]);
 
   useEffect(() => {
     if (!selectedResponse) {
@@ -226,6 +233,7 @@ export default function TeacherResponsesPage() {
   }
 
   async function handleSave() {
+    if (!canUseTeacherData) return;
     if (!selectedSurvey || !selectedResponse) {
       return;
     }
@@ -247,6 +255,7 @@ export default function TeacherResponsesPage() {
   }
 
   async function handleDelete() {
+    if (!canUseTeacherData) return;
     if (!selectedSurvey || !selectedResponse) {
       return;
     }

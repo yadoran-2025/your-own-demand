@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { TeacherAuthGate } from "@/components/TeacherAuthGate";
+import { useAuth } from "@/components/AuthProvider";
 import { RoomBadge, RoomGate } from "@/components/RoomGate";
 import {
   StatusBadge,
@@ -31,6 +32,7 @@ import {
   TEACHER_ROOM_KEY,
   useStoredRoomName,
 } from "@/lib/roomName";
+import { canAccessTeacherData } from "@/lib/teacher-access";
 import type { StudentResponse, Survey } from "@/lib/types";
 
 const ERROR_REPORT_URL =
@@ -54,6 +56,8 @@ function formatRelativeTime(value: string) {
 
 export default function TeacherPage() {
   const { roomName, ready, setRoomName } = useStoredRoomName(TEACHER_ROOM_KEY);
+  const { ready: authReady, isTeacher, demoMode } = useAuth();
+  const canUseTeacherData = canAccessTeacherData({ ready: authReady, isTeacher, demoMode });
   const [surveys, setSurveys] = useState<Survey[]>([]);
   const [responses, setResponses] = useState<StudentResponse[]>([]);
   const [loading, setLoading] = useState(true);
@@ -65,6 +69,7 @@ export default function TeacherPage() {
   const activeSurvey = surveys[0];
 
   const loadDashboard = useCallback(async () => {
+    if (!canUseTeacherData) return;
     if (!roomName) {
       return;
     }
@@ -87,13 +92,13 @@ export default function TeacherPage() {
     } finally {
       setLoading(false);
     }
-  }, [roomName]);
+  }, [canUseTeacherData, roomName]);
 
   useEffect(() => {
-    if (ready && roomName) {
+    if (canUseTeacherData && ready && roomName) {
       void loadDashboard();
     }
-  }, [loadDashboard, roomName, ready]);
+  }, [canUseTeacherData, loadDashboard, roomName, ready]);
 
   useEffect(() => {
     if (typeof window === "undefined" || !roomName) {

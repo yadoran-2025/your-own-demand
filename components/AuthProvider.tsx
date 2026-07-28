@@ -9,6 +9,7 @@ import {
   type User,
 } from "firebase/auth";
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { applyAuthState } from "@/lib/auth-state";
 import { getClientAuth, isFirebaseConfigured } from "@/lib/firebase/client";
 
 type AuthContextValue = {
@@ -32,13 +33,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return;
     }
     const auth = getClientAuth();
-    return onAuthStateChanged(auth, async (nextUser) => {
-      if (!nextUser) {
-        await signInAnonymously(auth);
-        return;
-      }
-      setUser(nextUser);
-      setReady(true);
+    return onAuthStateChanged(auth, (nextUser) => {
+      void applyAuthState(nextUser, {
+        setReady,
+        setUser,
+        signInGuest: () => signInAnonymously(auth),
+      }).catch(() => setReady(true));
     });
   }, []);
 
@@ -53,8 +53,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     },
     signOutUser: async () => {
       if (!isFirebaseConfigured) return;
+      setReady(false);
       await signOut(getClientAuth());
-      await signInAnonymously(getClientAuth());
     },
   }), [user, ready]);
 

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { RefreshCw } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { TeacherAuthGate } from "@/components/TeacherAuthGate";
+import { useAuth } from "@/components/AuthProvider";
 import { DemandChart } from "@/components/DemandChart";
 import {
   DemandMetricToggle,
@@ -24,6 +25,7 @@ import {
   hasRemoteDatabase,
 } from "@/lib/data";
 import { TEACHER_ROOM_KEY, useStoredRoomName } from "@/lib/roomName";
+import { canAccessTeacherData } from "@/lib/teacher-access";
 import { supabase } from "@/lib/supabase";
 import type {
   DemandMetric,
@@ -35,6 +37,8 @@ import type {
 
 export default function TeacherResultsPage() {
   const { roomName, ready, setRoomName } = useStoredRoomName(TEACHER_ROOM_KEY);
+  const { ready: authReady, isTeacher, demoMode } = useAuth();
+  const canUseTeacherData = canAccessTeacherData({ ready: authReady, isTeacher, demoMode });
   const [surveys, setSurveys] = useState<Survey[]>([]);
   const [responses, setResponses] = useState<StudentResponse[]>([]);
   const [selectedSurveyId, setSelectedSurveyId] = useState("");
@@ -55,6 +59,7 @@ export default function TeacherResultsPage() {
     selectedSurvey?.products[0];
 
   const loadSurveys = useCallback(async (preferredSurveyId?: string) => {
+    if (!canUseTeacherData) return;
     if (!roomName) {
       return;
     }
@@ -74,9 +79,10 @@ export default function TeacherResultsPage() {
     } finally {
       setLoading(false);
     }
-  }, [roomName]);
+  }, [canUseTeacherData, roomName]);
 
   const loadResponses = useCallback(async (surveyId: string) => {
+    if (!canUseTeacherData) return;
     if (!surveyId) {
       setResponses([]);
       return;
@@ -87,19 +93,21 @@ export default function TeacherResultsPage() {
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "응답을 불러오지 못했습니다.");
     }
-  }, [roomName]);
+  }, [canUseTeacherData, roomName]);
 
   useEffect(() => {
-    if (ready && roomName) {
+    if (canUseTeacherData && ready && roomName) {
       void loadSurveys();
     }
-  }, [loadSurveys, roomName, ready]);
+  }, [canUseTeacherData, loadSurveys, roomName, ready]);
 
   useEffect(() => {
+    if (!canUseTeacherData) return;
     void loadResponses(selectedSurvey?.id ?? "");
-  }, [loadResponses, selectedSurvey?.id]);
+  }, [canUseTeacherData, loadResponses, selectedSurvey?.id]);
 
   useEffect(() => {
+    if (!canUseTeacherData) return;
     const client = supabase;
 
     if (!client || !selectedSurvey?.id) {
@@ -130,7 +138,7 @@ export default function TeacherResultsPage() {
       if (timer) clearTimeout(timer);
       void client.removeChannel(channel);
     };
-  }, [loadResponses, selectedSurvey?.id]);
+  }, [canUseTeacherData, loadResponses, selectedSurvey?.id]);
 
   const grades = useMemo(() => getAvailableGrades(responses), [responses]);
   const classes = useMemo(
@@ -294,4 +302,3 @@ export default function TeacherResultsPage() {
     </TeacherAuthGate>
   );
 }
-

@@ -14,7 +14,6 @@ import { SurveyEditor } from "@/components/SurveyEditor";
 import {
   deleteSurvey,
   ensureRoomHasDefaultSurveys,
-  fetchSurveys,
   hasRemoteDatabase,
   saveSurvey,
   surveyToDraft,
@@ -55,8 +54,7 @@ export default function TeacherSetupPage() {
 
     setLoading(true);
     try {
-      await ensureRoomHasDefaultSurveys(roomName);
-      const nextSurveys = await fetchSurveys(roomName);
+      const nextSurveys = await ensureRoomHasDefaultSurveys(roomName);
       setSurveys(nextSurveys);
       const nextSurvey =
         nextSurveys.find((survey) => survey.id === preferredSurveyId) ??

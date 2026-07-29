@@ -13,7 +13,6 @@ import {
   deleteStudentResponse,
   ensureRoomHasDefaultSurveys,
   fetchResponses,
-  fetchSurveys,
   hasRemoteDatabase,
   updateStudentResponse,
 } from "@/lib/data";
@@ -117,8 +116,7 @@ export default function TeacherResponsesPage() {
     setLoading(true);
     setMessage("");
     try {
-      await ensureRoomHasDefaultSurveys(roomName);
-      const nextSurveys = await fetchSurveys(roomName);
+      const nextSurveys = await ensureRoomHasDefaultSurveys(roomName);
       setSurveys(nextSurveys);
       const nextSurvey =
         nextSurveys.find((survey) => survey.id === preferredSurveyId) ??

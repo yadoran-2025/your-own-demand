@@ -24,7 +24,6 @@ import {
 import {
   ensureRoomHasDefaultSurveys,
   fetchResponses,
-  fetchSurveys,
   hasRemoteDatabase,
 } from "@/lib/data";
 import {
@@ -84,9 +83,7 @@ export default function TeacherPage() {
     setLoading(true);
     setMessage("");
     try {
-      await ensureRoomHasDefaultSurveys(roomName);
-      const nextSurveys = await fetchSurveys(roomName, true);
-      setSurveys(nextSurveys);
+      setSurveys(await ensureRoomHasDefaultSurveys(roomName));
     } catch (error) {
       setMessage(
         error instanceof Error ? error.message : "대시보드를 불러오지 못했습니다.",

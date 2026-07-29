@@ -180,13 +180,41 @@
         "eligible": true,
         "unmet": []
       }
+    },
+    {
+      "n": 10,
+      "at": "2026-07-29T07:42:37.557Z",
+      "security": {
+        "score": 94,
+        "grade": "A",
+        "eligible": true,
+        "blocking": []
+      },
+      "edzip": {
+        "eligible": true,
+        "unmet": []
+      }
+    },
+    {
+      "n": 11,
+      "at": "2026-07-29T07:45:05.258Z",
+      "security": {
+        "score": 94,
+        "grade": "A",
+        "eligible": true,
+        "blocking": []
+      },
+      "edzip": {
+        "eligible": true,
+        "unmet": []
+      }
     }
   ],
   "items": {
     "sec.header.csp": {
-      "status": "fail",
+      "status": "pass",
       "firstFailRound": 1,
-      "fixedRound": null,
+      "fixedRound": 10,
       "regressed": false
     },
     "sec.header.hsts": {
@@ -196,21 +224,21 @@
       "regressed": false
     },
     "sec.header.frame": {
-      "status": "fail",
+      "status": "pass",
       "firstFailRound": 1,
-      "fixedRound": null,
+      "fixedRound": 10,
       "regressed": false
     },
     "sec.header.nosniff": {
-      "status": "fail",
+      "status": "pass",
       "firstFailRound": 1,
-      "fixedRound": null,
+      "fixedRound": 10,
       "regressed": false
     },
     "sec.header.referrer": {
-      "status": "fail",
+      "status": "pass",
       "firstFailRound": 1,
-      "fixedRound": null,
+      "fixedRound": 10,
       "regressed": false
     },
     "sec.header.permissions": {
@@ -226,9 +254,9 @@
       "regressed": false
     },
     "sec.transport.https-redirect": {
-      "status": "fail",
+      "status": "pass",
       "firstFailRound": 1,
-      "fixedRound": null,
+      "fixedRound": 10,
       "regressed": false
     },
     "sec.transport.ssl-valid": {
@@ -244,8 +272,8 @@
       "regressed": false
     },
     "sec.transport.cookie-flags": {
-      "status": "na",
-      "firstFailRound": null,
+      "status": "fail",
+      "firstFailRound": 10,
       "fixedRound": null,
       "regressed": false
     },
@@ -280,20 +308,20 @@
       "regressed": false
     },
     "cors.policy": {
-      "status": "info",
+      "status": "pass",
       "firstFailRound": null,
-      "fixedRound": null,
+      "fixedRound": 10,
       "regressed": false
     },
     "seo.title": {
-      "status": "pass",
-      "firstFailRound": null,
+      "status": "fail",
+      "firstFailRound": 10,
       "fixedRound": null,
       "regressed": false
     },
     "seo.description": {
-      "status": "pass",
-      "firstFailRound": null,
+      "status": "fail",
+      "firstFailRound": 10,
       "fixedRound": null,
       "regressed": false
     },
@@ -304,25 +332,25 @@
       "regressed": false
     },
     "seo.og": {
-      "status": "pass",
+      "status": "fail",
       "firstFailRound": 1,
       "fixedRound": 6,
       "regressed": false
     },
     "seo.canonical": {
-      "status": "pass",
+      "status": "info",
       "firstFailRound": null,
       "fixedRound": 6,
       "regressed": false
     },
     "perf.ttfb": {
-      "status": "pass",
+      "status": "info",
       "firstFailRound": null,
       "fixedRound": null,
       "regressed": false
     },
     "perf.page-size": {
-      "status": "pass",
+      "status": "info",
       "firstFailRound": null,
       "fixedRound": null,
       "regressed": false
@@ -352,7 +380,7 @@
       "regressed": false
     },
     "code.rls.anon-read": {
-      "status": "pass",
+      "status": "na",
       "firstFailRound": 1,
       "fixedRound": 5,
       "regressed": false
@@ -366,7 +394,7 @@
     "code.endpoint.unauth": {
       "status": "pass",
       "firstFailRound": null,
-      "fixedRound": null,
+      "fixedRound": 11,
       "regressed": false
     },
     "code.hardcoded-secret": {
@@ -449,7 +477,7 @@
     }
   },
   "passed": {
-    "security": false,
+    "security": true,
     "edzip": true
   },
   "submitted": {}

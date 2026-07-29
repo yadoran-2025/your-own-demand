@@ -1,7 +1,7 @@
 {
   "app": {
-    "name": "your-own-demand",
-    "url": "https://yadoran-2025.github.io/your-own-demand/teacher/",
+    "name": "수요곡선 활동 시스템",
+    "url": "https://inflation-classroom-8gwz6znz4-yadorans-projects.vercel.app",
     "stack": "Next.js"
   },
   "tracks": [

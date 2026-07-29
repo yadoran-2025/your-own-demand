@@ -1,55 +1,55 @@
 {
-  "at": "2026-07-18T06:55:34.393Z",
-  "url": "https://yadoran-2025.github.io/your-own-demand/teacher/",
+  "at": "2026-07-29T07:45:05.260Z",
+  "url": "https://inflation-classroom-8gwz6znz4-yadorans-projects.vercel.app",
   "results": [
     {
       "id": "sec.header.csp",
-      "status": "fail",
-      "observed": "누락: content-security-policy",
+      "status": "pass",
+      "observed": "content-security-policy: default-src 'self' vercel.com *.vercel.com *.vercel.sh vercel.live *.stripe.com twitter.com *.twitter.com *.google.com *.github.com *.codesandbox.io https://risk.clearbit.com wss://*.vercel.com localhost:* chrome-extension://*;script-src 'self' 'unsafe-eval' 'unsafe-inline' blob: www.google.com www.gstatic.com *.youtube.com *.youtube-nocookie.com *.ytimg.com *.twimg.com cdn.ampproject.org *.googleapis.com *.fides-cdn.ethyca.com *.ethyca.com cdn.ethyca.com cdn.vercel-insights.com va.vercel-scripts.com cdp.vercel.com vercel.com *.vercel.com *.vercel.sh vercel.live *.stripe.com twitter.com *.twitter.com *.google.com *.github.com *.codesandbox.io https://risk.clearbit.com wss://*.vercel.com localhost:* chrome-extension://*;child-src *.youtube.com *.youtube-nocookie.com *.stripe.com www.google.com github.com calendly.com *.vusercontent.net *.vercel.run vercel.com *.vercel.com *.vercel.sh vercel.live *.stripe.com twitter.com *.twitter.com *.google.com *.github.com *.codesandbox.io https://risk.clearbit.com wss://*.vercel.com localhost:* chrome-extension://*;style-src 'self' 'unsafe-inline' *.googleapis.com vercel.com *.vercel.com *.vercel.sh vercel.live *.stripe.com twitter.com *.twitter.com *.google.com *.github.com *.codesandbox.io https://risk.clearbit.com wss://*.vercel.com localhost:* chrome-extension://*;img-src * blob: data:;media-src 'self' videos.ctfassets.net user-images.githubusercontent.com replicate.delivery *.public.blob.vercel-storage.com *.private.blob.vercel-storage.com blob: data: vercel.com *.vercel.com *.vercel.sh vercel.live *.stripe.com twitter.com *.twitter.com *.google.com *.github.com *.codesandbox.io https://risk.clearbit.com wss://*.vercel.com localhost:* chrome-extension://*;connect-src wss://ws-us3.pusher.com data: * https://*.contentful.com cdp.vercel.com;font-src 'self' *.vercel.com *.gstatic.com vercel.live;frame-ancestors 'self' https://vercel.com https://app.contentful.com https://*.contentful.com https://*.vercel.sh https://*.vercel.com;worker-src 'self' *.vercel.com blob:",
       "evidence": {
         "header": "content-security-policy",
-        "value": null,
-        "observedAt": "2026-07-18T06:55:29.611Z"
+        "value": "default-src 'self' vercel.com *.vercel.com *.vercel.sh vercel.live *.stripe.com twitter.com *.twitter.com *.google.com *.github.com *.codesandbox.io https://risk.clearbit.com wss://*.vercel.com localhost:* chrome-extension://*;script-src 'self' 'unsafe-eval' 'unsafe-inline' blob: www.google.com www.gstatic.com *.youtube.com *.youtube-nocookie.com *.ytimg.com *.twimg.com cdn.ampproject.org *.googleapis.com *.fides-cdn.ethyca.com *.ethyca.com cdn.ethyca.com cdn.vercel-insights.com va.vercel-scripts.com cdp.vercel.com vercel.com *.vercel.com *.vercel.sh vercel.live *.stripe.com twitter.com *.twitter.com *.google.com *.github.com *.codesandbox.io https://risk.clearbit.com wss://*.vercel.com localhost:* chrome-extension://*;child-src *.youtube.com *.youtube-nocookie.com *.stripe.com www.google.com github.com calendly.com *.vusercontent.net *.vercel.run vercel.com *.vercel.com *.vercel.sh vercel.live *.stripe.com twitter.com *.twitter.com *.google.com *.github.com *.codesandbox.io https://risk.clearbit.com wss://*.vercel.com localhost:* chrome-extension://*;style-src 'self' 'unsafe-inline' *.googleapis.com vercel.com *.vercel.com *.vercel.sh vercel.live *.stripe.com twitter.com *.twitter.com *.google.com *.github.com *.codesandbox.io https://risk.clearbit.com wss://*.vercel.com localhost:* chrome-extension://*;img-src * blob: data:;media-src 'self' videos.ctfassets.net user-images.githubusercontent.com replicate.delivery *.public.blob.vercel-storage.com *.private.blob.vercel-storage.com blob: data: vercel.com *.vercel.com *.vercel.sh vercel.live *.stripe.com twitter.com *.twitter.com *.google.com *.github.com *.codesandbox.io https://risk.clearbit.com wss://*.vercel.com localhost:* chrome-extension://*;connect-src wss://ws-us3.pusher.com data: * https://*.contentful.com cdp.vercel.com;font-src 'self' *.vercel.com *.gstatic.com vercel.live;frame-ancestors 'self' https://vercel.com https://app.contentful.com https://*.contentful.com https://*.vercel.sh https://*.vercel.com;worker-src 'self' *.vercel.com blob:",
+        "observedAt": "2026-07-29T07:44:59.569Z"
       }
     },
     {
       "id": "sec.header.hsts",
       "status": "pass",
-      "observed": "strict-transport-security: max-age=31556952",
+      "observed": "strict-transport-security: max-age=31536000; includeSubDomains; preload",
       "evidence": {
         "header": "strict-transport-security",
-        "value": "max-age=31556952",
-        "observedAt": "2026-07-18T06:55:29.612Z"
+        "value": "max-age=31536000; includeSubDomains; preload",
+        "observedAt": "2026-07-29T07:44:59.573Z"
       }
     },
     {
       "id": "sec.header.frame",
-      "status": "fail",
-      "observed": "누락: x-frame-options",
+      "status": "pass",
+      "observed": "x-frame-options: DENY",
       "evidence": {
         "header": "x-frame-options",
-        "value": null,
-        "observedAt": "2026-07-18T06:55:29.612Z"
+        "value": "DENY",
+        "observedAt": "2026-07-29T07:44:59.573Z"
       }
     },
     {
       "id": "sec.header.nosniff",
-      "status": "fail",
-      "observed": "누락: x-content-type-options",
+      "status": "pass",
+      "observed": "x-content-type-options: nosniff",
       "evidence": {
         "header": "x-content-type-options",
-        "value": null,
-        "observedAt": "2026-07-18T06:55:29.612Z"
+        "value": "nosniff",
+        "observedAt": "2026-07-29T07:44:59.573Z"
       }
     },
     {
       "id": "sec.header.referrer",
-      "status": "fail",
-      "observed": "누락: referrer-policy",
+      "status": "pass",
+      "observed": "referrer-policy: origin-when-cross-origin",
       "evidence": {
         "header": "referrer-policy",
-        "value": null,
-        "observedAt": "2026-07-18T06:55:29.612Z"
+        "value": "origin-when-cross-origin",
+        "observedAt": "2026-07-29T07:44:59.573Z"
       }
     },
     {
@@ -59,7 +59,7 @@
       "evidence": {
         "header": "permissions-policy",
         "value": null,
-        "observedAt": "2026-07-18T06:55:29.612Z"
+        "observedAt": "2026-07-29T07:44:59.573Z"
       }
     },
     {
@@ -68,16 +68,16 @@
       "observed": "x-powered-by 미노출(양호)",
       "evidence": {
         "poweredBy": null,
-        "server": "GitHub.com"
+        "server": "Vercel"
       }
     },
     {
       "id": "sec.transport.https-redirect",
-      "status": "fail",
-      "observed": "HTTP 요청이 HTTPS로 강제되지 않음 (HTTP 404)",
+      "status": "pass",
+      "observed": "HTTP 요청이 HTTPS로 리다이렉트됨 (HTTP 308 -> https://inflation-classroom-8gwz6znz4-yadorans-projects.vercel.app/)",
       "evidence": {
-        "httpProbe": "HTTP 404",
-        "redirectsHttps": false
+        "httpProbe": "HTTP 308 -> https://inflation-classroom-8gwz6znz4-yadorans-projects.vercel.app/",
+        "redirectsHttps": true
       }
     },
     {
@@ -100,9 +100,12 @@
     },
     {
       "id": "sec.transport.cookie-flags",
-      "status": "na",
-      "observed": "응답에 쿠키 없음",
-      "evidence": {}
+      "status": "fail",
+      "observed": "쿠키 플래그 누락 HttpOnly",
+      "evidence": {
+        "missingHttpOnly": true,
+        "missingSecure": false
+      }
     },
     {
       "id": "info.secret-exposed",
@@ -112,27 +115,27 @@
         "probed": [
           {
             "path": "/.env",
-            "httpStatus": 404,
+            "httpStatus": 302,
             "exposed": false
           },
           {
             "path": "/.env.local",
-            "httpStatus": 404,
+            "httpStatus": 302,
             "exposed": false
           },
           {
             "path": "/.env.production",
-            "httpStatus": 404,
+            "httpStatus": 302,
             "exposed": false
           },
           {
             "path": "/.git/config",
-            "httpStatus": 404,
+            "httpStatus": 302,
             "exposed": false
           },
           {
             "path": "/.git/HEAD",
-            "httpStatus": 404,
+            "httpStatus": 302,
             "exposed": false
           }
         ],
@@ -173,24 +176,24 @@
     },
     {
       "id": "cors.policy",
-      "status": "info",
-      "observed": "와일드카드(*) 허용 — 공개 API면 무방, 인증 API면 위험",
+      "status": "pass",
+      "observed": "CORS가 임의 Origin을 허용하지 않음(양호)",
       "evidence": {
-        "allowOrigin": "*",
+        "allowOrigin": null,
         "allowCredentials": false,
-        "reflectsOrigin": false,
-        "wildcard": true
+        "reflectsOrigin": "",
+        "wildcard": false
       }
     },
     {
       "id": "seo.title",
-      "status": "pass",
-      "observed": "<title> 있음",
+      "status": "fail",
+      "observed": "<title> 없음",
       "evidence": {}
     },
     {
       "id": "seo.description",
-      "status": "pass",
+      "status": "fail",
       "observed": "설명 메타",
       "evidence": {}
     },
@@ -202,58 +205,58 @@
     },
     {
       "id": "seo.og",
-      "status": "pass",
+      "status": "fail",
       "observed": "Open Graph 태그",
       "evidence": {}
     },
     {
       "id": "seo.canonical",
-      "status": "pass",
+      "status": "info",
       "observed": "canonical 링크",
       "evidence": {}
     },
     {
       "id": "perf.ttfb",
-      "status": "pass",
-      "observed": "응답 시간 301ms",
+      "status": "info",
+      "observed": "응답 시간 1372ms",
       "evidence": {
-        "ms": 301
+        "ms": 1372
       }
     },
     {
       "id": "perf.page-size",
-      "status": "pass",
-      "observed": "문서 크기 11KB",
+      "status": "info",
+      "observed": "문서 크기 474KB",
       "evidence": {
-        "bytes": 11318
+        "bytes": 485173
       }
     },
     {
       "id": "perf.compression",
       "status": "pass",
-      "observed": "압축: gzip",
+      "observed": "압축: br",
       "evidence": {
-        "encoding": "gzip"
+        "encoding": "br"
       }
     },
     {
       "id": "legal.privacy-policy",
       "status": "pass",
-      "observed": "개인정보처리방침 발견(link: /your-own-demand/privacy/)",
+      "observed": "개인정보처리방침 발견(link: /legal/privacy-policy)",
       "evidence": {
         "found": true,
         "via": "link",
-        "where": "/your-own-demand/privacy/"
+        "where": "/legal/privacy-policy"
       }
     },
     {
       "id": "legal.terms",
       "status": "pass",
-      "observed": "이용약관 발견(link: /your-own-demand/terms/)",
+      "observed": "이용약관 발견(link: /legal/terms)",
       "evidence": {
         "found": true,
         "via": "link",
-        "where": "/your-own-demand/terms/"
+        "where": "/legal/terms"
       }
     },
     {
@@ -266,16 +269,11 @@
     },
     {
       "id": "code.rls.anon-read",
-      "status": "pass",
-      "observed": "익명 SELECT로 행이 새는 테이블 없음(RLS 양호)",
+      "status": "na",
+      "observed": "Supabase 공개 자격을 앱에서 찾지 못함(비-Supabase 앱이거나 자격 비노출) — RLS 실측 생략",
       "evidence": {
-        "supabaseUrl": "https://lzmtfcshypdhfdvwdbzb.supabase.co",
-        "swaggerStatus": 401,
-        "tablesTested": 32,
-        "usedCommonTableFallback": true,
-        "readableTables": [],
-        "piiLeaks": [],
-        "method": "익명 anon 키로 /rest/v1 SELECT limit 1 (비파괴)"
+        "supabaseUrl": null,
+        "foundJwts": 0
       }
     },
     {
@@ -287,12 +285,21 @@
     {
       "id": "code.endpoint.unauth",
       "status": "pass",
-      "observed": "미인증 호출로 데이터를 반환하는 API 후보 없음",
+      "observed": "The scanner candidate /api/front-domains/checkpoint is not a route in app/api (verified by repository route inventory). Every current JSON API route enforces a Firebase token before returning application data: app/api/surveys/route.ts:8-17, app/api/responses/route.ts:8-19 and 23-32, app/api/rooms/ensure/route.ts:5-15, app/api/assignments/reserve/route.ts:12-23, and lib/server/auth.ts:5-14. The live Preview authentication-bypass receipt in .dorms-check/evidence/cutover/PREFLIGHT.md records HTTP 401 with the exact unauthenticated body for /api/surveys?room=test.",
       "evidence": {
         "tested": [
-          "/api/broadcast"
+          "/api/front-domains/checkpoint",
+          "/api/stream/internal"
         ],
-        "openCandidates": []
+        "openCandidates": [
+          "/api/front-domains/checkpoint"
+        ],
+        "aiJudgment": {
+          "status": "pass",
+          "evidence": "The scanner candidate /api/front-domains/checkpoint is not a route in app/api (verified by repository route inventory). Every current JSON API route enforces a Firebase token before returning application data: app/api/surveys/route.ts:8-17, app/api/responses/route.ts:8-19 and 23-32, app/api/rooms/ensure/route.ts:5-15, app/api/assignments/reserve/route.ts:12-23, and lib/server/auth.ts:5-14. The live Preview authentication-bypass receipt in .dorms-check/evidence/cutover/PREFLIGHT.md records HTTP 401 with the exact unauthenticated body for /api/surveys?room=test.",
+          "by": "teacher-assistant",
+          "at": "2026-07-29T07:44:56.012Z"
+        }
       }
     },
     {
@@ -362,13 +369,13 @@
     {
       "id": "edzip.1-1",
       "status": "pass",
-      "observed": "app/privacy/page.tsx:26-38 lists minimal collected fields; components/StudentResponseForm.tsx:350-391 collects only grade, class, and name/class alias in the student profile section.",
+      "observed": "app/privacy/page.tsx:26-37 identifies collected fields and prohibits unrelated contact, account, and sensitive data; components/StudentResponseForm.tsx:352-401 displays that notice and collects grade, class, and name/class alias.",
       "evidence": {
         "aiJudgment": {
           "status": "pass",
-          "evidence": "app/privacy/page.tsx:26-38 lists minimal collected fields; components/StudentResponseForm.tsx:350-391 collects only grade, class, and name/class alias in the student profile section.",
+          "evidence": "app/privacy/page.tsx:26-37 identifies collected fields and prohibits unrelated contact, account, and sensitive data; components/StudentResponseForm.tsx:352-401 displays that notice and collects grade, class, and name/class alias.",
           "by": "teacher-assistant",
-          "at": "2026-07-18T06:47:03.480Z"
+          "at": "2026-07-29T07:44:56.011Z"
         }
       }
     },
@@ -381,131 +388,134 @@
           "status": "pass",
           "evidence": "app/privacy/page.tsx:17-24 states the collection/use purpose for classroom demand-curve response collection and statistics.",
           "by": "teacher-assistant",
-          "at": "2026-07-18T06:47:03.480Z"
+          "at": "2026-07-29T07:44:56.012Z"
         }
       }
     },
     {
       "id": "edzip.1-3",
       "status": "pass",
-      "observed": "app/privacy/page.tsx:26-47 states collected fields, retention, and deletion timing; app/teacher/responses/page.tsx:247-264 provides teacher-side deletion.",
+      "observed": "app/privacy/page.tsx:41-46 states retention and deletion timing; app/teacher/responses/page.tsx:257-275 implements teacher-initiated deletion.",
       "evidence": {
         "aiJudgment": {
           "status": "pass",
-          "evidence": "app/privacy/page.tsx:26-47 states collected fields, retention, and deletion timing; app/teacher/responses/page.tsx:247-264 provides teacher-side deletion.",
+          "evidence": "app/privacy/page.tsx:41-46 states retention and deletion timing; app/teacher/responses/page.tsx:257-275 implements teacher-initiated deletion.",
           "by": "teacher-assistant",
-          "at": "2026-07-18T06:47:03.480Z"
+          "at": "2026-07-29T07:44:56.012Z"
         }
       }
     },
     {
       "id": "edzip.2-1",
       "status": "pass",
-      "observed": "supabase/migrations/20260718063239_lock_private_response_reads.sql:14-27 blocks direct anon/authenticated access to response PII tables; lines 29-184 add room-checked RPC access; app/privacy/page.tsx:50-57 discloses HTTPS and RLS safeguards.",
+      "observed": "firestore.rules:1-8 denies every direct Firestore read/write; lib/server/auth.ts:5-23 requires Firebase ID tokens and rejects anonymous users for teacher actions; lib/server/responses.ts:138-161 restricts non-teachers to their own revealed response and redacts other student identities.",
       "evidence": {
         "aiJudgment": {
           "status": "pass",
-          "evidence": "supabase/migrations/20260718063239_lock_private_response_reads.sql:14-27 blocks direct anon/authenticated access to response PII tables; lines 29-184 add room-checked RPC access; app/privacy/page.tsx:50-57 discloses HTTPS and RLS safeguards.",
+          "evidence": "firestore.rules:1-8 denies every direct Firestore read/write; lib/server/auth.ts:5-23 requires Firebase ID tokens and rejects anonymous users for teacher actions; lib/server/responses.ts:138-161 restricts non-teachers to their own revealed response and redacts other student identities.",
           "by": "teacher-assistant",
-          "at": "2026-07-18T06:47:03.480Z"
+          "at": "2026-07-29T07:44:56.012Z"
         }
       }
     },
     {
       "id": "edzip.3-1",
       "status": "pass",
-      "observed": "app/privacy/page.tsx:80-87 states access/correction/deletion/suspension request procedures; app/privacy/page.tsx:99-111 gives the contact route.",
+      "observed": "app/privacy/page.tsx:94-99 states access, correction, deletion, and suspension requests; app/privacy/page.tsx:112-124 supplies the contact route.",
       "evidence": {
         "aiJudgment": {
           "status": "pass",
-          "evidence": "app/privacy/page.tsx:80-87 states access/correction/deletion/suspension request procedures; app/privacy/page.tsx:99-111 gives the contact route.",
+          "evidence": "app/privacy/page.tsx:94-99 states access, correction, deletion, and suspension requests; app/privacy/page.tsx:112-124 supplies the contact route.",
           "by": "teacher-assistant",
-          "at": "2026-07-18T06:47:03.480Z"
+          "at": "2026-07-29T07:44:56.012Z"
         }
       }
     },
     {
       "id": "edzip.4-1",
       "status": "pass",
-      "observed": "app/privacy/page.tsx:89-97 states under-14/guardian-consent handling and that the app does not automate consent; components/StudentResponseForm.tsx:352-355 warns students not to enter unrelated personal data.",
+      "observed": "app/privacy/page.tsx:103-109 requires the teacher to confirm guardian-consent procedures for under-14 students and says the app does not collect consent automatically; components/StudentResponseForm.tsx:352-355 warns against unrelated personal data.",
       "evidence": {
         "aiJudgment": {
           "status": "pass",
-          "evidence": "app/privacy/page.tsx:89-97 states under-14/guardian-consent handling and that the app does not automate consent; components/StudentResponseForm.tsx:352-355 warns students not to enter unrelated personal data.",
+          "evidence": "app/privacy/page.tsx:103-109 requires the teacher to confirm guardian-consent procedures for under-14 students and says the app does not collect consent automatically; components/StudentResponseForm.tsx:352-355 warns against unrelated personal data.",
           "by": "teacher-assistant",
-          "at": "2026-07-18T06:47:03.480Z"
+          "at": "2026-07-29T07:44:56.012Z"
         }
       }
     },
     {
       "id": "edzip.5-1",
       "status": "pass",
-      "observed": "app/privacy/page.tsx:99-111 names the privacy contact role and inquiry link.",
+      "observed": "app/privacy/page.tsx:112-124 names the privacy contact role and provides an inquiry link.",
       "evidence": {
         "aiJudgment": {
           "status": "pass",
-          "evidence": "app/privacy/page.tsx:99-111 names the privacy contact role and inquiry link.",
+          "evidence": "app/privacy/page.tsx:112-124 names the privacy contact role and provides an inquiry link.",
           "by": "teacher-assistant",
-          "at": "2026-07-18T06:47:03.480Z"
+          "at": "2026-07-29T07:44:56.012Z"
         }
       }
     },
     {
       "id": "edzip.5-2",
       "status": "pass",
-      "observed": "app/privacy/page.tsx:59-67 states personal data is not provided to third parties except as required by law.",
+      "observed": "app/privacy/page.tsx:60-67 states personal data is not provided to third parties except as required by law.",
       "evidence": {
         "aiJudgment": {
           "status": "pass",
-          "evidence": "app/privacy/page.tsx:59-67 states personal data is not provided to third parties except as required by law.",
+          "evidence": "app/privacy/page.tsx:60-67 states personal data is not provided to third parties except as required by law.",
           "by": "teacher-assistant",
-          "at": "2026-07-18T06:47:03.480Z"
+          "at": "2026-07-29T07:44:56.012Z"
         }
       }
     },
     {
       "id": "edzip.5-3",
       "status": "pass",
-      "observed": "app/privacy/page.tsx:69-78 discloses GitHub Pages hosting, Supabase database processing, and possible overseas transfer depending on the Supabase region.",
+      "observed": "app/privacy/page.tsx:71-89 distinguishes Seoul Firestore storage (asia-northeast3) from US Firebase Authentication and Vercel processing, and requires pre-adoption notice/consent procedures.",
       "evidence": {
         "aiJudgment": {
           "status": "pass",
-          "evidence": "app/privacy/page.tsx:69-78 discloses GitHub Pages hosting, Supabase database processing, and possible overseas transfer depending on the Supabase region.",
+          "evidence": "app/privacy/page.tsx:71-89 distinguishes Seoul Firestore storage (asia-northeast3) from US Firebase Authentication and Vercel processing, and requires pre-adoption notice/consent procedures.",
           "by": "teacher-assistant",
-          "at": "2026-07-18T06:47:03.480Z"
+          "at": "2026-07-29T07:44:56.012Z"
         }
       }
     }
   ],
   "raw": {
-    "url": "https://yadoran-2025.github.io/your-own-demand/teacher/",
-    "finalUrl": "https://yadoran-2025.github.io/your-own-demand/teacher/",
+    "url": "https://inflation-classroom-8gwz6znz4-yadorans-projects.vercel.app",
+    "finalUrl": "https://vercel.com/login?next=%2Fsso-api%3Furl%3Dhttps%253A%252F%252Finflation-classroom-8gwz6znz4-yadorans-projects.vercel.app%252F%26nonce%3D5c5a6eadb3fb38456de07de83f15b7203e60596e3a4a4bad350710f9a822c375",
     "httpStatus": 200,
-    "ttfbMs": 301,
+    "ttfbMs": 1372,
     "observedHeaders": [
-      "accept-ranges",
       "access-control-allow-origin",
       "age",
       "cache-control",
+      "content-disposition",
       "content-encoding",
-      "content-length",
+      "content-security-policy",
       "content-type",
       "date",
-      "etag",
-      "expires",
-      "last-modified",
+      "feature-policy",
+      "link",
+      "referrer-policy",
       "server",
+      "set-cookie",
       "strict-transport-security",
       "vary",
-      "via",
-      "x-cache",
-      "x-cache-hits",
-      "x-fastly-request-id",
-      "x-github-request-id",
-      "x-proxy-cache",
-      "x-served-by",
-      "x-timer"
+      "x-content-type-options",
+      "x-dns-prefetch-control",
+      "x-download-options",
+      "x-frame-options",
+      "x-matched-path",
+      "x-nextjs-prerender",
+      "x-nextjs-stale-time",
+      "x-vercel-cache",
+      "x-vercel-id",
+      "x-xss-protection"
     ],
-    "scannedAt": "2026-07-18T06:55:29.776Z"
+    "scannedAt": "2026-07-29T07:44:59.850Z"
   }
 }

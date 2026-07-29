@@ -7,56 +7,62 @@
   },
   "edzip.1-1": {
     "status": "pass",
-    "evidence": "app/privacy/page.tsx:26-38 lists minimal collected fields; components/StudentResponseForm.tsx:350-391 collects only grade, class, and name/class alias in the student profile section.",
+    "evidence": "app/privacy/page.tsx:26-37 identifies collected fields and prohibits unrelated contact, account, and sensitive data; components/StudentResponseForm.tsx:352-401 displays that notice and collects grade, class, and name/class alias.",
     "by": "teacher-assistant",
-    "at": "2026-07-18T06:47:03.480Z"
+    "at": "2026-07-29T07:44:56.011Z"
   },
   "edzip.1-2": {
     "status": "pass",
     "evidence": "app/privacy/page.tsx:17-24 states the collection/use purpose for classroom demand-curve response collection and statistics.",
     "by": "teacher-assistant",
-    "at": "2026-07-18T06:47:03.480Z"
+    "at": "2026-07-29T07:44:56.012Z"
   },
   "edzip.1-3": {
     "status": "pass",
-    "evidence": "app/privacy/page.tsx:26-47 states collected fields, retention, and deletion timing; app/teacher/responses/page.tsx:247-264 provides teacher-side deletion.",
+    "evidence": "app/privacy/page.tsx:41-46 states retention and deletion timing; app/teacher/responses/page.tsx:257-275 implements teacher-initiated deletion.",
     "by": "teacher-assistant",
-    "at": "2026-07-18T06:47:03.480Z"
+    "at": "2026-07-29T07:44:56.012Z"
   },
   "edzip.2-1": {
     "status": "pass",
-    "evidence": "supabase/migrations/20260718063239_lock_private_response_reads.sql:14-27 blocks direct anon/authenticated access to response PII tables; lines 29-184 add room-checked RPC access; app/privacy/page.tsx:50-57 discloses HTTPS and RLS safeguards.",
+    "evidence": "firestore.rules:1-8 denies every direct Firestore read/write; lib/server/auth.ts:5-23 requires Firebase ID tokens and rejects anonymous users for teacher actions; lib/server/responses.ts:138-161 restricts non-teachers to their own revealed response and redacts other student identities.",
     "by": "teacher-assistant",
-    "at": "2026-07-18T06:47:03.480Z"
+    "at": "2026-07-29T07:44:56.012Z"
   },
   "edzip.3-1": {
     "status": "pass",
-    "evidence": "app/privacy/page.tsx:80-87 states access/correction/deletion/suspension request procedures; app/privacy/page.tsx:99-111 gives the contact route.",
+    "evidence": "app/privacy/page.tsx:94-99 states access, correction, deletion, and suspension requests; app/privacy/page.tsx:112-124 supplies the contact route.",
     "by": "teacher-assistant",
-    "at": "2026-07-18T06:47:03.480Z"
+    "at": "2026-07-29T07:44:56.012Z"
   },
   "edzip.4-1": {
     "status": "pass",
-    "evidence": "app/privacy/page.tsx:89-97 states under-14/guardian-consent handling and that the app does not automate consent; components/StudentResponseForm.tsx:352-355 warns students not to enter unrelated personal data.",
+    "evidence": "app/privacy/page.tsx:103-109 requires the teacher to confirm guardian-consent procedures for under-14 students and says the app does not collect consent automatically; components/StudentResponseForm.tsx:352-355 warns against unrelated personal data.",
     "by": "teacher-assistant",
-    "at": "2026-07-18T06:47:03.480Z"
+    "at": "2026-07-29T07:44:56.012Z"
   },
   "edzip.5-1": {
     "status": "pass",
-    "evidence": "app/privacy/page.tsx:99-111 names the privacy contact role and inquiry link.",
+    "evidence": "app/privacy/page.tsx:112-124 names the privacy contact role and provides an inquiry link.",
     "by": "teacher-assistant",
-    "at": "2026-07-18T06:47:03.480Z"
+    "at": "2026-07-29T07:44:56.012Z"
   },
   "edzip.5-2": {
     "status": "pass",
-    "evidence": "app/privacy/page.tsx:59-67 states personal data is not provided to third parties except as required by law.",
+    "evidence": "app/privacy/page.tsx:60-67 states personal data is not provided to third parties except as required by law.",
     "by": "teacher-assistant",
-    "at": "2026-07-18T06:47:03.480Z"
+    "at": "2026-07-29T07:44:56.012Z"
   },
   "edzip.5-3": {
     "status": "pass",
-    "evidence": "app/privacy/page.tsx:69-78 discloses GitHub Pages hosting, Supabase database processing, and possible overseas transfer depending on the Supabase region.",
+    "evidence": "app/privacy/page.tsx:71-89 distinguishes Seoul Firestore storage (asia-northeast3) from US Firebase Authentication and Vercel processing, and requires pre-adoption notice/consent procedures.",
     "by": "teacher-assistant",
-    "at": "2026-07-18T06:47:03.480Z"
+    "at": "2026-07-29T07:44:56.012Z"
+  },
+  "code.endpoint.unauth": {
+    "status": "pass",
+    "evidence": "The scanner candidate /api/front-domains/checkpoint is not a route in app/api (verified by repository route inventory). Every current JSON API route enforces a Firebase token before returning application data: app/api/surveys/route.ts:8-17, app/api/responses/route.ts:8-19 and 23-32, app/api/rooms/ensure/route.ts:5-15, app/api/assignments/reserve/route.ts:12-23, and lib/server/auth.ts:5-14. The live Preview authentication-bypass receipt in .dorms-check/evidence/cutover/PREFLIGHT.md records HTTP 401 with the exact unauthenticated body for /api/surveys?room=test.",
+    "by": "teacher-assistant",
+    "at": "2026-07-29T07:44:56.012Z"
   }
 }

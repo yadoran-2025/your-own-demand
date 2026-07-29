@@ -1,0 +1,55 @@
+{
+  "generatedAt": "2026-07-29T07:42:37.558Z",
+  "scope": {
+    "app": "수요곡선 활동 시스템",
+    "previewUrl": "https://inflation-classroom-8gwz6znz4-yadorans-projects.vercel.app",
+    "edzip": {
+      "handlesStudentData": true,
+      "leavesSchoolDevice": true,
+      "identifiersAlwaysMaskedOrLocal": false,
+      "case": "D"
+    }
+  },
+  "detector": {
+    "command": "npx -y dorms-check@latest detect",
+    "result": "npm E404",
+    "fallback": "npx -y github:shinnanchanguk/dorms-check",
+    "fallbackPreviouslyApproved": true
+  },
+  "judge": {
+    "accepted": 10,
+    "rejected": 0,
+    "pendingItem": "code.endpoint.unauth",
+    "status": "pass",
+    "evidence": [
+      "app/api/surveys/route.ts:8-17",
+      "app/api/responses/route.ts:8-32",
+      "app/api/rooms/ensure/route.ts:5-15",
+      "app/api/assignments/reserve/route.ts:12-23",
+      "lib/server/auth.ts:5-23",
+      ".dorms-check/evidence/cutover/PREFLIGHT.md"
+    ]
+  },
+  "scanner": {
+    "security": { "score": 94, "grade": "A", "eligible": true },
+    "edzip": { "eligible": true },
+    "remainingCount": 5,
+    "remaining": [
+      { "id": "sec.header.permissions", "severity": "low", "conclusion": "unauthenticated scanner read Vercel protection response; authenticated Preview header verifies configured policy" },
+      { "id": "sec.transport.cookie-flags", "severity": "medium", "conclusion": "unverifiable in this scan; actual app cookie behavior requires a separate authenticated cookie-path check" },
+      { "id": "seo.title", "severity": "info", "conclusion": "unauthenticated scanner read Vercel protection response; authenticated Preview verifies title" },
+      { "id": "seo.description", "severity": "info", "conclusion": "unauthenticated scanner read Vercel protection response; authenticated Preview verifies description" },
+      { "id": "seo.og", "severity": "info", "conclusion": "unauthenticated scanner read Vercel protection response; authenticated Preview verifies Open Graph metadata" }
+    ]
+  },
+  "privacyEvidence": {
+    "firestoreStorage": "Seoul, asia-northeast3",
+    "overseasProcessingDisclosure": "app/privacy/page.tsx:71-89 distinguishes Firebase Authentication and Vercel processing from Seoul Firestore storage",
+    "directFirestore": "firestore.rules:1-8 denies all direct client read/write"
+  },
+  "production": {
+    "approvedByThisTask": false,
+    "reason": "Task 7 makes no code, legal-copy, hosting-config, or deployment change. The scan retains five items and the medium cookie finding is unresolved."
+  },
+  "certification": "Local preparation only; dorms.school must independently verify before final certification."
+}

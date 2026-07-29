@@ -89,13 +89,52 @@ describe("data API adapter", () => {
     });
   });
 
+  it("initializes an existing remote room with one API request", async () => {
+    const { apiFetch } = await import("@/lib/api-client");
+    vi.mocked(apiFetch).mockResolvedValueOnce([survey]);
+    const { ensureRoomHasDefaultSurveys } = await import("@/lib/data");
+
+    await expect(
+      ensureRoomHasDefaultSurveys(" 경제 1반 "),
+    ).resolves.toEqual([survey]);
+
+    expect(apiFetch).toHaveBeenCalledTimes(1);
+    expect(apiFetch).toHaveBeenCalledWith("/api/rooms/ensure", {
+      method: "POST",
+      body: JSON.stringify({ name: "경제 1반" }),
+    });
+  });
+
+  it("creates one default only when the ensured remote room is empty", async () => {
+    const { apiFetch } = await import("@/lib/api-client");
+    vi.mocked(apiFetch)
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce(survey);
+    const { ensureRoomHasDefaultSurveys } = await import("@/lib/data");
+
+    await expect(
+      ensureRoomHasDefaultSurveys("경제 1반"),
+    ).resolves.toEqual([survey]);
+
+    expect(apiFetch).toHaveBeenCalledTimes(2);
+    const [savePath, saveInit] = vi.mocked(apiFetch).mock.calls[1];
+    expect(savePath).toBe("/api/surveys");
+    expect(saveInit).toMatchObject({ method: "POST" });
+    expect(JSON.parse(saveInit?.body as string)).toMatchObject({
+      roomName: "경제 1반",
+      draft: {
+        title: "2026 경제 수요설문",
+        classBudgets: [],
+        products: expect.any(Array),
+      },
+    });
+  });
+
   it("uses teacher-scoped survey and response mutations", async () => {
     const { apiFetch } = await import("@/lib/api-client");
     vi.mocked(apiFetch)
-      .mockResolvedValueOnce({})
-      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([survey])
       .mockResolvedValueOnce(survey)
-      .mockResolvedValueOnce({})
       .mockResolvedValueOnce({})
       .mockResolvedValueOnce({});
     const {
@@ -114,19 +153,19 @@ describe("data API adapter", () => {
       method: "POST",
       body: JSON.stringify({ name: "경제 1반" }),
     });
-    expect(apiFetch).toHaveBeenNthCalledWith(4, "/api/surveys", {
+    expect(apiFetch).toHaveBeenNthCalledWith(2, "/api/surveys", {
       method: "POST",
       body: JSON.stringify({
         roomName: "경제 1반",
         draft: { title: "설문", classBudgets: [], products: [{ name: "상품", pricePoints: [{ description: "가격", price: 1000 }] }] },
       }),
     });
-    expect(apiFetch).toHaveBeenNthCalledWith(5, "/api/responses/response-1", {
+    expect(apiFetch).toHaveBeenNthCalledWith(3, "/api/responses/response-1", {
       method: "PATCH",
       body: JSON.stringify({ roomName: "경제 1반", surveyId: "survey-1", profile, quantities: { "price-1": 2 } }),
     });
     expect(apiFetch).toHaveBeenNthCalledWith(
-      6,
+      4,
       "/api/responses/response-1?room=%EA%B2%BD%EC%A0%9C%201%EB%B0%98&surveyId=survey-1",
       { method: "DELETE" },
     );

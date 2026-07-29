@@ -288,14 +288,12 @@ export async function ensureRoomHasDefaultSurveys(roomName?: string): Promise<Su
     return [];
   }
 
-  if (hasRemoteDatabase) {
-    await apiFetch("/api/rooms/ensure", {
-      method: "POST",
-      body: JSON.stringify({ name: normalizedRoomName }),
-    });
-  }
-
-  const existingSurveys = await fetchSurveys(normalizedRoomName);
+  const existingSurveys = hasRemoteDatabase
+    ? await apiFetch<Survey[]>("/api/rooms/ensure", {
+        method: "POST",
+        body: JSON.stringify({ name: normalizedRoomName }),
+      })
+    : await fetchSurveys(normalizedRoomName);
 
   if (existingSurveys.length) {
     return existingSurveys;

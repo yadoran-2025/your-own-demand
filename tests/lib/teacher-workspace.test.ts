@@ -2,8 +2,10 @@ import { expect, it } from "vitest";
 import {
   addClass,
   createRoomKey,
+  mergeLessonSelection,
   normalizeTeacherWorkspace,
   removeClass,
+  selectClass,
   selectLesson,
   validateSchoolDetails,
 } from "@/lib/teacher-workspace";
@@ -65,4 +67,29 @@ it("persists and clears only the selected lesson", () => {
     selectedLessonId: "survey-2",
   });
   expect(selectLesson({ ...workspace, selectedLessonId: "survey-2" }, "")).toEqual(workspace);
+});
+
+it("keeps the first class entry when a stale page snapshot selects a lesson", () => {
+  const enteredWorkspace = selectClass(
+    { ...workspace, classes: ["1반"] },
+    "1반",
+  );
+
+  expect(mergeLessonSelection(workspace, enteredWorkspace, "survey-1")).toEqual({
+    ...enteredWorkspace,
+    selectedLessonId: "survey-1",
+  });
+});
+
+it("keeps the latest class switch when a stale page snapshot selects a lesson", () => {
+  const firstClass = selectClass(
+    { ...workspace, classes: ["1반", "2반"] },
+    "1반",
+  );
+  const secondClass = selectClass(firstClass, "2반");
+
+  expect(mergeLessonSelection(firstClass, secondClass, "survey-2")).toEqual({
+    ...secondClass,
+    selectedLessonId: "survey-2",
+  });
 });

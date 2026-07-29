@@ -70,6 +70,17 @@ export function selectLesson(workspace: TeacherWorkspace, selectedLessonId: stri
   return { ...workspace, selectedLessonId };
 }
 
+export function mergeLessonSelection(
+  currentWorkspace: TeacherWorkspace,
+  latestWorkspace: unknown,
+  selectedLessonId: string,
+) {
+  const workspace = latestWorkspace == null
+    ? currentWorkspace
+    : normalizeTeacherWorkspace(latestWorkspace);
+  return selectLesson(workspace, selectedLessonId);
+}
+
 export function selectClass(workspace: TeacherWorkspace, selectedClass: string) {
   return { ...workspace, selectedClass, selectedLessonId: "" };
 }
@@ -95,7 +106,16 @@ export function useTeacherWorkspace() {
 
   const setSelectedLessonId = useCallback((selectedLessonId: string) => {
     setWorkspaceState((current) => {
-      const nextWorkspace = selectLesson(current, selectedLessonId);
+      let latestWorkspace: unknown;
+      try {
+        const stored = window.localStorage.getItem(TEACHER_WORKSPACE_KEY);
+        latestWorkspace = stored ? JSON.parse(stored) : undefined;
+      } catch {}
+      const nextWorkspace = mergeLessonSelection(
+        current,
+        latestWorkspace,
+        selectedLessonId,
+      );
       try {
         window.localStorage.setItem(
           TEACHER_WORKSPACE_KEY,

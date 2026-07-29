@@ -50,9 +50,7 @@ export function useTeacherWorkspace() {
     try {
       const stored = window.localStorage.getItem(TEACHER_WORKSPACE_KEY);
       if (stored) setWorkspaceState(JSON.parse(stored));
-    } catch {
-      window.localStorage.removeItem(TEACHER_WORKSPACE_KEY);
-    }
+    } catch {}
     setReady(true);
   }, []);
 

@@ -9,6 +9,17 @@ import type {
 } from "./types";
 
 export type AssignmentMap = Record<string, string>;
+export const ASSIGNMENT_STORAGE_KEY_PREFIX = "demand-app-assignments:";
+
+export function isAssignmentMap(value: unknown): value is AssignmentMap {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    !Array.isArray(value) &&
+    Object.getPrototypeOf(value) === Object.prototype &&
+    Object.values(value).every((assignment) => typeof assignment === "string")
+  );
+}
 
 export type AssignedPricePoint = {
   product: Product;
@@ -39,7 +50,7 @@ export function buildAssignmentStorageKey(
   surveyId: string,
   profile: StudentProfile,
 ) {
-  return `demand-app-assignments:${buildAssignmentSeed(surveyId, profile)}`;
+  return `${ASSIGNMENT_STORAGE_KEY_PREFIX}${buildAssignmentSeed(surveyId, profile)}`;
 }
 
 export function buildBalancedAssignments(

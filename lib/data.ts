@@ -6,8 +6,10 @@ import {
   buildAssignmentStorageKey,
   buildBalancedAssignments,
   hasCompleteAssignments,
+  isAssignmentMap,
   type AssignmentMap,
 } from "./assignments";
+import { readStoredStudentSubmission } from "./studentResultProfile";
 import type {
   ClassBudget,
   QuantityMap,
@@ -17,6 +19,7 @@ import type {
   SurveyDraft,
 } from "./types";
 import { makeId } from "./utils";
+import { isBeforeAnnualCutoff } from "./retention";
 
 const SURVEYS_KEY = "demand-app-surveys";
 const RESPONSES_KEY = "demand-app-responses";
@@ -67,6 +70,71 @@ function readLocal<T>(key: string, fallback: T): T {
 
 function writeLocal<T>(key: string, value: T) {
   window.localStorage.setItem(key, JSON.stringify(value));
+}
+
+function redactOtherClassRespondents(
+  responses: StudentResponse[],
+  viewer: StudentProfile | null,
+  ownResponseId?: string | null,
+) {
+  const ownResponse = ownResponseId
+    ? responses.find((response) => response.id === ownResponseId)
+    : null;
+  const verifiedViewer = Boolean(
+    viewer &&
+      ownResponse &&
+      ownResponse.grade === viewer.grade &&
+      ownResponse.class_number === viewer.class_number &&
+      ownResponse.student_number === viewer.student_number &&
+      ownResponse.student_name === viewer.student_name,
+  );
+  const usedIds = new Set(responses.map((response) => response.id));
+  return responses.map((response, index) => {
+    let id = `redacted-${index}`;
+    if (!verifiedViewer || response.id !== ownResponseId) {
+      for (let suffix = index; usedIds.has(id); suffix += 1) id = `redacted-${suffix + 1}`;
+      usedIds.add(id);
+    } else {
+      id = response.id;
+    }
+    const sameClass = Boolean(verifiedViewer && viewer &&
+      response.grade === viewer.grade &&
+      response.class_number === viewer.class_number);
+    return {
+      ...response,
+      id,
+      student_name: sameClass ? response.student_name : "",
+      student_number: 0,
+      response_items: response.response_items.map((item) => ({ ...item, response_id: id })),
+    };
+  });
+}
+
+function readStoredAssignments(raw: string | null, now = new Date()) {
+  try {
+    const parsed = raw ? JSON.parse(raw) : null;
+    if (
+      !parsed?.assignments ||
+      !isAssignmentMap(parsed.assignments) ||
+      typeof parsed.stored_at !== "string" ||
+      !Number.isFinite(new Date(parsed.stored_at).getTime()) ||
+      isBeforeAnnualCutoff(parsed.stored_at, now)
+    ) {
+      return null;
+    }
+    return parsed.assignments as AssignmentMap;
+  } catch {
+    return null;
+  }
+}
+
+function readCurrentLocalResponses() {
+  const responses = readLocal<StudentResponse[]>(RESPONSES_KEY, []);
+  const current = responses.filter((response) =>
+    !isBeforeAnnualCutoff(response.created_at, new Date()),
+  );
+  if (current.length !== responses.length) writeLocal(RESPONSES_KEY, current);
+  return current;
 }
 
 function normalizeSurvey(survey: DbSurvey): Survey {
@@ -444,7 +512,16 @@ export async function fetchResponses(
   revealResponseId?: string | null,
 ): Promise<StudentResponse[]> {
   if (!hasRemoteDatabase) {
-    const all = readLocal<StudentResponse[]>(RESPONSES_KEY, []).filter(
+    const storedSubmission = roomName
+      ? readStoredStudentSubmission(roomName, surveyId)
+      : null;
+    const all = (revealResponseId
+      ? redactOtherClassRespondents(
+          readCurrentLocalResponses(),
+          storedSubmission?.profile ?? null,
+          storedSubmission?.responseId,
+        )
+      : readCurrentLocalResponses()).filter(
       (response) => response.survey_id === surveyId,
     );
     return slim ? all.map((r) => ({ ...r, response_items: [] })) : all;
@@ -488,9 +565,9 @@ export async function reserveAssignments(
       throw new Error("만 14세 미만은 이 서비스를 이용할 수 없습니다.");
     }
     const storageKey = buildAssignmentStorageKey(survey.id, cleanProfile);
-    const stored =
-      typeof window === "undefined" ? null : window.localStorage.getItem(storageKey);
-    const storedAssignments = stored ? (JSON.parse(stored) as AssignmentMap) : null;
+    const storedAssignments = readStoredAssignments(
+      typeof window === "undefined" ? null : window.localStorage.getItem(storageKey),
+    );
 
     if (storedAssignments && hasCompleteAssignments(survey, storedAssignments)) {
       return storedAssignments;
@@ -509,7 +586,10 @@ export async function reserveAssignments(
     );
 
     if (typeof window !== "undefined") {
-      window.localStorage.setItem(storageKey, JSON.stringify(nextAssignments));
+      window.localStorage.setItem(
+        storageKey,
+        JSON.stringify({ assignments: nextAssignments, stored_at: new Date().toISOString() }),
+      );
     }
 
     return nextAssignments;

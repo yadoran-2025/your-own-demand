@@ -1,8 +1,13 @@
 import { isBeforeAnnualCutoff } from "./retention";
+import {
+  ASSIGNMENT_STORAGE_KEY_PREFIX,
+  isAssignmentMap,
+} from "./assignments";
 import type { StudentProfile } from "./types";
 
 export const STUDENT_RESULT_PROFILE_KEY = "demand-app-student-result-profile";
 const STUDENT_SUBMISSION_KEY_PREFIX = "demand-app-student-submission";
+const LOCAL_RESPONSES_KEY = "demand-app-responses";
 
 function buildStudentSubmissionKey(roomName: string, surveyId: string) {
   return [
@@ -157,6 +162,8 @@ export function purgeExpiredStudentStorage(now = new Date()) {
     const key = window.localStorage.key(index);
     if (
       key !== STUDENT_RESULT_PROFILE_KEY &&
+      key !== LOCAL_RESPONSES_KEY &&
+      !key?.startsWith(ASSIGNMENT_STORAGE_KEY_PREFIX) &&
       !key?.startsWith(`${STUDENT_SUBMISSION_KEY_PREFIX}:`)
     ) {
       continue;
@@ -165,10 +172,37 @@ export function purgeExpiredStudentStorage(now = new Date()) {
     const raw = key ? window.localStorage.getItem(key) : null;
     try {
       const parsed = raw ? JSON.parse(raw) : null;
+      if (key === LOCAL_RESPONSES_KEY) {
+        if (!Array.isArray(parsed)) {
+          window.localStorage.removeItem(key);
+          continue;
+        }
+        const current = parsed.filter(
+          (response) =>
+            typeof response?.created_at === "string" &&
+            Number.isFinite(new Date(response.created_at).getTime()) &&
+            !isBeforeAnnualCutoff(response.created_at, now),
+        );
+        if (current.length) {
+          window.localStorage.setItem(key, JSON.stringify(current));
+        } else {
+          window.localStorage.removeItem(key);
+        }
+        continue;
+      }
+      if (
+        key?.startsWith(ASSIGNMENT_STORAGE_KEY_PREFIX) &&
+        !isAssignmentMap(parsed?.assignments)
+      ) {
+        window.localStorage.removeItem(key);
+        continue;
+      }
       const timestamp =
         key === STUDENT_RESULT_PROFILE_KEY
           ? parsed?.stored_at
-          : parsed?.submitted_at;
+          : key?.startsWith(ASSIGNMENT_STORAGE_KEY_PREFIX)
+            ? parsed?.stored_at
+            : parsed?.submitted_at;
       if (
         typeof timestamp !== "string" ||
         !Number.isFinite(new Date(timestamp).getTime()) ||

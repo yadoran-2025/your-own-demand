@@ -149,4 +149,64 @@ describe("data API adapter", () => {
       "/api/responses?room=%EA%B2%BD%EC%A0%9C%201%EB%B0%98&surveyId=survey%2F1&reveal=response%2F1",
     );
   });
+
+  it("redacts other-class identities in local student results", async () => {
+    const values = new Map<string, string>();
+    vi.stubEnv("NEXT_PUBLIC_FIREBASE_PROJECT_ID", "");
+    vi.stubEnv("NEXT_PUBLIC_FIREBASE_API_KEY", "");
+    vi.stubGlobal("window", {
+      localStorage: {
+        get length() {
+          return values.size;
+        },
+        getItem: (key: string) => values.get(key) ?? null,
+        key: (index: number) => Array.from(values.keys())[index] ?? null,
+        removeItem: (key: string) => values.delete(key),
+        setItem: (key: string, value: string) => values.set(key, value),
+      },
+    });
+    values.set(
+      "demand-app-responses",
+      JSON.stringify([
+        { ...profile, id: "student-a", survey_id: "survey-1", created_at: "2026-07-29T00:00:00.000Z", response_items: [] },
+        { ...profile, student_name: "같은반", id: "student-b", survey_id: "survey-1", created_at: "2026-07-29T00:00:00.000Z", response_items: [] },
+        { ...profile, class_number: 3, student_name: "다른반", id: "student-c", survey_id: "survey-1", created_at: "2026-07-29T00:00:00.000Z", response_items: [] },
+        { ...profile, student_number: 4, id: "student-d", survey_id: "survey-1", created_at: "2026-07-29T00:00:00.000Z", response_items: [] },
+      ]),
+    );
+    values.set(
+      "demand-app-student-submission:room:survey-1",
+      JSON.stringify({
+        profile,
+        response_id: "student-a",
+        submitted_at: "2026-07-29T00:00:00.000Z",
+      }),
+    );
+
+    const { buildAssignmentStorageKey } = await import("@/lib/assignments");
+    const { fetchResponses, reserveAssignments } = await import("@/lib/data");
+    const responses = await fetchResponses("survey-1", false, "room", "student-c");
+
+    expect(responses.find((response) => response.student_name === "같은반")).toBeDefined();
+    expect(responses.some((response) => response.student_name === "다른반")).toBe(false);
+    expect(responses.every((response) => response.student_number === 0)).toBe(true);
+
+    values.set(
+      "demand-app-student-submission:room:survey-1",
+      JSON.stringify({
+        profile,
+        response_id: "student-d",
+        submitted_at: "2026-07-29T00:00:00.000Z",
+      }),
+    );
+    const swappedResponses = await fetchResponses("survey-1", false, "room", "student-d");
+    expect(swappedResponses.some((response) => response.student_name === "같은반")).toBe(false);
+    expect(swappedResponses.every((response) => response.student_number === 0)).toBe(true);
+
+    await reserveAssignments(survey, profile, "room", true);
+    expect(JSON.parse(values.get(buildAssignmentStorageKey("survey-1", profile)) ?? "{}")).toMatchObject({
+      assignments: { "product-1": "price-1" },
+      stored_at: expect.any(String),
+    });
+  });
 });

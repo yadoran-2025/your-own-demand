@@ -145,4 +145,60 @@ describe("annual student-data cutoff", () => {
     ).toBeNull();
     expect(readStoredStudentSubmission("room", "survey-no-profile")).toBeNull();
   });
+
+  it("removes expired local fallback responses", async () => {
+    window.localStorage.setItem(
+      "demand-app-responses",
+      JSON.stringify([
+        { created_at: "2027-01-31T14:59:59.999Z", student_name: "지난학생" },
+        { created_at: "2027-01-31T15:00:00.000Z", student_name: "현재학생" },
+      ]),
+    );
+
+    const { purgeExpiredStudentStorage } = await import(
+      "@/lib/studentResultProfile"
+    );
+    purgeExpiredStudentStorage(new Date("2027-02-01T00:30:00+09:00"));
+
+    expect(window.localStorage.getItem("demand-app-responses")).toBe(
+      JSON.stringify([
+        { created_at: "2027-01-31T15:00:00.000Z", student_name: "현재학생" },
+      ]),
+    );
+  });
+
+  it("removes legacy and expired assignment caches but keeps current caches", async () => {
+    window.localStorage.setItem(
+      "demand-app-assignments:legacy:지난학생",
+      JSON.stringify({ "price-1": "old" }),
+    );
+    window.localStorage.setItem(
+      "demand-app-assignments:old:지난학생",
+      JSON.stringify({
+        assignments: { "price-1": "old" },
+        stored_at: "2027-01-31T14:59:59.999Z",
+      }),
+    );
+    window.localStorage.setItem(
+      "demand-app-assignments:current:현재학생",
+      JSON.stringify({
+        assignments: { "price-1": "current" },
+        stored_at: "2027-01-31T15:00:00.000Z",
+      }),
+    );
+    window.localStorage.setItem(
+      "demand-app-assignments:malformed:현재학생",
+      JSON.stringify({ stored_at: "2027-01-31T15:00:00.000Z" }),
+    );
+
+    const { purgeExpiredStudentStorage } = await import(
+      "@/lib/studentResultProfile"
+    );
+    purgeExpiredStudentStorage(new Date("2027-02-01T00:30:00+09:00"));
+
+    expect(window.localStorage.getItem("demand-app-assignments:legacy:지난학생")).toBeNull();
+    expect(window.localStorage.getItem("demand-app-assignments:old:지난학생")).toBeNull();
+    expect(window.localStorage.getItem("demand-app-assignments:malformed:현재학생")).toBeNull();
+    expect(window.localStorage.getItem("demand-app-assignments:current:현재학생")).not.toBeNull();
+  });
 });

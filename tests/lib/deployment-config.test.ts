@@ -147,4 +147,23 @@ describe("deployment configuration", () => {
     const env = readFileSync(".env.example", "utf8");
     expect(env).toContain("CRON_SECRET=");
   });
+
+  it("documents identifiable student-data rules and annual destruction", () => {
+    const privacy = readFileSync("app/privacy/page.tsx", "utf8");
+    const terms = readFileSync("app/terms/page.tsx", "utf8");
+    const dorms = JSON.parse(
+      readFileSync("dorms-check.config.json", "utf8"),
+    ) as { edzipCase: string };
+
+    expect(privacy).toContain("만 14세 미만에게는 제공하지 않습니다");
+    expect(privacy).toContain("수업 참여 여부 확인");
+    expect(privacy).toContain("같은 학년·반");
+    expect(privacy).toContain("매년 2월 1일");
+    expect(privacy).toContain("교사만 삭제");
+    expect(privacy).toContain("Firebase");
+    expect(privacy).toContain("Vercel");
+    expect(terms).toContain("만 14세 이상");
+    expect(terms).toContain("이름 또는 수업용 별명");
+    expect(dorms.edzipCase).toBe("D");
+  });
 });

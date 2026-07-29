@@ -286,6 +286,7 @@ export default function TeacherResponsesPage() {
       ready={ready}
       setRoomName={setRoomName}
       title="교사용 방 열기"
+      variant="teacher"
     >
       <TeacherShell active="responses" roomName={roomName}>
         <TeacherPageHeader

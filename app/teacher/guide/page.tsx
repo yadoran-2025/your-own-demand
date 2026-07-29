@@ -144,6 +144,7 @@ export default function TeacherGuidePage() {
       ready={ready}
       setRoomName={setRoomName}
       title="교사용 방 열기"
+      variant="teacher"
     >
       <TeacherShell active="guide" roomName={roomName}>
         <div className="guide-page-v3">

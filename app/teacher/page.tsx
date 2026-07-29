@@ -60,13 +60,14 @@ export default function TeacherPage() {
   const canUseTeacherData = canAccessTeacherData({ ready: authReady, isTeacher, demoMode });
   const [surveys, setSurveys] = useState<Survey[]>([]);
   const [responses, setResponses] = useState<StudentResponse[]>([]);
+  const [selectedLessonId, setSelectedLessonId] = useState("");
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
   const [studentUrl, setStudentUrl] = useState("");
   const [qrDataUrl, setQrDataUrl] = useState("");
   const [copied, setCopied] = useState(false);
 
-  const activeSurvey = surveys[0];
+  const activeSurvey = surveys.find((survey) => survey.id === selectedLessonId);
 
   const loadDashboard = useCallback(async () => {
     if (!canUseTeacherData) return;
@@ -79,12 +80,6 @@ export default function TeacherPage() {
       await ensureRoomHasDefaultSurveys(roomName);
       const nextSurveys = await fetchSurveys(roomName, true);
       setSurveys(nextSurveys);
-
-      if (nextSurveys[0]) {
-        setResponses(await fetchResponses(nextSurveys[0].id, true, roomName));
-      } else {
-        setResponses([]);
-      }
     } catch (error) {
       setMessage(
         error instanceof Error ? error.message : "대시보드를 불러오지 못했습니다.",
@@ -99,6 +94,29 @@ export default function TeacherPage() {
       void loadDashboard();
     }
   }, [canUseTeacherData, loadDashboard, roomName, ready]);
+
+  useEffect(() => {
+    if (!canUseTeacherData || !activeSurvey) {
+      return;
+    }
+
+    let alive = true;
+    void fetchResponses(activeSurvey.id, true, roomName)
+      .then((nextResponses) => {
+        if (alive) setResponses(nextResponses);
+      })
+      .catch((error) => {
+        if (alive) {
+          setMessage(
+            error instanceof Error ? error.message : "응답을 불러오지 못했습니다.",
+          );
+        }
+      });
+
+    return () => {
+      alive = false;
+    };
+  }, [activeSurvey, canUseTeacherData, roomName]);
 
   useEffect(() => {
     if (typeof window === "undefined" || !roomName) {
@@ -175,8 +193,68 @@ export default function TeacherPage() {
       ready={ready}
       setRoomName={setRoomName}
       title="교사용 방 열기"
+      variant="teacher"
     >
-      <TeacherShell active="dashboard" roomName={roomName}>
+      {!selectedLessonId || !activeSurvey ? (
+        <main className="teacher-workspace-gate teacher-workspace-class-gate">
+          <section className="teacher-workspace-intro">
+            <span>수요곡선 수업</span>
+            <h1>{roomName}<br />차시 선택</h1>
+            <p>진행할 차시를 선택해 대시보드를 열거나 학생 화면을 공유하세요.</p>
+          </section>
+          <section className="teacher-workspace-panel">
+            <span className="teacher-workspace-step">3 / 3 · 차시 선택</span>
+            <h2>어떤 수업을 진행할까요?</h2>
+            <p>저장된 설문이 차시로 표시됩니다.</p>
+            {message ? <p className="teacher-workspace-error">{message}</p> : null}
+            <div className="teacher-workspace-class-list">
+              {surveys.map((survey) => (
+                <article className="teacher-workspace-class-card" key={survey.id}>
+                  <strong>{survey.title}</strong>
+                  <div>
+                    <button
+                      onClick={() => {
+                        setResponses([]);
+                        setMessage("");
+                        setSelectedLessonId(survey.id);
+                      }}
+                      type="button"
+                    >
+                      대시보드
+                    </button>
+                    <Link
+                      href={buildStudentPath(roomName)}
+                      rel="noreferrer"
+                      target="_blank"
+                    >
+                      QR 열기
+                    </Link>
+                  </div>
+                </article>
+              ))}
+            </div>
+            {loading ? <p>차시를 불러오는 중입니다.</p> : null}
+            {!loading && !surveys.length ? (
+              <Link className="teacher-workspace-action" href="/teacher/setup">
+                첫 차시 만들기
+              </Link>
+            ) : null}
+            <RoomBadge
+              label="현재 학급"
+              roomName={roomName}
+              onReset={() => setRoomName("")}
+            />
+          </section>
+        </main>
+      ) : (
+      <TeacherShell
+        active="dashboard"
+        onExit={() => {
+          setResponses([]);
+          setSelectedLessonId("");
+        }}
+        roomName={roomName}
+      >
         <TeacherPageHeader
           actions={
             <>
@@ -325,6 +403,7 @@ export default function TeacherPage() {
           </div>
         </section>
       </TeacherShell>
+      )}
       </RoomGate>
     </TeacherAuthGate>
   );

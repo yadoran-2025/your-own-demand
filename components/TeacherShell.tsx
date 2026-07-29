@@ -14,6 +14,7 @@ type TeacherShellProps = {
     | "budget-results"
     | "guide";
   children: ReactNode;
+  onExit?: () => void;
   roomName?: string;
 };
 
@@ -36,7 +37,12 @@ const NEXT_LESSON_URL = "https://blog.naver.com/yadoransw/224298756242";
 const NEXT_LESSON_DISMISSED_KEY = "demand-app-teacher-next-lesson-dismissed";
 const NEXT_LESSON_SNOOZED_KEY = "demand-app-teacher-next-lesson-snoozed";
 
-export function TeacherShell({ active, children, roomName = "" }: TeacherShellProps) {
+export function TeacherShell({
+  active,
+  children,
+  onExit,
+  roomName = "",
+}: TeacherShellProps) {
   const [isReviewPromptVisible, setIsReviewPromptVisible] = useState(false);
 
   return (
@@ -56,6 +62,11 @@ export function TeacherShell({ active, children, roomName = "" }: TeacherShellPr
         <Link className="teacher-top-tab-student" href={buildStudentPath(roomName)}>
           학생 화면 →
         </Link>
+        {onExit ? (
+          <button className="teacher-top-tab-exit" onClick={onExit} type="button">
+            나가기
+          </button>
+        ) : null}
       </nav>
       <main className={`teacher-main ${active === "guide" ? "teacher-main-guide" : ""}`}>
         {children}

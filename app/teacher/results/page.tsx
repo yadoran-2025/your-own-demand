@@ -141,6 +141,7 @@ export default function TeacherResultsPage() {
       ready={ready}
       setRoomName={setRoomName}
       title="교사용 방 열기"
+      variant="teacher"
     >
     <TeacherShell active="results" roomName={roomName}>
       <TeacherPageHeader

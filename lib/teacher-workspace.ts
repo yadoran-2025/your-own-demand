@@ -42,9 +42,10 @@ export function normalizeTeacherWorkspace(value: unknown): TeacherWorkspace {
   };
 }
 
-export function createRoomKey(workspace: TeacherWorkspace, className: string) {
+export function createRoomKey(workspace: TeacherWorkspace, className = "") {
   return [workspace.region, workspace.school, workspace.grade, className]
     .map((value) => value.trim())
+    .filter(Boolean)
     .join(" / ");
 }
 

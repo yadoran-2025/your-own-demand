@@ -60,7 +60,6 @@ export default function TeacherPage() {
   const { ready: authReady, isTeacher, demoMode } = useAuth();
   const {
     workspace,
-    ready: workspaceReady,
     setSelectedLessonId,
   } = useTeacherWorkspace();
   const canUseTeacherData = canAccessTeacherData({ ready: authReady, isTeacher, demoMode });
@@ -72,9 +71,7 @@ export default function TeacherPage() {
   const [qrDataUrl, setQrDataUrl] = useState("");
   const [copied, setCopied] = useState(false);
 
-  const activeSurvey = surveys.find(
-    (survey) => survey.id === workspace.selectedLessonId,
-  );
+  const activeSurvey = surveys.find((survey) => survey.id === workspace.selectedLessonId) ?? surveys[0];
 
   const loadDashboard = useCallback(async () => {
     if (!canUseTeacherData) return;
@@ -205,58 +202,6 @@ export default function TeacherPage() {
       title="교사용 방 열기"
       variant="teacher"
     >
-      {!workspaceReady || !activeSurvey ? (
-        <main className="teacher-workspace-gate teacher-workspace-class-gate">
-          <section className="teacher-workspace-intro">
-            <span>수요곡선 수업</span>
-            <h1>{roomName}<br />차시 선택</h1>
-            <p>진행할 차시를 선택해 대시보드를 열거나 학생 화면을 공유하세요.</p>
-          </section>
-          <section className="teacher-workspace-panel">
-            <span className="teacher-workspace-step">3 / 3 · 차시 선택</span>
-            <h2>어떤 수업을 진행할까요?</h2>
-            <p>저장된 설문이 차시로 표시됩니다.</p>
-            {message ? <p className="teacher-workspace-error">{message}</p> : null}
-            <div className="teacher-workspace-class-list">
-              {surveys.map((survey) => (
-                <article className="teacher-workspace-class-card" key={survey.id}>
-                  <strong>{survey.title}</strong>
-                  <div>
-                    <button
-                      onClick={() => {
-                        setResponses([]);
-                        setMessage("");
-                        setSelectedLessonId(survey.id);
-                      }}
-                      type="button"
-                    >
-                      대시보드
-                    </button>
-                    <Link
-                      href={buildStudentPath(roomName, survey.id)}
-                      rel="noreferrer"
-                      target="_blank"
-                    >
-                      QR 열기
-                    </Link>
-                  </div>
-                </article>
-              ))}
-            </div>
-            {loading ? <p>차시를 불러오는 중입니다.</p> : null}
-            {!loading && !surveys.length ? (
-              <Link className="teacher-workspace-action" href="/teacher/setup">
-                첫 차시 만들기
-              </Link>
-            ) : null}
-            <RoomBadge
-              label="현재 학급"
-              roomName={roomName}
-              onReset={() => setRoomName("")}
-            />
-          </section>
-        </main>
-      ) : (
       <TeacherShell
         active="dashboard"
         onExit={() => {
@@ -264,7 +209,7 @@ export default function TeacherPage() {
           setSelectedLessonId("");
         }}
         roomName={roomName}
-        selectedLessonId={activeSurvey.id}
+        selectedLessonId={activeSurvey?.id ?? ""}
       >
         <TeacherPageHeader
           actions={
@@ -365,7 +310,7 @@ export default function TeacherPage() {
               </button>
               <Link
                 className="primary-button compact-button"
-                href={buildStudentPath(roomName, activeSurvey.id)}
+                href={buildStudentPath(roomName, activeSurvey?.id)}
                 target="_blank"
               >
                 <ExternalLink size={16} />
@@ -414,7 +359,6 @@ export default function TeacherPage() {
           </div>
         </section>
       </TeacherShell>
-      )}
       </RoomGate>
     </TeacherAuthGate>
   );

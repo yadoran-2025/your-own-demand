@@ -1,21 +1,21 @@
 {
-  "id": "dpl_8qvBpaqq7AaUsHMnTSm8EyNWEgAK",
+  "id": "dpl_5a8YRT418E8bXG9mzZZrzMFUCLJD",
   "name": "inflation-classroom",
-  "url": "inflation-classroom-p19y89we9-yadorans-projects.vercel.app",
+  "url": "inflation-classroom-2tcsplapr-yadorans-projects.vercel.app",
   "target": "preview",
   "readyState": "READY",
-  "createdAt": 1785304701919,
+  "createdAt": 1785305360624,
   "aliases": [
     "inflation-classroom-noamchomsky1571-6566-yadorans-projects.vercel.app"
   ],
   "builds": [
     {
-      "id": "bld_8yuafa648",
-      "deploymentId": "dpl_8qvBpaqq7AaUsHMnTSm8EyNWEgAK",
+      "id": "bld_1c673wfrz",
+      "deploymentId": "dpl_5a8YRT418E8bXG9mzZZrzMFUCLJD",
       "entrypoint": ".",
       "readyState": "READY",
-      "readyStateAt": 1785304701587,
-      "createdAt": 1785304701587,
+      "readyStateAt": 1785305360322,
+      "createdAt": 1785305360322,
       "createdIn": "sfo1",
       "use": "@vercel/vc-build",
       "config": {
@@ -60,11 +60,11 @@
           "prerender": {},
           "type": "lambda",
           "path": "index",
-          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/87989012a173438e8157f728a0b2911e75ceb25cd009b703ddecf654142c3b16",
+          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/64cc3438618febb1526bb177dbe30f222dca733562d1199bc030b516804583d2",
           "mode": 49590,
-          "size": 1013856,
+          "size": 1013949,
           "lambda": {
-            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-556d1f3225b027086ef169ed71aa0f0004",
+            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-4e9e10804d0d09fbc210c5cdfe90b322ea",
             "deployedTo": [
               "iad1"
             ],
@@ -81,11 +81,11 @@
           "prerender": {},
           "type": "lambda",
           "path": "_global-error",
-          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/87989012a173438e8157f728a0b2911e75ceb25cd009b703ddecf654142c3b16",
+          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/64cc3438618febb1526bb177dbe30f222dca733562d1199bc030b516804583d2",
           "mode": 49590,
-          "size": 1013856,
+          "size": 1013949,
           "lambda": {
-            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-556d1f3225b027086ef169ed71aa0f0004",
+            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-4e9e10804d0d09fbc210c5cdfe90b322ea",
             "deployedTo": [
               "iad1"
             ],
@@ -102,11 +102,11 @@
           "prerender": {},
           "type": "lambda",
           "path": "_global-error.rsc",
-          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/87989012a173438e8157f728a0b2911e75ceb25cd009b703ddecf654142c3b16",
+          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/64cc3438618febb1526bb177dbe30f222dca733562d1199bc030b516804583d2",
           "mode": 49590,
-          "size": 1013856,
+          "size": 1013949,
           "lambda": {
-            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-556d1f3225b027086ef169ed71aa0f0004",
+            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-4e9e10804d0d09fbc210c5cdfe90b322ea",
             "deployedTo": [
               "iad1"
             ],
@@ -123,11 +123,11 @@
           "prerender": {},
           "type": "lambda",
           "path": "_global-error.segments/__PAGE__.segment.rsc",
-          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/87989012a173438e8157f728a0b2911e75ceb25cd009b703ddecf654142c3b16",
+          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/64cc3438618febb1526bb177dbe30f222dca733562d1199bc030b516804583d2",
           "mode": 49590,
-          "size": 1013856,
+          "size": 1013949,
           "lambda": {
-            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-556d1f3225b027086ef169ed71aa0f0004",
+            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-4e9e10804d0d09fbc210c5cdfe90b322ea",
             "deployedTo": [
               "iad1"
             ],
@@ -144,11 +144,11 @@
           "prerender": {},
           "type": "lambda",
           "path": "_global-error.segments/_full.segment.rsc",
-          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/87989012a173438e8157f728a0b2911e75ceb25cd009b703ddecf654142c3b16",
+          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/64cc3438618febb1526bb177dbe30f222dca733562d1199bc030b516804583d2",
           "mode": 49590,
-          "size": 1013856,
+          "size": 1013949,
           "lambda": {
-            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-556d1f3225b027086ef169ed71aa0f0004",
+            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-4e9e10804d0d09fbc210c5cdfe90b322ea",
             "deployedTo": [
               "iad1"
             ],
@@ -165,11 +165,11 @@
           "prerender": {},
           "type": "lambda",
           "path": "_global-error.segments/_head.segment.rsc",
-          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/87989012a173438e8157f728a0b2911e75ceb25cd009b703ddecf654142c3b16",
+          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/64cc3438618febb1526bb177dbe30f222dca733562d1199bc030b516804583d2",
           "mode": 49590,
-          "size": 1013856,
+          "size": 1013949,
           "lambda": {
-            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-556d1f3225b027086ef169ed71aa0f0004",
+            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-4e9e10804d0d09fbc210c5cdfe90b322ea",
             "deployedTo": [
               "iad1"
             ],
@@ -186,11 +186,11 @@
           "prerender": {},
           "type": "lambda",
           "path": "_global-error.segments/_index.segment.rsc",
-          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/87989012a173438e8157f728a0b2911e75ceb25cd009b703ddecf654142c3b16",
+          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/64cc3438618febb1526bb177dbe30f222dca733562d1199bc030b516804583d2",
           "mode": 49590,
-          "size": 1013856,
+          "size": 1013949,
           "lambda": {
-            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-556d1f3225b027086ef169ed71aa0f0004",
+            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-4e9e10804d0d09fbc210c5cdfe90b322ea",
             "deployedTo": [
               "iad1"
             ],
@@ -207,11 +207,11 @@
           "prerender": {},
           "type": "lambda",
           "path": "_global-error.segments/_tree.segment.rsc",
-          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/87989012a173438e8157f728a0b2911e75ceb25cd009b703ddecf654142c3b16",
+          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/64cc3438618febb1526bb177dbe30f222dca733562d1199bc030b516804583d2",
           "mode": 49590,
-          "size": 1013856,
+          "size": 1013949,
           "lambda": {
-            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-556d1f3225b027086ef169ed71aa0f0004",
+            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-4e9e10804d0d09fbc210c5cdfe90b322ea",
             "deployedTo": [
               "iad1"
             ],
@@ -228,11 +228,11 @@
           "prerender": {},
           "type": "lambda",
           "path": "index.rsc",
-          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/87989012a173438e8157f728a0b2911e75ceb25cd009b703ddecf654142c3b16",
+          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/64cc3438618febb1526bb177dbe30f222dca733562d1199bc030b516804583d2",
           "mode": 49590,
-          "size": 1013856,
+          "size": 1013949,
           "lambda": {
-            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-556d1f3225b027086ef169ed71aa0f0004",
+            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-4e9e10804d0d09fbc210c5cdfe90b322ea",
             "deployedTo": [
               "iad1"
             ],
@@ -249,11 +249,11 @@
           "prerender": {},
           "type": "lambda",
           "path": "index.segments/_full.segment.rsc",
-          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/87989012a173438e8157f728a0b2911e75ceb25cd009b703ddecf654142c3b16",
+          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/64cc3438618febb1526bb177dbe30f222dca733562d1199bc030b516804583d2",
           "mode": 49590,
-          "size": 1013856,
+          "size": 1013949,
           "lambda": {
-            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-556d1f3225b027086ef169ed71aa0f0004",
+            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-4e9e10804d0d09fbc210c5cdfe90b322ea",
             "deployedTo": [
               "iad1"
             ],
@@ -270,11 +270,11 @@
           "prerender": {},
           "type": "lambda",
           "path": "index.segments/__PAGE__.segment.rsc",
-          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/87989012a173438e8157f728a0b2911e75ceb25cd009b703ddecf654142c3b16",
+          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/64cc3438618febb1526bb177dbe30f222dca733562d1199bc030b516804583d2",
           "mode": 49590,
-          "size": 1013856,
+          "size": 1013949,
           "lambda": {
-            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-556d1f3225b027086ef169ed71aa0f0004",
+            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-4e9e10804d0d09fbc210c5cdfe90b322ea",
             "deployedTo": [
               "iad1"
             ],
@@ -291,11 +291,11 @@
           "prerender": {},
           "type": "lambda",
           "path": "index.segments/_head.segment.rsc",
-          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/87989012a173438e8157f728a0b2911e75ceb25cd009b703ddecf654142c3b16",
+          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/64cc3438618febb1526bb177dbe30f222dca733562d1199bc030b516804583d2",
           "mode": 49590,
-          "size": 1013856,
+          "size": 1013949,
           "lambda": {
-            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-556d1f3225b027086ef169ed71aa0f0004",
+            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-4e9e10804d0d09fbc210c5cdfe90b322ea",
             "deployedTo": [
               "iad1"
             ],
@@ -312,11 +312,11 @@
           "prerender": {},
           "type": "lambda",
           "path": "index.segments/_index.segment.rsc",
-          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/87989012a173438e8157f728a0b2911e75ceb25cd009b703ddecf654142c3b16",
+          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/64cc3438618febb1526bb177dbe30f222dca733562d1199bc030b516804583d2",
           "mode": 49590,
-          "size": 1013856,
+          "size": 1013949,
           "lambda": {
-            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-556d1f3225b027086ef169ed71aa0f0004",
+            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-4e9e10804d0d09fbc210c5cdfe90b322ea",
             "deployedTo": [
               "iad1"
             ],
@@ -333,11 +333,11 @@
           "prerender": {},
           "type": "lambda",
           "path": "index.segments/_tree.segment.rsc",
-          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/87989012a173438e8157f728a0b2911e75ceb25cd009b703ddecf654142c3b16",
+          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/64cc3438618febb1526bb177dbe30f222dca733562d1199bc030b516804583d2",
           "mode": 49590,
-          "size": 1013856,
+          "size": 1013949,
           "lambda": {
-            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-556d1f3225b027086ef169ed71aa0f0004",
+            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-4e9e10804d0d09fbc210c5cdfe90b322ea",
             "deployedTo": [
               "iad1"
             ],
@@ -354,11 +354,11 @@
           "prerender": {},
           "type": "lambda",
           "path": "privacy",
-          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/87989012a173438e8157f728a0b2911e75ceb25cd009b703ddecf654142c3b16",
+          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/64cc3438618febb1526bb177dbe30f222dca733562d1199bc030b516804583d2",
           "mode": 49590,
-          "size": 1013856,
+          "size": 1013949,
           "lambda": {
-            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-556d1f3225b027086ef169ed71aa0f0004",
+            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-4e9e10804d0d09fbc210c5cdfe90b322ea",
             "deployedTo": [
               "iad1"
             ],
@@ -375,11 +375,11 @@
           "prerender": {},
           "type": "lambda",
           "path": "privacy.rsc",
-          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/87989012a173438e8157f728a0b2911e75ceb25cd009b703ddecf654142c3b16",
+          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/64cc3438618febb1526bb177dbe30f222dca733562d1199bc030b516804583d2",
           "mode": 49590,
-          "size": 1013856,
+          "size": 1013949,
           "lambda": {
-            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-556d1f3225b027086ef169ed71aa0f0004",
+            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-4e9e10804d0d09fbc210c5cdfe90b322ea",
             "deployedTo": [
               "iad1"
             ],
@@ -396,11 +396,11 @@
           "prerender": {},
           "type": "lambda",
           "path": "privacy.segments/_full.segment.rsc",
-          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/87989012a173438e8157f728a0b2911e75ceb25cd009b703ddecf654142c3b16",
+          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/64cc3438618febb1526bb177dbe30f222dca733562d1199bc030b516804583d2",
           "mode": 49590,
-          "size": 1013856,
+          "size": 1013949,
           "lambda": {
-            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-556d1f3225b027086ef169ed71aa0f0004",
+            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-4e9e10804d0d09fbc210c5cdfe90b322ea",
             "deployedTo": [
               "iad1"
             ],
@@ -417,11 +417,11 @@
           "prerender": {},
           "type": "lambda",
           "path": "privacy.segments/_head.segment.rsc",
-          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/87989012a173438e8157f728a0b2911e75ceb25cd009b703ddecf654142c3b16",
+          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/64cc3438618febb1526bb177dbe30f222dca733562d1199bc030b516804583d2",
           "mode": 49590,
-          "size": 1013856,
+          "size": 1013949,
           "lambda": {
-            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-556d1f3225b027086ef169ed71aa0f0004",
+            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-4e9e10804d0d09fbc210c5cdfe90b322ea",
             "deployedTo": [
               "iad1"
             ],
@@ -438,11 +438,11 @@
           "prerender": {},
           "type": "lambda",
           "path": "privacy.segments/_index.segment.rsc",
-          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/87989012a173438e8157f728a0b2911e75ceb25cd009b703ddecf654142c3b16",
+          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/64cc3438618febb1526bb177dbe30f222dca733562d1199bc030b516804583d2",
           "mode": 49590,
-          "size": 1013856,
+          "size": 1013949,
           "lambda": {
-            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-556d1f3225b027086ef169ed71aa0f0004",
+            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-4e9e10804d0d09fbc210c5cdfe90b322ea",
             "deployedTo": [
               "iad1"
             ],
@@ -459,11 +459,11 @@
           "prerender": {},
           "type": "lambda",
           "path": "privacy.segments/_tree.segment.rsc",
-          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/87989012a173438e8157f728a0b2911e75ceb25cd009b703ddecf654142c3b16",
+          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/64cc3438618febb1526bb177dbe30f222dca733562d1199bc030b516804583d2",
           "mode": 49590,
-          "size": 1013856,
+          "size": 1013949,
           "lambda": {
-            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-556d1f3225b027086ef169ed71aa0f0004",
+            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-4e9e10804d0d09fbc210c5cdfe90b322ea",
             "deployedTo": [
               "iad1"
             ],
@@ -480,11 +480,11 @@
           "prerender": {},
           "type": "lambda",
           "path": "privacy.segments/privacy.segment.rsc",
-          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/87989012a173438e8157f728a0b2911e75ceb25cd009b703ddecf654142c3b16",
+          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/64cc3438618febb1526bb177dbe30f222dca733562d1199bc030b516804583d2",
           "mode": 49590,
-          "size": 1013856,
+          "size": 1013949,
           "lambda": {
-            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-556d1f3225b027086ef169ed71aa0f0004",
+            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-4e9e10804d0d09fbc210c5cdfe90b322ea",
             "deployedTo": [
               "iad1"
             ],
@@ -501,11 +501,11 @@
           "prerender": {},
           "type": "lambda",
           "path": "privacy.segments/privacy/__PAGE__.segment.rsc",
-          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/87989012a173438e8157f728a0b2911e75ceb25cd009b703ddecf654142c3b16",
+          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/64cc3438618febb1526bb177dbe30f222dca733562d1199bc030b516804583d2",
           "mode": 49590,
-          "size": 1013856,
+          "size": 1013949,
           "lambda": {
-            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-556d1f3225b027086ef169ed71aa0f0004",
+            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-4e9e10804d0d09fbc210c5cdfe90b322ea",
             "deployedTo": [
               "iad1"
             ],
@@ -522,11 +522,11 @@
           "prerender": {},
           "type": "lambda",
           "path": "student",
-          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/87989012a173438e8157f728a0b2911e75ceb25cd009b703ddecf654142c3b16",
+          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/64cc3438618febb1526bb177dbe30f222dca733562d1199bc030b516804583d2",
           "mode": 49590,
-          "size": 1013856,
+          "size": 1013949,
           "lambda": {
-            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-556d1f3225b027086ef169ed71aa0f0004",
+            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-4e9e10804d0d09fbc210c5cdfe90b322ea",
             "deployedTo": [
               "iad1"
             ],
@@ -543,11 +543,11 @@
           "prerender": {},
           "type": "lambda",
           "path": "student.rsc",
-          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/87989012a173438e8157f728a0b2911e75ceb25cd009b703ddecf654142c3b16",
+          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/64cc3438618febb1526bb177dbe30f222dca733562d1199bc030b516804583d2",
           "mode": 49590,
-          "size": 1013856,
+          "size": 1013949,
           "lambda": {
-            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-556d1f3225b027086ef169ed71aa0f0004",
+            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-4e9e10804d0d09fbc210c5cdfe90b322ea",
             "deployedTo": [
               "iad1"
             ],
@@ -564,11 +564,11 @@
           "prerender": {},
           "type": "lambda",
           "path": "student.segments/_full.segment.rsc",
-          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/87989012a173438e8157f728a0b2911e75ceb25cd009b703ddecf654142c3b16",
+          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/64cc3438618febb1526bb177dbe30f222dca733562d1199bc030b516804583d2",
           "mode": 49590,
-          "size": 1013856,
+          "size": 1013949,
           "lambda": {
-            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-556d1f3225b027086ef169ed71aa0f0004",
+            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-4e9e10804d0d09fbc210c5cdfe90b322ea",
             "deployedTo": [
               "iad1"
             ],
@@ -585,11 +585,11 @@
           "prerender": {},
           "type": "lambda",
           "path": "student.segments/_head.segment.rsc",
-          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/87989012a173438e8157f728a0b2911e75ceb25cd009b703ddecf654142c3b16",
+          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/64cc3438618febb1526bb177dbe30f222dca733562d1199bc030b516804583d2",
           "mode": 49590,
-          "size": 1013856,
+          "size": 1013949,
           "lambda": {
-            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-556d1f3225b027086ef169ed71aa0f0004",
+            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-4e9e10804d0d09fbc210c5cdfe90b322ea",
             "deployedTo": [
               "iad1"
             ],
@@ -606,11 +606,11 @@
           "prerender": {},
           "type": "lambda",
           "path": "student.segments/_index.segment.rsc",
-          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/87989012a173438e8157f728a0b2911e75ceb25cd009b703ddecf654142c3b16",
+          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/64cc3438618febb1526bb177dbe30f222dca733562d1199bc030b516804583d2",
           "mode": 49590,
-          "size": 1013856,
+          "size": 1013949,
           "lambda": {
-            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-556d1f3225b027086ef169ed71aa0f0004",
+            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-4e9e10804d0d09fbc210c5cdfe90b322ea",
             "deployedTo": [
               "iad1"
             ],
@@ -627,11 +627,11 @@
           "prerender": {},
           "type": "lambda",
           "path": "student.segments/_tree.segment.rsc",
-          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/87989012a173438e8157f728a0b2911e75ceb25cd009b703ddecf654142c3b16",
+          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/64cc3438618febb1526bb177dbe30f222dca733562d1199bc030b516804583d2",
           "mode": 49590,
-          "size": 1013856,
+          "size": 1013949,
           "lambda": {
-            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-556d1f3225b027086ef169ed71aa0f0004",
+            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-4e9e10804d0d09fbc210c5cdfe90b322ea",
             "deployedTo": [
               "iad1"
             ],
@@ -648,11 +648,11 @@
           "prerender": {},
           "type": "lambda",
           "path": "student.segments/student.segment.rsc",
-          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/87989012a173438e8157f728a0b2911e75ceb25cd009b703ddecf654142c3b16",
+          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/64cc3438618febb1526bb177dbe30f222dca733562d1199bc030b516804583d2",
           "mode": 49590,
-          "size": 1013856,
+          "size": 1013949,
           "lambda": {
-            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-556d1f3225b027086ef169ed71aa0f0004",
+            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-4e9e10804d0d09fbc210c5cdfe90b322ea",
             "deployedTo": [
               "iad1"
             ],
@@ -669,11 +669,11 @@
           "prerender": {},
           "type": "lambda",
           "path": "student.segments/student/__PAGE__.segment.rsc",
-          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/87989012a173438e8157f728a0b2911e75ceb25cd009b703ddecf654142c3b16",
+          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/64cc3438618febb1526bb177dbe30f222dca733562d1199bc030b516804583d2",
           "mode": 49590,
-          "size": 1013856,
+          "size": 1013949,
           "lambda": {
-            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-556d1f3225b027086ef169ed71aa0f0004",
+            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-4e9e10804d0d09fbc210c5cdfe90b322ea",
             "deployedTo": [
               "iad1"
             ],
@@ -690,11 +690,11 @@
           "prerender": {},
           "type": "lambda",
           "path": "student/results",
-          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/87989012a173438e8157f728a0b2911e75ceb25cd009b703ddecf654142c3b16",
+          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/64cc3438618febb1526bb177dbe30f222dca733562d1199bc030b516804583d2",
           "mode": 49590,
-          "size": 1013856,
+          "size": 1013949,
           "lambda": {
-            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-556d1f3225b027086ef169ed71aa0f0004",
+            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-4e9e10804d0d09fbc210c5cdfe90b322ea",
             "deployedTo": [
               "iad1"
             ],
@@ -711,11 +711,11 @@
           "prerender": {},
           "type": "lambda",
           "path": "student/results.rsc",
-          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/87989012a173438e8157f728a0b2911e75ceb25cd009b703ddecf654142c3b16",
+          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/64cc3438618febb1526bb177dbe30f222dca733562d1199bc030b516804583d2",
           "mode": 49590,
-          "size": 1013856,
+          "size": 1013949,
           "lambda": {
-            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-556d1f3225b027086ef169ed71aa0f0004",
+            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-4e9e10804d0d09fbc210c5cdfe90b322ea",
             "deployedTo": [
               "iad1"
             ],
@@ -732,11 +732,11 @@
           "prerender": {},
           "type": "lambda",
           "path": "student/results.segments/_full.segment.rsc",
-          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/87989012a173438e8157f728a0b2911e75ceb25cd009b703ddecf654142c3b16",
+          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/64cc3438618febb1526bb177dbe30f222dca733562d1199bc030b516804583d2",
           "mode": 49590,
-          "size": 1013856,
+          "size": 1013949,
           "lambda": {
-            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-556d1f3225b027086ef169ed71aa0f0004",
+            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-4e9e10804d0d09fbc210c5cdfe90b322ea",
             "deployedTo": [
               "iad1"
             ],
@@ -753,11 +753,11 @@
           "prerender": {},
           "type": "lambda",
           "path": "student/results.segments/_head.segment.rsc",
-          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/87989012a173438e8157f728a0b2911e75ceb25cd009b703ddecf654142c3b16",
+          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/64cc3438618febb1526bb177dbe30f222dca733562d1199bc030b516804583d2",
           "mode": 49590,
-          "size": 1013856,
+          "size": 1013949,
           "lambda": {
-            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-556d1f3225b027086ef169ed71aa0f0004",
+            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-4e9e10804d0d09fbc210c5cdfe90b322ea",
             "deployedTo": [
               "iad1"
             ],
@@ -774,11 +774,11 @@
           "prerender": {},
           "type": "lambda",
           "path": "student/results.segments/_index.segment.rsc",
-          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/87989012a173438e8157f728a0b2911e75ceb25cd009b703ddecf654142c3b16",
+          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/64cc3438618febb1526bb177dbe30f222dca733562d1199bc030b516804583d2",
           "mode": 49590,
-          "size": 1013856,
+          "size": 1013949,
           "lambda": {
-            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-556d1f3225b027086ef169ed71aa0f0004",
+            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-4e9e10804d0d09fbc210c5cdfe90b322ea",
             "deployedTo": [
               "iad1"
             ],
@@ -795,11 +795,11 @@
           "prerender": {},
           "type": "lambda",
           "path": "student/results.segments/_tree.segment.rsc",
-          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/87989012a173438e8157f728a0b2911e75ceb25cd009b703ddecf654142c3b16",
+          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/64cc3438618febb1526bb177dbe30f222dca733562d1199bc030b516804583d2",
           "mode": 49590,
-          "size": 1013856,
+          "size": 1013949,
           "lambda": {
-            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-556d1f3225b027086ef169ed71aa0f0004",
+            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-4e9e10804d0d09fbc210c5cdfe90b322ea",
             "deployedTo": [
               "iad1"
             ],
@@ -816,11 +816,11 @@
           "prerender": {},
           "type": "lambda",
           "path": "student/results.segments/student.segment.rsc",
-          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/87989012a173438e8157f728a0b2911e75ceb25cd009b703ddecf654142c3b16",
+          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/64cc3438618febb1526bb177dbe30f222dca733562d1199bc030b516804583d2",
           "mode": 49590,
-          "size": 1013856,
+          "size": 1013949,
           "lambda": {
-            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-556d1f3225b027086ef169ed71aa0f0004",
+            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-4e9e10804d0d09fbc210c5cdfe90b322ea",
             "deployedTo": [
               "iad1"
             ],
@@ -837,11 +837,11 @@
           "prerender": {},
           "type": "lambda",
           "path": "student/results.segments/student/results.segment.rsc",
-          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/87989012a173438e8157f728a0b2911e75ceb25cd009b703ddecf654142c3b16",
+          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/64cc3438618febb1526bb177dbe30f222dca733562d1199bc030b516804583d2",
           "mode": 49590,
-          "size": 1013856,
+          "size": 1013949,
           "lambda": {
-            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-556d1f3225b027086ef169ed71aa0f0004",
+            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-4e9e10804d0d09fbc210c5cdfe90b322ea",
             "deployedTo": [
               "iad1"
             ],
@@ -858,11 +858,11 @@
           "prerender": {},
           "type": "lambda",
           "path": "student/results.segments/student/results/__PAGE__.segment.rsc",
-          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/87989012a173438e8157f728a0b2911e75ceb25cd009b703ddecf654142c3b16",
+          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/64cc3438618febb1526bb177dbe30f222dca733562d1199bc030b516804583d2",
           "mode": 49590,
-          "size": 1013856,
+          "size": 1013949,
           "lambda": {
-            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-556d1f3225b027086ef169ed71aa0f0004",
+            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-4e9e10804d0d09fbc210c5cdfe90b322ea",
             "deployedTo": [
               "iad1"
             ],
@@ -879,11 +879,11 @@
           "prerender": {},
           "type": "lambda",
           "path": "teacher",
-          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/87989012a173438e8157f728a0b2911e75ceb25cd009b703ddecf654142c3b16",
+          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/64cc3438618febb1526bb177dbe30f222dca733562d1199bc030b516804583d2",
           "mode": 49590,
-          "size": 1013856,
+          "size": 1013949,
           "lambda": {
-            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-556d1f3225b027086ef169ed71aa0f0004",
+            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-4e9e10804d0d09fbc210c5cdfe90b322ea",
             "deployedTo": [
               "iad1"
             ],
@@ -900,11 +900,11 @@
           "prerender": {},
           "type": "lambda",
           "path": "teacher.rsc",
-          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/87989012a173438e8157f728a0b2911e75ceb25cd009b703ddecf654142c3b16",
+          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/64cc3438618febb1526bb177dbe30f222dca733562d1199bc030b516804583d2",
           "mode": 49590,
-          "size": 1013856,
+          "size": 1013949,
           "lambda": {
-            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-556d1f3225b027086ef169ed71aa0f0004",
+            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-4e9e10804d0d09fbc210c5cdfe90b322ea",
             "deployedTo": [
               "iad1"
             ],
@@ -921,11 +921,11 @@
           "prerender": {},
           "type": "lambda",
           "path": "teacher.segments/_full.segment.rsc",
-          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/87989012a173438e8157f728a0b2911e75ceb25cd009b703ddecf654142c3b16",
+          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/64cc3438618febb1526bb177dbe30f222dca733562d1199bc030b516804583d2",
           "mode": 49590,
-          "size": 1013856,
+          "size": 1013949,
           "lambda": {
-            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-556d1f3225b027086ef169ed71aa0f0004",
+            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-4e9e10804d0d09fbc210c5cdfe90b322ea",
             "deployedTo": [
               "iad1"
             ],
@@ -942,11 +942,11 @@
           "prerender": {},
           "type": "lambda",
           "path": "teacher.segments/_head.segment.rsc",
-          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/87989012a173438e8157f728a0b2911e75ceb25cd009b703ddecf654142c3b16",
+          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/64cc3438618febb1526bb177dbe30f222dca733562d1199bc030b516804583d2",
           "mode": 49590,
-          "size": 1013856,
+          "size": 1013949,
           "lambda": {
-            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-556d1f3225b027086ef169ed71aa0f0004",
+            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-4e9e10804d0d09fbc210c5cdfe90b322ea",
             "deployedTo": [
               "iad1"
             ],
@@ -963,11 +963,11 @@
           "prerender": {},
           "type": "lambda",
           "path": "teacher.segments/_index.segment.rsc",
-          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/87989012a173438e8157f728a0b2911e75ceb25cd009b703ddecf654142c3b16",
+          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/64cc3438618febb1526bb177dbe30f222dca733562d1199bc030b516804583d2",
           "mode": 49590,
-          "size": 1013856,
+          "size": 1013949,
           "lambda": {
-            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-556d1f3225b027086ef169ed71aa0f0004",
+            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-4e9e10804d0d09fbc210c5cdfe90b322ea",
             "deployedTo": [
               "iad1"
             ],
@@ -984,11 +984,11 @@
           "prerender": {},
           "type": "lambda",
           "path": "teacher.segments/_tree.segment.rsc",
-          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/87989012a173438e8157f728a0b2911e75ceb25cd009b703ddecf654142c3b16",
+          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/64cc3438618febb1526bb177dbe30f222dca733562d1199bc030b516804583d2",
           "mode": 49590,
-          "size": 1013856,
+          "size": 1013949,
           "lambda": {
-            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-556d1f3225b027086ef169ed71aa0f0004",
+            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-4e9e10804d0d09fbc210c5cdfe90b322ea",
             "deployedTo": [
               "iad1"
             ],
@@ -1005,11 +1005,11 @@
           "prerender": {},
           "type": "lambda",
           "path": "teacher.segments/teacher.segment.rsc",
-          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/87989012a173438e8157f728a0b2911e75ceb25cd009b703ddecf654142c3b16",
+          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/64cc3438618febb1526bb177dbe30f222dca733562d1199bc030b516804583d2",
           "mode": 49590,
-          "size": 1013856,
+          "size": 1013949,
           "lambda": {
-            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-556d1f3225b027086ef169ed71aa0f0004",
+            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-4e9e10804d0d09fbc210c5cdfe90b322ea",
             "deployedTo": [
               "iad1"
             ],
@@ -1026,11 +1026,11 @@
           "prerender": {},
           "type": "lambda",
           "path": "teacher.segments/teacher/__PAGE__.segment.rsc",
-          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/87989012a173438e8157f728a0b2911e75ceb25cd009b703ddecf654142c3b16",
+          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/64cc3438618febb1526bb177dbe30f222dca733562d1199bc030b516804583d2",
           "mode": 49590,
-          "size": 1013856,
+          "size": 1013949,
           "lambda": {
-            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-556d1f3225b027086ef169ed71aa0f0004",
+            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-4e9e10804d0d09fbc210c5cdfe90b322ea",
             "deployedTo": [
               "iad1"
             ],
@@ -1047,11 +1047,11 @@
           "prerender": {},
           "type": "lambda",
           "path": "teacher/budget-results",
-          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/87989012a173438e8157f728a0b2911e75ceb25cd009b703ddecf654142c3b16",
+          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/64cc3438618febb1526bb177dbe30f222dca733562d1199bc030b516804583d2",
           "mode": 49590,
-          "size": 1013856,
+          "size": 1013949,
           "lambda": {
-            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-556d1f3225b027086ef169ed71aa0f0004",
+            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-4e9e10804d0d09fbc210c5cdfe90b322ea",
             "deployedTo": [
               "iad1"
             ],
@@ -1068,11 +1068,11 @@
           "prerender": {},
           "type": "lambda",
           "path": "teacher/budget-results.rsc",
-          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/87989012a173438e8157f728a0b2911e75ceb25cd009b703ddecf654142c3b16",
+          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/64cc3438618febb1526bb177dbe30f222dca733562d1199bc030b516804583d2",
           "mode": 49590,
-          "size": 1013856,
+          "size": 1013949,
           "lambda": {
-            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-556d1f3225b027086ef169ed71aa0f0004",
+            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-4e9e10804d0d09fbc210c5cdfe90b322ea",
             "deployedTo": [
               "iad1"
             ],
@@ -1089,11 +1089,11 @@
           "prerender": {},
           "type": "lambda",
           "path": "teacher/budget-results.segments/_full.segment.rsc",
-          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/87989012a173438e8157f728a0b2911e75ceb25cd009b703ddecf654142c3b16",
+          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/64cc3438618febb1526bb177dbe30f222dca733562d1199bc030b516804583d2",
           "mode": 49590,
-          "size": 1013856,
+          "size": 1013949,
           "lambda": {
-            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-556d1f3225b027086ef169ed71aa0f0004",
+            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-4e9e10804d0d09fbc210c5cdfe90b322ea",
             "deployedTo": [
               "iad1"
             ],
@@ -1110,11 +1110,11 @@
           "prerender": {},
           "type": "lambda",
           "path": "teacher/budget-results.segments/_head.segment.rsc",
-          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/87989012a173438e8157f728a0b2911e75ceb25cd009b703ddecf654142c3b16",
+          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/64cc3438618febb1526bb177dbe30f222dca733562d1199bc030b516804583d2",
           "mode": 49590,
-          "size": 1013856,
+          "size": 1013949,
           "lambda": {
-            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-556d1f3225b027086ef169ed71aa0f0004",
+            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-4e9e10804d0d09fbc210c5cdfe90b322ea",
             "deployedTo": [
               "iad1"
             ],
@@ -1131,11 +1131,11 @@
           "prerender": {},
           "type": "lambda",
           "path": "teacher/budget-results.segments/_index.segment.rsc",
-          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/87989012a173438e8157f728a0b2911e75ceb25cd009b703ddecf654142c3b16",
+          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/64cc3438618febb1526bb177dbe30f222dca733562d1199bc030b516804583d2",
           "mode": 49590,
-          "size": 1013856,
+          "size": 1013949,
           "lambda": {
-            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-556d1f3225b027086ef169ed71aa0f0004",
+            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-4e9e10804d0d09fbc210c5cdfe90b322ea",
             "deployedTo": [
               "iad1"
             ],
@@ -1152,11 +1152,11 @@
           "prerender": {},
           "type": "lambda",
           "path": "teacher/budget-results.segments/_tree.segment.rsc",
-          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/87989012a173438e8157f728a0b2911e75ceb25cd009b703ddecf654142c3b16",
+          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/64cc3438618febb1526bb177dbe30f222dca733562d1199bc030b516804583d2",
           "mode": 49590,
-          "size": 1013856,
+          "size": 1013949,
           "lambda": {
-            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-556d1f3225b027086ef169ed71aa0f0004",
+            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-4e9e10804d0d09fbc210c5cdfe90b322ea",
             "deployedTo": [
               "iad1"
             ],
@@ -1173,11 +1173,11 @@
           "prerender": {},
           "type": "lambda",
           "path": "teacher/budget-results.segments/teacher.segment.rsc",
-          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/87989012a173438e8157f728a0b2911e75ceb25cd009b703ddecf654142c3b16",
+          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/64cc3438618febb1526bb177dbe30f222dca733562d1199bc030b516804583d2",
           "mode": 49590,
-          "size": 1013856,
+          "size": 1013949,
           "lambda": {
-            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-556d1f3225b027086ef169ed71aa0f0004",
+            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-4e9e10804d0d09fbc210c5cdfe90b322ea",
             "deployedTo": [
               "iad1"
             ],
@@ -1194,11 +1194,11 @@
           "prerender": {},
           "type": "lambda",
           "path": "teacher/budget-results.segments/teacher/budget-results.segment.rsc",
-          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/87989012a173438e8157f728a0b2911e75ceb25cd009b703ddecf654142c3b16",
+          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/64cc3438618febb1526bb177dbe30f222dca733562d1199bc030b516804583d2",
           "mode": 49590,
-          "size": 1013856,
+          "size": 1013949,
           "lambda": {
-            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-556d1f3225b027086ef169ed71aa0f0004",
+            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-4e9e10804d0d09fbc210c5cdfe90b322ea",
             "deployedTo": [
               "iad1"
             ],
@@ -1215,11 +1215,11 @@
           "prerender": {},
           "type": "lambda",
           "path": "teacher/budget-results.segments/teacher/budget-results/__PAGE__.segment.rsc",
-          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/87989012a173438e8157f728a0b2911e75ceb25cd009b703ddecf654142c3b16",
+          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/64cc3438618febb1526bb177dbe30f222dca733562d1199bc030b516804583d2",
           "mode": 49590,
-          "size": 1013856,
+          "size": 1013949,
           "lambda": {
-            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-556d1f3225b027086ef169ed71aa0f0004",
+            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-4e9e10804d0d09fbc210c5cdfe90b322ea",
             "deployedTo": [
               "iad1"
             ],
@@ -1236,11 +1236,11 @@
           "prerender": {},
           "type": "lambda",
           "path": "teacher/guide",
-          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/87989012a173438e8157f728a0b2911e75ceb25cd009b703ddecf654142c3b16",
+          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/64cc3438618febb1526bb177dbe30f222dca733562d1199bc030b516804583d2",
           "mode": 49590,
-          "size": 1013856,
+          "size": 1013949,
           "lambda": {
-            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-556d1f3225b027086ef169ed71aa0f0004",
+            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-4e9e10804d0d09fbc210c5cdfe90b322ea",
             "deployedTo": [
               "iad1"
             ],
@@ -1257,11 +1257,11 @@
           "prerender": {},
           "type": "lambda",
           "path": "teacher/guide.rsc",
-          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/87989012a173438e8157f728a0b2911e75ceb25cd009b703ddecf654142c3b16",
+          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/64cc3438618febb1526bb177dbe30f222dca733562d1199bc030b516804583d2",
           "mode": 49590,
-          "size": 1013856,
+          "size": 1013949,
           "lambda": {
-            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-556d1f3225b027086ef169ed71aa0f0004",
+            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-4e9e10804d0d09fbc210c5cdfe90b322ea",
             "deployedTo": [
               "iad1"
             ],
@@ -1278,11 +1278,11 @@
           "prerender": {},
           "type": "lambda",
           "path": "teacher/guide.segments/_full.segment.rsc",
-          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/87989012a173438e8157f728a0b2911e75ceb25cd009b703ddecf654142c3b16",
+          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/64cc3438618febb1526bb177dbe30f222dca733562d1199bc030b516804583d2",
           "mode": 49590,
-          "size": 1013856,
+          "size": 1013949,
           "lambda": {
-            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-556d1f3225b027086ef169ed71aa0f0004",
+            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-4e9e10804d0d09fbc210c5cdfe90b322ea",
             "deployedTo": [
               "iad1"
             ],
@@ -1299,11 +1299,11 @@
           "prerender": {},
           "type": "lambda",
           "path": "teacher/guide.segments/_head.segment.rsc",
-          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/87989012a173438e8157f728a0b2911e75ceb25cd009b703ddecf654142c3b16",
+          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/64cc3438618febb1526bb177dbe30f222dca733562d1199bc030b516804583d2",
           "mode": 49590,
-          "size": 1013856,
+          "size": 1013949,
           "lambda": {
-            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-556d1f3225b027086ef169ed71aa0f0004",
+            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-4e9e10804d0d09fbc210c5cdfe90b322ea",
             "deployedTo": [
               "iad1"
             ],
@@ -1320,11 +1320,11 @@
           "prerender": {},
           "type": "lambda",
           "path": "teacher/guide.segments/_index.segment.rsc",
-          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/87989012a173438e8157f728a0b2911e75ceb25cd009b703ddecf654142c3b16",
+          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/64cc3438618febb1526bb177dbe30f222dca733562d1199bc030b516804583d2",
           "mode": 49590,
-          "size": 1013856,
+          "size": 1013949,
           "lambda": {
-            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-556d1f3225b027086ef169ed71aa0f0004",
+            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-4e9e10804d0d09fbc210c5cdfe90b322ea",
             "deployedTo": [
               "iad1"
             ],
@@ -1341,11 +1341,11 @@
           "prerender": {},
           "type": "lambda",
           "path": "teacher/guide.segments/_tree.segment.rsc",
-          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/87989012a173438e8157f728a0b2911e75ceb25cd009b703ddecf654142c3b16",
+          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/64cc3438618febb1526bb177dbe30f222dca733562d1199bc030b516804583d2",
           "mode": 49590,
-          "size": 1013856,
+          "size": 1013949,
           "lambda": {
-            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-556d1f3225b027086ef169ed71aa0f0004",
+            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-4e9e10804d0d09fbc210c5cdfe90b322ea",
             "deployedTo": [
               "iad1"
             ],
@@ -1362,11 +1362,11 @@
           "prerender": {},
           "type": "lambda",
           "path": "teacher/guide.segments/teacher.segment.rsc",
-          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/87989012a173438e8157f728a0b2911e75ceb25cd009b703ddecf654142c3b16",
+          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/64cc3438618febb1526bb177dbe30f222dca733562d1199bc030b516804583d2",
           "mode": 49590,
-          "size": 1013856,
+          "size": 1013949,
           "lambda": {
-            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-556d1f3225b027086ef169ed71aa0f0004",
+            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-4e9e10804d0d09fbc210c5cdfe90b322ea",
             "deployedTo": [
               "iad1"
             ],
@@ -1383,11 +1383,11 @@
           "prerender": {},
           "type": "lambda",
           "path": "teacher/guide.segments/teacher/guide.segment.rsc",
-          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/87989012a173438e8157f728a0b2911e75ceb25cd009b703ddecf654142c3b16",
+          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/64cc3438618febb1526bb177dbe30f222dca733562d1199bc030b516804583d2",
           "mode": 49590,
-          "size": 1013856,
+          "size": 1013949,
           "lambda": {
-            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-556d1f3225b027086ef169ed71aa0f0004",
+            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-4e9e10804d0d09fbc210c5cdfe90b322ea",
             "deployedTo": [
               "iad1"
             ],
@@ -1404,11 +1404,11 @@
           "prerender": {},
           "type": "lambda",
           "path": "teacher/guide.segments/teacher/guide/__PAGE__.segment.rsc",
-          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/87989012a173438e8157f728a0b2911e75ceb25cd009b703ddecf654142c3b16",
+          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/64cc3438618febb1526bb177dbe30f222dca733562d1199bc030b516804583d2",
           "mode": 49590,
-          "size": 1013856,
+          "size": 1013949,
           "lambda": {
-            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-556d1f3225b027086ef169ed71aa0f0004",
+            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-4e9e10804d0d09fbc210c5cdfe90b322ea",
             "deployedTo": [
               "iad1"
             ],
@@ -1425,11 +1425,11 @@
           "prerender": {},
           "type": "lambda",
           "path": "teacher/responses",
-          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/87989012a173438e8157f728a0b2911e75ceb25cd009b703ddecf654142c3b16",
+          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/64cc3438618febb1526bb177dbe30f222dca733562d1199bc030b516804583d2",
           "mode": 49590,
-          "size": 1013856,
+          "size": 1013949,
           "lambda": {
-            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-556d1f3225b027086ef169ed71aa0f0004",
+            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-4e9e10804d0d09fbc210c5cdfe90b322ea",
             "deployedTo": [
               "iad1"
             ],
@@ -1446,11 +1446,11 @@
           "prerender": {},
           "type": "lambda",
           "path": "teacher/responses.rsc",
-          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/87989012a173438e8157f728a0b2911e75ceb25cd009b703ddecf654142c3b16",
+          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/64cc3438618febb1526bb177dbe30f222dca733562d1199bc030b516804583d2",
           "mode": 49590,
-          "size": 1013856,
+          "size": 1013949,
           "lambda": {
-            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-556d1f3225b027086ef169ed71aa0f0004",
+            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-4e9e10804d0d09fbc210c5cdfe90b322ea",
             "deployedTo": [
               "iad1"
             ],
@@ -1467,11 +1467,11 @@
           "prerender": {},
           "type": "lambda",
           "path": "teacher/responses.segments/_full.segment.rsc",
-          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/87989012a173438e8157f728a0b2911e75ceb25cd009b703ddecf654142c3b16",
+          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/64cc3438618febb1526bb177dbe30f222dca733562d1199bc030b516804583d2",
           "mode": 49590,
-          "size": 1013856,
+          "size": 1013949,
           "lambda": {
-            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-556d1f3225b027086ef169ed71aa0f0004",
+            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-4e9e10804d0d09fbc210c5cdfe90b322ea",
             "deployedTo": [
               "iad1"
             ],
@@ -1488,11 +1488,11 @@
           "prerender": {},
           "type": "lambda",
           "path": "teacher/responses.segments/_head.segment.rsc",
-          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/87989012a173438e8157f728a0b2911e75ceb25cd009b703ddecf654142c3b16",
+          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/64cc3438618febb1526bb177dbe30f222dca733562d1199bc030b516804583d2",
           "mode": 49590,
-          "size": 1013856,
+          "size": 1013949,
           "lambda": {
-            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-556d1f3225b027086ef169ed71aa0f0004",
+            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-4e9e10804d0d09fbc210c5cdfe90b322ea",
             "deployedTo": [
               "iad1"
             ],
@@ -1509,11 +1509,11 @@
           "prerender": {},
           "type": "lambda",
           "path": "teacher/responses.segments/_index.segment.rsc",
-          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/87989012a173438e8157f728a0b2911e75ceb25cd009b703ddecf654142c3b16",
+          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/64cc3438618febb1526bb177dbe30f222dca733562d1199bc030b516804583d2",
           "mode": 49590,
-          "size": 1013856,
+          "size": 1013949,
           "lambda": {
-            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-556d1f3225b027086ef169ed71aa0f0004",
+            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-4e9e10804d0d09fbc210c5cdfe90b322ea",
             "deployedTo": [
               "iad1"
             ],
@@ -1530,11 +1530,11 @@
           "prerender": {},
           "type": "lambda",
           "path": "teacher/responses.segments/_tree.segment.rsc",
-          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/87989012a173438e8157f728a0b2911e75ceb25cd009b703ddecf654142c3b16",
+          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/64cc3438618febb1526bb177dbe30f222dca733562d1199bc030b516804583d2",
           "mode": 49590,
-          "size": 1013856,
+          "size": 1013949,
           "lambda": {
-            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-556d1f3225b027086ef169ed71aa0f0004",
+            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-4e9e10804d0d09fbc210c5cdfe90b322ea",
             "deployedTo": [
               "iad1"
             ],
@@ -1551,11 +1551,11 @@
           "prerender": {},
           "type": "lambda",
           "path": "teacher/responses.segments/teacher.segment.rsc",
-          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/87989012a173438e8157f728a0b2911e75ceb25cd009b703ddecf654142c3b16",
+          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/64cc3438618febb1526bb177dbe30f222dca733562d1199bc030b516804583d2",
           "mode": 49590,
-          "size": 1013856,
+          "size": 1013949,
           "lambda": {
-            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-556d1f3225b027086ef169ed71aa0f0004",
+            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-4e9e10804d0d09fbc210c5cdfe90b322ea",
             "deployedTo": [
               "iad1"
             ],
@@ -1572,11 +1572,11 @@
           "prerender": {},
           "type": "lambda",
           "path": "teacher/responses.segments/teacher/responses.segment.rsc",
-          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/87989012a173438e8157f728a0b2911e75ceb25cd009b703ddecf654142c3b16",
+          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/64cc3438618febb1526bb177dbe30f222dca733562d1199bc030b516804583d2",
           "mode": 49590,
-          "size": 1013856,
+          "size": 1013949,
           "lambda": {
-            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-556d1f3225b027086ef169ed71aa0f0004",
+            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-4e9e10804d0d09fbc210c5cdfe90b322ea",
             "deployedTo": [
               "iad1"
             ],
@@ -1593,11 +1593,11 @@
           "prerender": {},
           "type": "lambda",
           "path": "teacher/responses.segments/teacher/responses/__PAGE__.segment.rsc",
-          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/87989012a173438e8157f728a0b2911e75ceb25cd009b703ddecf654142c3b16",
+          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/64cc3438618febb1526bb177dbe30f222dca733562d1199bc030b516804583d2",
           "mode": 49590,
-          "size": 1013856,
+          "size": 1013949,
           "lambda": {
-            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-556d1f3225b027086ef169ed71aa0f0004",
+            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-4e9e10804d0d09fbc210c5cdfe90b322ea",
             "deployedTo": [
               "iad1"
             ],
@@ -1614,11 +1614,11 @@
           "prerender": {},
           "type": "lambda",
           "path": "teacher/results",
-          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/87989012a173438e8157f728a0b2911e75ceb25cd009b703ddecf654142c3b16",
+          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/64cc3438618febb1526bb177dbe30f222dca733562d1199bc030b516804583d2",
           "mode": 49590,
-          "size": 1013856,
+          "size": 1013949,
           "lambda": {
-            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-556d1f3225b027086ef169ed71aa0f0004",
+            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-4e9e10804d0d09fbc210c5cdfe90b322ea",
             "deployedTo": [
               "iad1"
             ],
@@ -1635,11 +1635,11 @@
           "prerender": {},
           "type": "lambda",
           "path": "teacher/results.rsc",
-          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/87989012a173438e8157f728a0b2911e75ceb25cd009b703ddecf654142c3b16",
+          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/64cc3438618febb1526bb177dbe30f222dca733562d1199bc030b516804583d2",
           "mode": 49590,
-          "size": 1013856,
+          "size": 1013949,
           "lambda": {
-            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-556d1f3225b027086ef169ed71aa0f0004",
+            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-4e9e10804d0d09fbc210c5cdfe90b322ea",
             "deployedTo": [
               "iad1"
             ],
@@ -1656,11 +1656,11 @@
           "prerender": {},
           "type": "lambda",
           "path": "teacher/results.segments/_full.segment.rsc",
-          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/87989012a173438e8157f728a0b2911e75ceb25cd009b703ddecf654142c3b16",
+          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/64cc3438618febb1526bb177dbe30f222dca733562d1199bc030b516804583d2",
           "mode": 49590,
-          "size": 1013856,
+          "size": 1013949,
           "lambda": {
-            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-556d1f3225b027086ef169ed71aa0f0004",
+            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-4e9e10804d0d09fbc210c5cdfe90b322ea",
             "deployedTo": [
               "iad1"
             ],
@@ -1677,11 +1677,11 @@
           "prerender": {},
           "type": "lambda",
           "path": "teacher/results.segments/_head.segment.rsc",
-          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/87989012a173438e8157f728a0b2911e75ceb25cd009b703ddecf654142c3b16",
+          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/64cc3438618febb1526bb177dbe30f222dca733562d1199bc030b516804583d2",
           "mode": 49590,
-          "size": 1013856,
+          "size": 1013949,
           "lambda": {
-            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-556d1f3225b027086ef169ed71aa0f0004",
+            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-4e9e10804d0d09fbc210c5cdfe90b322ea",
             "deployedTo": [
               "iad1"
             ],
@@ -1698,11 +1698,11 @@
           "prerender": {},
           "type": "lambda",
           "path": "teacher/results.segments/_index.segment.rsc",
-          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/87989012a173438e8157f728a0b2911e75ceb25cd009b703ddecf654142c3b16",
+          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/64cc3438618febb1526bb177dbe30f222dca733562d1199bc030b516804583d2",
           "mode": 49590,
-          "size": 1013856,
+          "size": 1013949,
           "lambda": {
-            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-556d1f3225b027086ef169ed71aa0f0004",
+            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-4e9e10804d0d09fbc210c5cdfe90b322ea",
             "deployedTo": [
               "iad1"
             ],
@@ -1719,11 +1719,11 @@
           "prerender": {},
           "type": "lambda",
           "path": "teacher/results.segments/_tree.segment.rsc",
-          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/87989012a173438e8157f728a0b2911e75ceb25cd009b703ddecf654142c3b16",
+          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/64cc3438618febb1526bb177dbe30f222dca733562d1199bc030b516804583d2",
           "mode": 49590,
-          "size": 1013856,
+          "size": 1013949,
           "lambda": {
-            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-556d1f3225b027086ef169ed71aa0f0004",
+            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-4e9e10804d0d09fbc210c5cdfe90b322ea",
             "deployedTo": [
               "iad1"
             ],
@@ -1740,11 +1740,11 @@
           "prerender": {},
           "type": "lambda",
           "path": "teacher/results.segments/teacher.segment.rsc",
-          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/87989012a173438e8157f728a0b2911e75ceb25cd009b703ddecf654142c3b16",
+          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/64cc3438618febb1526bb177dbe30f222dca733562d1199bc030b516804583d2",
           "mode": 49590,
-          "size": 1013856,
+          "size": 1013949,
           "lambda": {
-            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-556d1f3225b027086ef169ed71aa0f0004",
+            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-4e9e10804d0d09fbc210c5cdfe90b322ea",
             "deployedTo": [
               "iad1"
             ],
@@ -1761,11 +1761,11 @@
           "prerender": {},
           "type": "lambda",
           "path": "teacher/results.segments/teacher/results.segment.rsc",
-          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/87989012a173438e8157f728a0b2911e75ceb25cd009b703ddecf654142c3b16",
+          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/64cc3438618febb1526bb177dbe30f222dca733562d1199bc030b516804583d2",
           "mode": 49590,
-          "size": 1013856,
+          "size": 1013949,
           "lambda": {
-            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-556d1f3225b027086ef169ed71aa0f0004",
+            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-4e9e10804d0d09fbc210c5cdfe90b322ea",
             "deployedTo": [
               "iad1"
             ],
@@ -1782,11 +1782,11 @@
           "prerender": {},
           "type": "lambda",
           "path": "teacher/results.segments/teacher/results/__PAGE__.segment.rsc",
-          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/87989012a173438e8157f728a0b2911e75ceb25cd009b703ddecf654142c3b16",
+          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/64cc3438618febb1526bb177dbe30f222dca733562d1199bc030b516804583d2",
           "mode": 49590,
-          "size": 1013856,
+          "size": 1013949,
           "lambda": {
-            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-556d1f3225b027086ef169ed71aa0f0004",
+            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-4e9e10804d0d09fbc210c5cdfe90b322ea",
             "deployedTo": [
               "iad1"
             ],
@@ -1803,11 +1803,11 @@
           "prerender": {},
           "type": "lambda",
           "path": "teacher/setup",
-          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/87989012a173438e8157f728a0b2911e75ceb25cd009b703ddecf654142c3b16",
+          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/64cc3438618febb1526bb177dbe30f222dca733562d1199bc030b516804583d2",
           "mode": 49590,
-          "size": 1013856,
+          "size": 1013949,
           "lambda": {
-            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-556d1f3225b027086ef169ed71aa0f0004",
+            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-4e9e10804d0d09fbc210c5cdfe90b322ea",
             "deployedTo": [
               "iad1"
             ],
@@ -1824,11 +1824,11 @@
           "prerender": {},
           "type": "lambda",
           "path": "teacher/setup.rsc",
-          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/87989012a173438e8157f728a0b2911e75ceb25cd009b703ddecf654142c3b16",
+          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/64cc3438618febb1526bb177dbe30f222dca733562d1199bc030b516804583d2",
           "mode": 49590,
-          "size": 1013856,
+          "size": 1013949,
           "lambda": {
-            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-556d1f3225b027086ef169ed71aa0f0004",
+            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-4e9e10804d0d09fbc210c5cdfe90b322ea",
             "deployedTo": [
               "iad1"
             ],
@@ -1845,11 +1845,11 @@
           "prerender": {},
           "type": "lambda",
           "path": "teacher/setup.segments/_full.segment.rsc",
-          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/87989012a173438e8157f728a0b2911e75ceb25cd009b703ddecf654142c3b16",
+          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/64cc3438618febb1526bb177dbe30f222dca733562d1199bc030b516804583d2",
           "mode": 49590,
-          "size": 1013856,
+          "size": 1013949,
           "lambda": {
-            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-556d1f3225b027086ef169ed71aa0f0004",
+            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-4e9e10804d0d09fbc210c5cdfe90b322ea",
             "deployedTo": [
               "iad1"
             ],
@@ -1866,11 +1866,11 @@
           "prerender": {},
           "type": "lambda",
           "path": "teacher/setup.segments/_head.segment.rsc",
-          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/87989012a173438e8157f728a0b2911e75ceb25cd009b703ddecf654142c3b16",
+          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/64cc3438618febb1526bb177dbe30f222dca733562d1199bc030b516804583d2",
           "mode": 49590,
-          "size": 1013856,
+          "size": 1013949,
           "lambda": {
-            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-556d1f3225b027086ef169ed71aa0f0004",
+            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-4e9e10804d0d09fbc210c5cdfe90b322ea",
             "deployedTo": [
               "iad1"
             ],
@@ -1887,11 +1887,11 @@
           "prerender": {},
           "type": "lambda",
           "path": "teacher/setup.segments/_index.segment.rsc",
-          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/87989012a173438e8157f728a0b2911e75ceb25cd009b703ddecf654142c3b16",
+          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/64cc3438618febb1526bb177dbe30f222dca733562d1199bc030b516804583d2",
           "mode": 49590,
-          "size": 1013856,
+          "size": 1013949,
           "lambda": {
-            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-556d1f3225b027086ef169ed71aa0f0004",
+            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-4e9e10804d0d09fbc210c5cdfe90b322ea",
             "deployedTo": [
               "iad1"
             ],
@@ -1908,11 +1908,11 @@
           "prerender": {},
           "type": "lambda",
           "path": "teacher/setup.segments/_tree.segment.rsc",
-          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/87989012a173438e8157f728a0b2911e75ceb25cd009b703ddecf654142c3b16",
+          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/64cc3438618febb1526bb177dbe30f222dca733562d1199bc030b516804583d2",
           "mode": 49590,
-          "size": 1013856,
+          "size": 1013949,
           "lambda": {
-            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-556d1f3225b027086ef169ed71aa0f0004",
+            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-4e9e10804d0d09fbc210c5cdfe90b322ea",
             "deployedTo": [
               "iad1"
             ],
@@ -1929,11 +1929,11 @@
           "prerender": {},
           "type": "lambda",
           "path": "teacher/setup.segments/teacher.segment.rsc",
-          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/87989012a173438e8157f728a0b2911e75ceb25cd009b703ddecf654142c3b16",
+          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/64cc3438618febb1526bb177dbe30f222dca733562d1199bc030b516804583d2",
           "mode": 49590,
-          "size": 1013856,
+          "size": 1013949,
           "lambda": {
-            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-556d1f3225b027086ef169ed71aa0f0004",
+            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-4e9e10804d0d09fbc210c5cdfe90b322ea",
             "deployedTo": [
               "iad1"
             ],
@@ -1950,11 +1950,11 @@
           "prerender": {},
           "type": "lambda",
           "path": "teacher/setup.segments/teacher/setup.segment.rsc",
-          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/87989012a173438e8157f728a0b2911e75ceb25cd009b703ddecf654142c3b16",
+          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/64cc3438618febb1526bb177dbe30f222dca733562d1199bc030b516804583d2",
           "mode": 49590,
-          "size": 1013856,
+          "size": 1013949,
           "lambda": {
-            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-556d1f3225b027086ef169ed71aa0f0004",
+            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-4e9e10804d0d09fbc210c5cdfe90b322ea",
             "deployedTo": [
               "iad1"
             ],
@@ -1971,11 +1971,11 @@
           "prerender": {},
           "type": "lambda",
           "path": "teacher/setup.segments/teacher/setup/__PAGE__.segment.rsc",
-          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/87989012a173438e8157f728a0b2911e75ceb25cd009b703ddecf654142c3b16",
+          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/64cc3438618febb1526bb177dbe30f222dca733562d1199bc030b516804583d2",
           "mode": 49590,
-          "size": 1013856,
+          "size": 1013949,
           "lambda": {
-            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-556d1f3225b027086ef169ed71aa0f0004",
+            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-4e9e10804d0d09fbc210c5cdfe90b322ea",
             "deployedTo": [
               "iad1"
             ],
@@ -1992,11 +1992,11 @@
           "prerender": {},
           "type": "lambda",
           "path": "terms",
-          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/87989012a173438e8157f728a0b2911e75ceb25cd009b703ddecf654142c3b16",
+          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/64cc3438618febb1526bb177dbe30f222dca733562d1199bc030b516804583d2",
           "mode": 49590,
-          "size": 1013856,
+          "size": 1013949,
           "lambda": {
-            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-556d1f3225b027086ef169ed71aa0f0004",
+            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-4e9e10804d0d09fbc210c5cdfe90b322ea",
             "deployedTo": [
               "iad1"
             ],
@@ -2013,11 +2013,11 @@
           "prerender": {},
           "type": "lambda",
           "path": "terms.rsc",
-          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/87989012a173438e8157f728a0b2911e75ceb25cd009b703ddecf654142c3b16",
+          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/64cc3438618febb1526bb177dbe30f222dca733562d1199bc030b516804583d2",
           "mode": 49590,
-          "size": 1013856,
+          "size": 1013949,
           "lambda": {
-            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-556d1f3225b027086ef169ed71aa0f0004",
+            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-4e9e10804d0d09fbc210c5cdfe90b322ea",
             "deployedTo": [
               "iad1"
             ],
@@ -2034,11 +2034,11 @@
           "prerender": {},
           "type": "lambda",
           "path": "terms.segments/_full.segment.rsc",
-          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/87989012a173438e8157f728a0b2911e75ceb25cd009b703ddecf654142c3b16",
+          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/64cc3438618febb1526bb177dbe30f222dca733562d1199bc030b516804583d2",
           "mode": 49590,
-          "size": 1013856,
+          "size": 1013949,
           "lambda": {
-            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-556d1f3225b027086ef169ed71aa0f0004",
+            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-4e9e10804d0d09fbc210c5cdfe90b322ea",
             "deployedTo": [
               "iad1"
             ],
@@ -2055,11 +2055,11 @@
           "prerender": {},
           "type": "lambda",
           "path": "terms.segments/_head.segment.rsc",
-          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/87989012a173438e8157f728a0b2911e75ceb25cd009b703ddecf654142c3b16",
+          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/64cc3438618febb1526bb177dbe30f222dca733562d1199bc030b516804583d2",
           "mode": 49590,
-          "size": 1013856,
+          "size": 1013949,
           "lambda": {
-            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-556d1f3225b027086ef169ed71aa0f0004",
+            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-4e9e10804d0d09fbc210c5cdfe90b322ea",
             "deployedTo": [
               "iad1"
             ],
@@ -2076,11 +2076,11 @@
           "prerender": {},
           "type": "lambda",
           "path": "terms.segments/_index.segment.rsc",
-          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/87989012a173438e8157f728a0b2911e75ceb25cd009b703ddecf654142c3b16",
+          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/64cc3438618febb1526bb177dbe30f222dca733562d1199bc030b516804583d2",
           "mode": 49590,
-          "size": 1013856,
+          "size": 1013949,
           "lambda": {
-            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-556d1f3225b027086ef169ed71aa0f0004",
+            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-4e9e10804d0d09fbc210c5cdfe90b322ea",
             "deployedTo": [
               "iad1"
             ],
@@ -2097,11 +2097,11 @@
           "prerender": {},
           "type": "lambda",
           "path": "terms.segments/_tree.segment.rsc",
-          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/87989012a173438e8157f728a0b2911e75ceb25cd009b703ddecf654142c3b16",
+          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/64cc3438618febb1526bb177dbe30f222dca733562d1199bc030b516804583d2",
           "mode": 49590,
-          "size": 1013856,
+          "size": 1013949,
           "lambda": {
-            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-556d1f3225b027086ef169ed71aa0f0004",
+            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-4e9e10804d0d09fbc210c5cdfe90b322ea",
             "deployedTo": [
               "iad1"
             ],
@@ -2118,11 +2118,11 @@
           "prerender": {},
           "type": "lambda",
           "path": "terms.segments/terms.segment.rsc",
-          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/87989012a173438e8157f728a0b2911e75ceb25cd009b703ddecf654142c3b16",
+          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/64cc3438618febb1526bb177dbe30f222dca733562d1199bc030b516804583d2",
           "mode": 49590,
-          "size": 1013856,
+          "size": 1013949,
           "lambda": {
-            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-556d1f3225b027086ef169ed71aa0f0004",
+            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-4e9e10804d0d09fbc210c5cdfe90b322ea",
             "deployedTo": [
               "iad1"
             ],
@@ -2139,11 +2139,11 @@
           "prerender": {},
           "type": "lambda",
           "path": "terms.segments/terms/__PAGE__.segment.rsc",
-          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/87989012a173438e8157f728a0b2911e75ceb25cd009b703ddecf654142c3b16",
+          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/64cc3438618febb1526bb177dbe30f222dca733562d1199bc030b516804583d2",
           "mode": 49590,
-          "size": 1013856,
+          "size": 1013949,
           "lambda": {
-            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-556d1f3225b027086ef169ed71aa0f0004",
+            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-4e9e10804d0d09fbc210c5cdfe90b322ea",
             "deployedTo": [
               "iad1"
             ],
@@ -2160,11 +2160,11 @@
           "prerender": null,
           "type": "lambda",
           "path": "_not-found",
-          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/87989012a173438e8157f728a0b2911e75ceb25cd009b703ddecf654142c3b16",
+          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/64cc3438618febb1526bb177dbe30f222dca733562d1199bc030b516804583d2",
           "mode": 49590,
-          "size": 1013856,
+          "size": 1013949,
           "lambda": {
-            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-556d1f3225b027086ef169ed71aa0f0004",
+            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-4e9e10804d0d09fbc210c5cdfe90b322ea",
             "deployedTo": [
               "iad1"
             ],
@@ -2181,11 +2181,11 @@
           "prerender": null,
           "type": "lambda",
           "path": "_not-found.rsc",
-          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/87989012a173438e8157f728a0b2911e75ceb25cd009b703ddecf654142c3b16",
+          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/64cc3438618febb1526bb177dbe30f222dca733562d1199bc030b516804583d2",
           "mode": 49590,
-          "size": 1013856,
+          "size": 1013949,
           "lambda": {
-            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-556d1f3225b027086ef169ed71aa0f0004",
+            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-4e9e10804d0d09fbc210c5cdfe90b322ea",
             "deployedTo": [
               "iad1"
             ],
@@ -2202,11 +2202,11 @@
           "prerender": null,
           "type": "lambda",
           "path": "api/assignments/reserve",
-          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/a5f4fddfaa6148a8cd6e40d2a47d7b650cdccee66bd285bdc08dae7dbf10d893",
+          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/283c6c06f1e89e4f53ec7a744a5b6894356c00ac5b6d145923e86acbdca1c20f",
           "mode": 49590,
-          "size": 2781458,
+          "size": 2781457,
           "lambda": {
-            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-dedc3661515c6218e2158f2e6d30d9d0c2",
+            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-a8c5b496c6fc22c4da6a0bd904b240e182",
             "deployedTo": [
               "iad1"
             ],
@@ -2223,11 +2223,11 @@
           "prerender": null,
           "type": "lambda",
           "path": "api/assignments/reserve.rsc",
-          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/a5f4fddfaa6148a8cd6e40d2a47d7b650cdccee66bd285bdc08dae7dbf10d893",
+          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/283c6c06f1e89e4f53ec7a744a5b6894356c00ac5b6d145923e86acbdca1c20f",
           "mode": 49590,
-          "size": 2781458,
+          "size": 2781457,
           "lambda": {
-            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-dedc3661515c6218e2158f2e6d30d9d0c2",
+            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-a8c5b496c6fc22c4da6a0bd904b240e182",
             "deployedTo": [
               "iad1"
             ],
@@ -2244,11 +2244,11 @@
           "prerender": null,
           "type": "lambda",
           "path": "api/responses",
-          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/a5f4fddfaa6148a8cd6e40d2a47d7b650cdccee66bd285bdc08dae7dbf10d893",
+          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/283c6c06f1e89e4f53ec7a744a5b6894356c00ac5b6d145923e86acbdca1c20f",
           "mode": 49590,
-          "size": 2781458,
+          "size": 2781457,
           "lambda": {
-            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-dedc3661515c6218e2158f2e6d30d9d0c2",
+            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-a8c5b496c6fc22c4da6a0bd904b240e182",
             "deployedTo": [
               "iad1"
             ],
@@ -2265,11 +2265,11 @@
           "prerender": null,
           "type": "lambda",
           "path": "api/responses.rsc",
-          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/a5f4fddfaa6148a8cd6e40d2a47d7b650cdccee66bd285bdc08dae7dbf10d893",
+          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/283c6c06f1e89e4f53ec7a744a5b6894356c00ac5b6d145923e86acbdca1c20f",
           "mode": 49590,
-          "size": 2781458,
+          "size": 2781457,
           "lambda": {
-            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-dedc3661515c6218e2158f2e6d30d9d0c2",
+            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-a8c5b496c6fc22c4da6a0bd904b240e182",
             "deployedTo": [
               "iad1"
             ],
@@ -2286,11 +2286,11 @@
           "prerender": null,
           "type": "lambda",
           "path": "api/responses/[responseId]",
-          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/a5f4fddfaa6148a8cd6e40d2a47d7b650cdccee66bd285bdc08dae7dbf10d893",
+          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/283c6c06f1e89e4f53ec7a744a5b6894356c00ac5b6d145923e86acbdca1c20f",
           "mode": 49590,
-          "size": 2781458,
+          "size": 2781457,
           "lambda": {
-            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-dedc3661515c6218e2158f2e6d30d9d0c2",
+            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-a8c5b496c6fc22c4da6a0bd904b240e182",
             "deployedTo": [
               "iad1"
             ],
@@ -2307,11 +2307,11 @@
           "prerender": null,
           "type": "lambda",
           "path": "api/responses/[responseId].rsc",
-          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/a5f4fddfaa6148a8cd6e40d2a47d7b650cdccee66bd285bdc08dae7dbf10d893",
+          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/283c6c06f1e89e4f53ec7a744a5b6894356c00ac5b6d145923e86acbdca1c20f",
           "mode": 49590,
-          "size": 2781458,
+          "size": 2781457,
           "lambda": {
-            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-dedc3661515c6218e2158f2e6d30d9d0c2",
+            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-a8c5b496c6fc22c4da6a0bd904b240e182",
             "deployedTo": [
               "iad1"
             ],
@@ -2328,11 +2328,11 @@
           "prerender": null,
           "type": "lambda",
           "path": "api/rooms/ensure",
-          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/a5f4fddfaa6148a8cd6e40d2a47d7b650cdccee66bd285bdc08dae7dbf10d893",
+          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/283c6c06f1e89e4f53ec7a744a5b6894356c00ac5b6d145923e86acbdca1c20f",
           "mode": 49590,
-          "size": 2781458,
+          "size": 2781457,
           "lambda": {
-            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-dedc3661515c6218e2158f2e6d30d9d0c2",
+            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-a8c5b496c6fc22c4da6a0bd904b240e182",
             "deployedTo": [
               "iad1"
             ],
@@ -2349,11 +2349,11 @@
           "prerender": null,
           "type": "lambda",
           "path": "api/rooms/ensure.rsc",
-          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/a5f4fddfaa6148a8cd6e40d2a47d7b650cdccee66bd285bdc08dae7dbf10d893",
+          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/283c6c06f1e89e4f53ec7a744a5b6894356c00ac5b6d145923e86acbdca1c20f",
           "mode": 49590,
-          "size": 2781458,
+          "size": 2781457,
           "lambda": {
-            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-dedc3661515c6218e2158f2e6d30d9d0c2",
+            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-a8c5b496c6fc22c4da6a0bd904b240e182",
             "deployedTo": [
               "iad1"
             ],
@@ -2370,11 +2370,11 @@
           "prerender": null,
           "type": "lambda",
           "path": "api/surveys",
-          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/a5f4fddfaa6148a8cd6e40d2a47d7b650cdccee66bd285bdc08dae7dbf10d893",
+          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/283c6c06f1e89e4f53ec7a744a5b6894356c00ac5b6d145923e86acbdca1c20f",
           "mode": 49590,
-          "size": 2781458,
+          "size": 2781457,
           "lambda": {
-            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-dedc3661515c6218e2158f2e6d30d9d0c2",
+            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-a8c5b496c6fc22c4da6a0bd904b240e182",
             "deployedTo": [
               "iad1"
             ],
@@ -2391,11 +2391,11 @@
           "prerender": null,
           "type": "lambda",
           "path": "api/surveys.rsc",
-          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/a5f4fddfaa6148a8cd6e40d2a47d7b650cdccee66bd285bdc08dae7dbf10d893",
+          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/283c6c06f1e89e4f53ec7a744a5b6894356c00ac5b6d145923e86acbdca1c20f",
           "mode": 49590,
-          "size": 2781458,
+          "size": 2781457,
           "lambda": {
-            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-dedc3661515c6218e2158f2e6d30d9d0c2",
+            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-a8c5b496c6fc22c4da6a0bd904b240e182",
             "deployedTo": [
               "iad1"
             ],
@@ -2412,11 +2412,11 @@
           "prerender": null,
           "type": "lambda",
           "path": "api/surveys/[surveyId]",
-          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/a5f4fddfaa6148a8cd6e40d2a47d7b650cdccee66bd285bdc08dae7dbf10d893",
+          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/283c6c06f1e89e4f53ec7a744a5b6894356c00ac5b6d145923e86acbdca1c20f",
           "mode": 49590,
-          "size": 2781458,
+          "size": 2781457,
           "lambda": {
-            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-dedc3661515c6218e2158f2e6d30d9d0c2",
+            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-a8c5b496c6fc22c4da6a0bd904b240e182",
             "deployedTo": [
               "iad1"
             ],
@@ -2433,11 +2433,11 @@
           "prerender": null,
           "type": "lambda",
           "path": "api/surveys/[surveyId].rsc",
-          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/a5f4fddfaa6148a8cd6e40d2a47d7b650cdccee66bd285bdc08dae7dbf10d893",
+          "digest": "prj_8FkPBnO6HdTb9SSWKBqmO3IeqZnN/283c6c06f1e89e4f53ec7a744a5b6894356c00ac5b6d145923e86acbdca1c20f",
           "mode": 49590,
-          "size": 2781458,
+          "size": 2781457,
           "lambda": {
-            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-dedc3661515c6218e2158f2e6d30d9d0c2",
+            "functionName": "team_ok3lVRFROq7xmAwnIjp9padq-a8c5b496c6fc22c4da6a0bd904b240e182",
             "deployedTo": [
               "iad1"
             ],

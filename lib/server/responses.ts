@@ -208,9 +208,11 @@ export async function deleteTeacherResponse(teacherUid: string, roomName: string
   const { room, surveyRef } = await surveyRoot(roomName, surveyId);
   if (room.ownerUid !== teacherUid) throw new Error("방 관리 권한이 없습니다.");
   const responseRef = surveyRef.collection("responses").doc(responseId);
+  const reservationRef = surveyRef.collection("reservations").doc(responseId);
   await adminDb.runTransaction(async (transaction) => {
     const [surveySnapshot, responseSnapshot] = await Promise.all([transaction.get(surveyRef), transaction.get(responseRef)]);
     if (!surveySnapshot.exists || !responseSnapshot.exists) throw new Error("응답을 찾지 못했습니다.");
     transaction.delete(responseRef);
+    transaction.delete(reservationRef);
   });
 }

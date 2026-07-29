@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import { beforeEach, expect, it, vi } from "vitest";
 
 const { verifyIdToken } = vi.hoisted(() => ({
@@ -46,6 +47,12 @@ it("accepts a verified non-anonymous teacher", async () => {
   verifyIdToken.mockResolvedValue(teacher);
   const { requireTeacher } = await import("@/lib/server/auth");
   await expect(requireTeacher(bearerRequest())).resolves.toBe(teacher);
+});
+
+it("uses teacher authentication for response deletion", () => {
+  const route = readFileSync("app/api/responses/[responseId]/route.ts", "utf8");
+  expect(route).toContain("requireTeacher");
+  expect(route).not.toContain("requireUser(request)");
 });
 
 it("uses an explicit HttpError status in the JSON response", async () => {

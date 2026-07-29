@@ -274,10 +274,14 @@ it("allows only one concurrent response and writes server timestamps", async () 
 
 it("permits only room owner to edit and delete responses", async () => {
   const { submitResponseForUser, updateTeacherResponse, deleteTeacherResponse } = await import("@/lib/server/responses");
+  const { resolveRoom } = await import("@/lib/server/rooms");
   const { survey, assignmentsA } = await fixture();
   const quantities = { [Object.values(assignmentsA)[0]]: 1 };
   await submitResponseForUser("student-a", roomName, survey.id, profileA, quantities, true);
   await expect(updateTeacherResponse("teacher-b", roomName, survey.id, "student-a", profileA, quantities))
     .rejects.toThrow("방 관리 권한이 없습니다.");
   await expect(deleteTeacherResponse("teacher-a", roomName, survey.id, "student-a")).resolves.toBeUndefined();
+  const root = `rooms/${(await resolveRoom(roomName))!.id}/surveys/${survey.id}`;
+  expect((await adminDb.doc(`${root}/responses/student-a`).get()).exists).toBe(false);
+  expect((await adminDb.doc(`${root}/reservations/student-a`).get()).exists).toBe(false);
 });

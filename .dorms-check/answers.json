@@ -1,42 +1,42 @@
 {
   "edzip.1-1": {
-    "status": "pass",
-    "evidence": "app/privacy/page.tsx:26-37 identifies collected fields and prohibits unrelated contact, account, and sensitive data; components/StudentResponseForm.tsx:352-401 displays that notice and collects grade, class, and name/class alias."
+    "status": "fail",
+    "evidence": "반별·전체 수요곡선 제공 목적(app/privacy/page.tsx:31-51)인데도 이름/별명을 필수 입력으로 강제하고(components/StudentResponseForm.tsx:69-73), 실명 예시를 제시한다(components/StudentResponseForm.tsx:388-400). 입력값은 외부 Firestore에 그대로 저장된다(lib/server/assignments.ts:91-101, lib/server/responses.ts:123-132)."
   },
   "edzip.1-2": {
     "status": "pass",
-    "evidence": "app/privacy/page.tsx:17-24 states the collection/use purpose for classroom demand-curve response collection and statistics."
+    "evidence": "개인정보처리방침에 교사 인증·수업방 관리, 학생 참여·응답 중복 방지·수요곡선 제공, 서비스 보호 목적과 처리 근거가 구체적으로 적혀 있다(app/privacy/page.tsx:31-51)."
   },
   "edzip.1-3": {
     "status": "pass",
-    "evidence": "app/privacy/page.tsx:41-46 states retention and deletion timing; app/teacher/responses/page.tsx:257-275 implements teacher-initiated deletion."
+    "evidence": "수집 항목은 교사·학생·자동 생성 정보·브라우저 저장소로 구분되어 있고(app/privacy/page.tsx:55-86), 수업방·설문·응답, 가격 배정 예약, Firebase 인증, Vercel 로그, 브라우저 저장소의 실제 보유 상태와 자동 삭제 부재가 명시되어 있다(app/privacy/page.tsx:90-120)."
   },
   "edzip.2-1": {
     "status": "pass",
-    "evidence": "firestore.rules:1-8 denies every direct Firestore read/write; lib/server/auth.ts:5-23 requires Firebase ID tokens and rejects anonymous users for teacher actions; lib/server/responses.ts:138-161 restricts non-teachers to their own revealed response and redacts other student identities."
+    "evidence": "Firestore 직접 접근은 전부 거부된다(firestore.rules:1-8). 서버 API는 Firebase ID 토큰을 검증하고 교사 작업에서 익명 사용자를 차단한다(lib/server/auth.ts:5-23). 학생 결과 목록에서는 본인 응답 외 식별정보를 가린다(lib/server/responses.ts:138-161). 방침에도 같은 조치가 명시되어 있다(app/privacy/page.tsx:241-249)."
   },
   "edzip.3-1": {
-    "status": "pass",
-    "evidence": "app/privacy/page.tsx:94-99 states access, correction, deletion, and suspension requests; app/privacy/page.tsx:112-124 supplies the contact route."
+    "status": "fail",
+    "evidence": "방침은 열람·정정·삭제·처리정지 요청 방법을 안내하지만(app/privacy/page.tsx:207-219), 교사의 개별 삭제는 responses 문서만 삭제한다(lib/server/responses.ts:192-202). 같은 학생 이름이 든 reservations 문서(lib/server/assignments.ts:91-101)와 학생 기기 localStorage 사본(lib/studentResultProfile.ts:63-80)은 함께 삭제되지 않는다."
   },
   "edzip.4-1": {
-    "status": "pass",
-    "evidence": "app/privacy/page.tsx:103-109 requires the teacher to confirm guardian-consent procedures for under-14 students and says the app does not collect consent automatically; components/StudentResponseForm.tsx:352-355 warns against unrelated personal data."
+    "status": "fail",
+    "evidence": "설정은 C형(외부 전송 전 가명처리)이지만 앱은 실명 입력을 허용·유도하고(components/StudentResponseForm.tsx:388-400) 입력값을 외부 Firestore 예약·응답 문서에 그대로 저장한다(lib/server/assignments.ts:91-101, lib/server/responses.ts:123-132). 법정대리인 동의 기능도 없으며 방침 역시 학교·교사의 사전 절차에 의존한다고 명시한다(app/privacy/page.tsx:223-229)."
   },
   "edzip.5-1": {
     "status": "pass",
-    "evidence": "app/privacy/page.tsx:112-124 names the privacy contact role and provides an inquiry link."
+    "evidence": "개인정보 보호책임자 역할과 열람·정정·삭제·처리정지 및 보안 문의 링크, 외부 신고·분쟁조정 연락처가 공개되어 있다(app/privacy/page.tsx:252-263)."
   },
   "edzip.5-2": {
     "status": "pass",
-    "evidence": "app/privacy/page.tsx:60-67 states personal data is not provided to third parties except as required by law."
+    "evidence": "개인정보 판매·제3자 제공 금지와 법령상 예외, 처리위탁·국외 처리와 제3자 제공의 구분이 명시되어 있다(app/privacy/page.tsx:135-142)."
   },
   "edzip.5-3": {
     "status": "pass",
-    "evidence": "app/privacy/page.tsx:71-89 distinguishes Seoul Firestore storage (asia-northeast3) from US Firebase Authentication and Vercel processing, and requires pre-adoption notice/consent procedures."
+    "evidence": "Google Firebase와 Vercel의 구체적 위탁 업무, 재수탁자 확인 경로가 명시되어 있고(app/privacy/page.tsx:145-168), Firebase Authentication 미국 처리, Firestore 서울 리전, Vercel 미국·전 세계 인프라 처리와 국외 처리 근거·거부 방법이 공개되어 있다(app/privacy/page.tsx:171-204)."
   },
   "code.endpoint.unauth": {
     "status": "pass",
-    "evidence": "The scanner candidate /api/front-domains/checkpoint is not a route in app/api (verified by repository route inventory). Every current JSON API route enforces a Firebase token before returning application data: app/api/surveys/route.ts:8-17, app/api/responses/route.ts:8-19 and 23-32, app/api/rooms/ensure/route.ts:5-15, app/api/assignments/reserve/route.ts:12-23, and lib/server/auth.ts:5-14. The live Preview authentication-bypass receipt in .dorms-check/evidence/cutover/PREFLIGHT.md records HTTP 401 with the exact unauthenticated body for /api/surveys?room=test."
+    "evidence": "현재 JSON API 경로는 application data 반환 전 Firebase 토큰을 요구한다(app/api/surveys/route.ts:8-17, app/api/responses/route.ts:8-19, app/api/rooms/ensure/route.ts:5-15, app/api/assignments/reserve/route.ts:12-23, lib/server/auth.ts:5-14). 기존 라이브 프리플라이트 증빙은 미인증 /api/surveys 요청의 HTTP 401을 기록한다(.dorms-check/evidence/cutover/PREFLIGHT.md)."
   }
 }

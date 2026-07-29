@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useAuth } from "@/components/AuthProvider";
 import { LegalFooter } from "@/components/LegalFooter";
 import { buildStudentPath } from "@/lib/roomName";
 
@@ -14,7 +15,6 @@ type TeacherShellProps = {
     | "budget-results"
     | "guide";
   children: ReactNode;
-  onExit?: () => void;
   roomName?: string;
   selectedLessonId?: string;
 };
@@ -41,10 +41,10 @@ const NEXT_LESSON_SNOOZED_KEY = "demand-app-teacher-next-lesson-snoozed";
 export function TeacherShell({
   active,
   children,
-  onExit,
   roomName = "",
   selectedLessonId = "",
 }: TeacherShellProps) {
+  const { signOutUser } = useAuth();
   const [isReviewPromptVisible, setIsReviewPromptVisible] = useState(false);
 
   return (
@@ -67,11 +67,13 @@ export function TeacherShell({
         >
           학생 화면 →
         </Link>
-        {onExit ? (
-          <button className="teacher-top-tab-exit" onClick={onExit} type="button">
-            나가기
-          </button>
-        ) : null}
+        <button
+          className="teacher-top-tab-exit"
+          onClick={() => void signOutUser()}
+          type="button"
+        >
+          로그아웃
+        </button>
       </nav>
       <main className={`teacher-main ${active === "guide" ? "teacher-main-guide" : ""}`}>
         {children}

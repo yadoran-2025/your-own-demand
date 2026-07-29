@@ -402,6 +402,15 @@ select {
 ════════════════════════════════════════════ */
 
 /* ── 레이아웃 ────────────────────────────────── */
+.teacher-login {
+  display: grid;
+  min-height: 100dvh;
+  place-content: center;
+  justify-items: center;
+  padding: var(--space-6);
+  text-align: center;
+}
+
 .teacher-shell {
   display: flex;
   flex-direction: column;
@@ -486,6 +495,21 @@ select {
   margin: 0.5rem 0 0;
   color: var(--color-text-secondary);
   line-height: 1.75;
+}
+
+.legal-list {
+  margin: 0.75rem 0 0;
+  padding-left: 1.25rem;
+  color: var(--color-text-secondary);
+}
+
+.legal-list li + li {
+  margin-top: 0.6rem;
+}
+
+.legal-card a {
+  color: var(--color-primary);
+  overflow-wrap: anywhere;
 }
 
 .legal-muted,

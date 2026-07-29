@@ -1,37 +1,71 @@
-# dorms-check 보안·에듀집 사전 점검 기록
+# dorms-check 점검 리포트
 
-- 점검 시각(UTC): 2026-07-29T07:42:37.558Z
 - 앱: 수요곡선 활동 시스템
-- 점검 URL: `https://inflation-classroom-8gwz6znz4-yadorans-projects.vercel.app`
-- 개인정보 처리 분류: `D` — 학생 개인정보·학습내용을 처리하고, 학교 기기 밖의 Firebase Authentication 및 Vercel 처리 경로가 있으며, 식별자가 항상 마스킹되거나 학교 기기에만 남지는 않음
+- 주소: https://inflation-classroom.vercel.app
+- 스택: Next.js,Firebase,Vercel
+- 점검 트랙: security, edzip
 
-## 실행 기록
+> 이 리포트는 dorms-check(코치)의 자체 점검 결과입니다. 최종 인증마크는 도름스 서버가 스스로 다시 검증해 발급하며, 이 리포트의 통과가 마크를 보장하지 않습니다.
 
-1. `npx -y dorms-check@latest detect`는 npm `E404`를 반환했다.
-2. 이미 승인된 대체 경로 `npx -y github:shinnanchanguk/dorms-check`로 `init`, `scan`, `judge`, 재 `scan`, `status`를 실행했다.
-3. `judge`는 근거가 있는 10개 항목을 수용했고 거부한 항목은 없었다. `code.endpoint.unauth`는 현재 `app/api` 라우트와 인증 경계를 검토해 판정했다.
+## 보안 검토
+- 점수: 100/100 (A+)
+- 마크 자격(critical/high 0): 충족
 
-## 근거가 있는 처리·보호 조치
+### 통과 항목(증빙)
+- [v] Content-Security-Policy — 헤더값: default-src 'self'; script-src 'self' 'unsafe-inline' https://apis.google.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; font-src 'self' https://cdn.jsdelivr.net data:; img-src 'self' data: blob:; connect-src 'self' https://*.googleapis.com https://*.firebaseapp.com https://securetoken.googleapis.com; frame-src 'self' https://inflation-2e38b.firebaseapp.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'
+- [v] Strict-Transport-Security — 헤더값: max-age=63072000; includeSubDomains; preload
+- [v] 클릭재킹 방어(X-Frame-Options / frame-ancestors) — 헤더값: DENY
+- [v] X-Content-Type-Options: nosniff — 헤더값: nosniff
+- [v] Referrer-Policy — 헤더값: strict-origin-when-cross-origin
+- [v] Permissions-Policy — 헤더값: camera=(), microphone=(), geolocation=(), payment=(), usb=()
+- [v] 서버/프레임워크 버전 노출 — x-powered-by 미노출(양호)
+- [v] HTTPS 강제(HTTP→HTTPS 리다이렉트) — HTTP 요청이 HTTPS로 리다이렉트됨 (HTTP 308 -> https://inflation-classroom.vercel.app/)
+- [v] SSL 인증서 유효 — TLS 연결 성공 (TLSv1.3)
+- [v] 구버전 TLS 미사용 — TLS 버전 양호: TLSv1.3
+- [v] 민감 파일 노출(.env/.git) — 민감 파일(.env/.git) 노출 없음
+- [v] 설정 파일 노출 — 설정 파일 비노출
+- [v] 소스맵 노출 — 소스맵 참조 없음
+- [v] 에러 스택트레이스 노출 — 스택트레이스 노출 없음
+- [v] Mixed Content — mixed content 없음
+- [v] 페이지 제목 — <title> 있음
+- [v] 설명 메타 — 설명 메타
+- [v] 모바일 viewport — viewport 메타
+- [v] Open Graph — Open Graph 태그
+- [v] canonical — canonical 링크
+- [v] 응답 속도 — 응답 시간 145ms
+- [v] 문서 크기 — 문서 크기 11KB
+- [v] 압축 — 압축: br
+- [v] 개인정보처리방침 — 개인정보처리방침 발견(link: /privacy/)
+- [v] 이용약관 — 이용약관 발견(link: /terms/)
+- [v] 연락처 — 연락처/문의 정보 있음
+- [v] 미인증 API 접근 — 현재 JSON API 경로는 application data 반환 전 Firebase 토큰을 요구한다(app/api/surveys/route.ts:8-17, app/api/responses/route.ts:8-19, app/api/rooms/ensure/route.ts:5-15, app/api/assignments/reserve/route.ts:12-23, lib/server/auth.ts:5-14). 기존 라이브 프리플라이트 증빙은 미인증 /api/surveys 요청의 HTTP 401을 기록한다(.dorms-check/evidence/cutover/PREFLIGHT.md).
+- [v] 하드코딩 시크릿 — 하드코딩 시크릿 미검출
+- [v] 클라이언트 시크릿 노출 — 클라 시크릿 노출 미검출
+- [v] 헤더 설정 위치 — public/_headers:1-13 and vercel.json:1-29 configure CSP, frame-ancestors/X-Frame-Options, nosniff, Referrer-Policy, and Permissions-Policy for hosts that support custom headers.
+- [v] 위험 코드 패턴(검토 후보) — 위험 코드 패턴 미검출
 
-- 직접 Cloud Firestore 접근은 [firestore.rules](/Users/a/your-own-demand/firestore.rules:1)에서 전면 거부된다.
-- API는 [lib/server/auth.ts](/Users/a/your-own-demand/lib/server/auth.ts:5)에서 Firebase ID 토큰을 요구하며, 교사 작업은 익명 계정을 거부한다([17행](/Users/a/your-own-demand/lib/server/auth.ts:17)).
-- 비교 대상 학생 응답은 본인 응답 이외에 이름·번호·응답 식별자가 제거된다([lib/server/responses.ts](/Users/a/your-own-demand/lib/server/responses.ts:138)).
-- 개인정보처리방침은 주 저장소의 서울 Firestore와 별개로 Firebase Authentication·Vercel의 미국 처리 가능성을 구분해 고지한다([app/privacy/page.tsx](/Users/a/your-own-demand/app/privacy/page.tsx:71)).
+### 참고(검토 권장, 마크 게이트 아님)
+- CORS 설정: 와일드카드(*) 허용 — 공개 API면 무방, 인증 API면 위험
 
-## 스캐너 결과와 해석
+## 학운위 심사 준비(에듀집 필수기준)
+- 준비 상태: 미충족
+- 개인정보처리방침 공개: 있음
 
-도구의 마지막 `scan`은 보안 `94/100 (A)`, 보안 마크 자격 `충족`, 학운위 준비 `충족`을 출력했다. 단, 이 Preview에는 Vercel 배포 보호가 켜져 있어 일반 스캐너가 앱 대신 Vercel 보호 응답을 읽었다. 따라서 다음 5건은 도구상 `남은 항목`이지만, 실제 앱 응답에 대한 미확정 항목으로 보존한다.
+### 아직 준비할 항목
+#### 개인정보를 최소한으로만 수집 (1. 최소처리 원칙)
+- 무엇: 꼭 필요한 개인정보만 모아야 하고, 무엇을 왜 모으는지 개인정보처리방침에 분명히 적혀 있어야 해요.
+- 근거: 개인정보 보호법 제3조(개인정보 보호 원칙), 제30조(처리방침)
+- AI에게: `개인정보처리방침 제2조(수집 항목)·제3조(수집 목적)를 만들고, 실제 수집 코드가 방침에 적힌 항목만 모으는지 대조해줘. templates/privacy-policy.ko.md 참고.`
 
-| 도구 항목 | 도구 상태 | 인증된 Preview 재확인 | 결론 |
-| --- | --- | --- | --- |
-| Permissions-Policy | low | `npx -y vercel@latest curl <preview> -I`에서 `camera=(), microphone=(), geolocation=(), payment=(), usb=()` 확인 | 보호 페이지의 오탐으로 보임 |
-| 쿠키 HttpOnly/Secure | medium | Firebase ID-token 기반 API 인증이며 앱 세션 쿠키를 이 점검에서 독립적으로 관찰하지 못함 | 미확정: 실제 앱 쿠키가 생기는 경로가 추가되면 재점검 필요 |
-| title | info | 인증된 `/teacher` 응답에서 `수요곡선 활동 시스템` 확인 | 보호 페이지의 오탐으로 보임 |
-| description | info | 인증된 `/teacher` 응답에서 설명 메타 확인 | 보호 페이지의 오탐으로 보임 |
-| Open Graph | info | 인증된 `/teacher` 응답에서 `og:title`, `og:description` 확인 | 보호 페이지의 오탐으로 보임 |
+#### 열람·정정·삭제·처리정지 절차 (3. 정보주체 권리)
+- 무엇: 사용자가 자기 정보를 보고·고치고·지워달라고 요청하는 방법을 안내해야 해요(법정 처리 기한 있음).
+- 근거: 개인정보 보호법 제35~37조(열람·정정·삭제·처리정지)
+- AI에게: `방침 제7조에 정보주체 권리와 행사 방법(연락처·처리 기한)을 적어줘.`
 
-인증된 Preview의 `/api/surveys?room=test`는 인증 헤더 없이 정확히 `{"error":"로그인이 필요합니다."}`를 반환했다. 이 점검은 비밀값·UID·학생 데이터를 기록하지 않았다.
+#### 아동 개인정보 보호 (4. 만 14세 미만 보호)
+- 무엇: 만 14세 미만 학생 정보는 특별히 조심해야 해요. 이용자를 교사로 한정하거나, 학생 식별정보를 외부로 안 보내고 로컬에만 두는 식으로 다뤄야 해요.
+- 근거: 개인정보 보호법 제22조의2(만 14세 미만 아동의 개인정보 처리)
+- AI에게: `이용자를 교사로 한정하고, 학생 식별정보는 외부로 보내지 말고(로컬 저장) 외부 AI 로 보낼 때는 이름 등을 가명처리(학생1/학생2)해줘. 방침 제8조에 이 구조와 법적 위치를 적어줘.`
 
-## 생산 배포 판단
 
-이 결과는 **로컬 사전 준비 기록**이며 dorms.school의 최종 독립 인증이 아니다. 도구 상태상 보안/에듀집은 충족으로 표시되지만, 도구의 남은 항목은 5건이고 쿠키 플래그는 이 환경에서 확정할 수 없다. 따라서 이 Task 7은 코드·법률 문구·호스팅 설정·배포를 변경하지 않았고, Production 배포를 승인하거나 최종 인증을 신청하지 않는다. 그런 변경이나 배포는 별도 명시 승인을 받은 뒤 인증된 실제 앱 응답으로 재점검해야 한다.
+> "학운위 심사 준비 완료"는 학교 심의에 낼 서류가 갖춰졌다는 뜻이며, 심의 통과를 보장하지 않습니다. 심의와 최종 결정은 각 학교가 합니다.

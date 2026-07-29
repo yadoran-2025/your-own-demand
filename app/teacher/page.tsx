@@ -58,11 +58,13 @@ function formatRelativeTime(value: string) {
 export default function TeacherPage() {
   const { roomName, ready, setRoomName } = useStoredRoomName(TEACHER_ROOM_KEY);
   const { ready: authReady, isTeacher, demoMode } = useAuth();
-  const {
-    workspace,
-    setSelectedLessonId,
-  } = useTeacherWorkspace();
-  const canUseTeacherData = canAccessTeacherData({ ready: authReady, isTeacher, demoMode });
+  const { workspace } = useTeacherWorkspace();
+  const canUseTeacherData = canAccessTeacherData({
+    ready: authReady,
+    isTeacher,
+    demoMode,
+    roomName,
+  });
   const [surveys, setSurveys] = useState<Survey[]>([]);
   const [responses, setResponses] = useState<StudentResponse[]>([]);
   const [loading, setLoading] = useState(true);
@@ -80,6 +82,7 @@ export default function TeacherPage() {
     }
 
     setLoading(true);
+    setMessage("");
     try {
       await ensureRoomHasDefaultSurveys(roomName);
       const nextSurveys = await fetchSurveys(roomName, true);
@@ -204,10 +207,6 @@ export default function TeacherPage() {
     >
       <TeacherShell
         active="dashboard"
-        onExit={() => {
-          setResponses([]);
-          setSelectedLessonId("");
-        }}
         roomName={roomName}
         selectedLessonId={activeSurvey?.id ?? ""}
       >

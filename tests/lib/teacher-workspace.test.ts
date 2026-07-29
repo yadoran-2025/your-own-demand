@@ -32,3 +32,9 @@ it("rejects blank and duplicate class names", () => {
 it("removes only requested class", () => {
   expect(removeClass(["1반", "2반", "3반"], "2반")).toEqual(["1반", "3반"]);
 });
+
+it("rebuilds the selected class room key after a class change", () => {
+  const classes = addClass(["1반"], "2반").classes;
+  expect(createRoomKey({ ...workspace, classes: removeClass(classes, "1반") }, "2반"))
+    .toBe("서울 / 통합사회고 / 3학년 / 2반");
+});

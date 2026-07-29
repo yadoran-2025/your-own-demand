@@ -1,7 +1,7 @@
 ﻿"use client";
 
 import { Plus, RefreshCw, Trash2 } from "lucide-react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { TeacherAuthGate } from "@/components/TeacherAuthGate";
 import { useAuth } from "@/components/AuthProvider";
 import {
@@ -36,6 +36,7 @@ export default function TeacherSetupPage() {
   const [selectedSurveyId, setSelectedSurveyId] = useState("");
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
+  const automaticallyLoadedRoomRef = useRef("");
 
   const selectedSurvey = selectedSurveyId
     ? surveys.find((survey) => survey.id === selectedSurveyId)
@@ -69,9 +70,19 @@ export default function TeacherSetupPage() {
   }, [canUseTeacherData, roomName, setWorkspaceLessonId]);
 
   useEffect(() => {
-    if (canUseTeacherData && ready && roomName && workspaceReady) {
-      void loadSurveys(workspace.selectedLessonId);
+    if (!canUseTeacherData) {
+      automaticallyLoadedRoomRef.current = "";
+      return;
     }
+    if (!ready || !roomName || !workspaceReady) {
+      return;
+    }
+    if (automaticallyLoadedRoomRef.current === roomName) {
+      return;
+    }
+
+    automaticallyLoadedRoomRef.current = roomName;
+    void loadSurveys(workspace.selectedLessonId);
   }, [
     canUseTeacherData,
     loadSurveys,

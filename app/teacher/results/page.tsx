@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { RefreshCw } from "lucide-react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { TeacherAuthGate } from "@/components/TeacherAuthGate";
 import { useAuth } from "@/components/AuthProvider";
 import { DemandChart } from "@/components/DemandChart";
@@ -48,6 +48,7 @@ export default function TeacherResultsPage() {
   const [responses, setResponses] = useState<StudentResponse[]>([]);
   const [selectedSurveyId, setSelectedSurveyId] = useState("");
   const [selectedProductId, setSelectedProductId] = useState("");
+  const automaticallyLoadedRoomRef = useRef("");
   const [filter, setFilter] = useState<FilterState>({
     grade: "all",
     classNumber: "all",
@@ -101,9 +102,19 @@ export default function TeacherResultsPage() {
   }, [canUseTeacherData, roomName]);
 
   useEffect(() => {
-    if (canUseTeacherData && ready && roomName && workspaceReady) {
-      void loadSurveys(workspace.selectedLessonId);
+    if (!canUseTeacherData) {
+      automaticallyLoadedRoomRef.current = "";
+      return;
     }
+    if (!ready || !roomName || !workspaceReady) {
+      return;
+    }
+    if (automaticallyLoadedRoomRef.current === roomName) {
+      return;
+    }
+
+    automaticallyLoadedRoomRef.current = roomName;
+    void loadSurveys(workspace.selectedLessonId);
   }, [
     canUseTeacherData,
     loadSurveys,

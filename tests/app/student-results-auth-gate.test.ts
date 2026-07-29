@@ -27,4 +27,10 @@ describe("student results remote-load contract", () => {
       /useEffect\(\(\)\s*=>\s*\{\s*if\s*\(canLoad\)\s*\{\s*void\s+loadResponses\(selectedSurvey\?\.id\s*\?\?\s*""\);\s*\}\s*\},\s*\[canLoad,\s*loadResponses,\s*selectedSurvey\?\.id\]\);/,
     );
   });
+
+  it("does not use query-string grade or class as an identity authorization claim", () => {
+    expect(source).not.toContain("viewerGrade");
+    expect(source).not.toContain("viewerClassNumber");
+    expect(source).toContain("fetchResponses(");
+  });
 });

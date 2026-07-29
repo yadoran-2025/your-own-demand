@@ -146,18 +146,27 @@ export async function listResponsesForUser(actor: { uid: string; isTeacher: bool
   if (actor.isTeacher && room.ownerUid !== actor.uid) throw new Error("방 관리 권한이 없습니다.");
   const survey = await surveyRef.get();
   if (!survey.exists) throw new Error("설문을 찾지 못했습니다.");
-  const snapshots = await surveyRef.collection("responses").orderBy("createdAt", "desc").get();
+  const [viewerSnapshot, snapshots] = await Promise.all([
+    actor.isTeacher ? null : surveyRef.collection("responses").doc(actor.uid).get(),
+    surveyRef.collection("responses").orderBy("createdAt", "desc").get(),
+  ]);
+  const viewerClass = viewerSnapshot?.exists
+    ? { grade: viewerSnapshot.get("grade"), classNumber: viewerSnapshot.get("classNumber") }
+    : null;
   const usedIds = new Set(snapshots.docs.map((snapshot) => snapshot.id));
   return snapshots.docs.map((snapshot, index) => {
     const response = responseFromSnapshot(snapshot);
-    if (!actor.isTeacher && !(snapshot.id === revealResponseId && snapshot.get("submitterUid") === actor.uid)) {
+    const isOwnResponse = snapshot.id === actor.uid && snapshot.get("submitterUid") === actor.uid;
+    const isSameClass = viewerClass !== null &&
+      response.grade === viewerClass.grade && response.class_number === viewerClass.classNumber;
+    if (!actor.isTeacher && !isOwnResponse) {
       let id = `redacted-${index}`;
       for (let suffix = index; usedIds.has(id); suffix += 1) id = `redacted-${suffix + 1}`;
       usedIds.add(id);
       return {
         ...response,
         id,
-        student_name: "",
+        student_name: isSameClass ? response.student_name : "",
         student_number: 0,
         response_items: response.response_items.map((item) => ({ ...item, response_id: id })),
       };

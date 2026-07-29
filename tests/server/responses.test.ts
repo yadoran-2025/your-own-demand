@@ -27,13 +27,22 @@ const profileC: StudentProfile = {
   student_number: 3,
   student_name: "학생C",
 };
+const profileD: StudentProfile = {
+  grade: 1,
+  class_number: 2,
+  student_number: 4,
+  student_name: "다른반학생",
+};
 
 async function fixture() {
   const { saveTeacherSurvey } = await import("@/lib/server/surveys");
   const { reserveAssignmentsForUser } = await import("@/lib/server/assignments");
   const survey = await saveTeacherSurvey("teacher-a", roomName, {
     title: "수요 조사",
-    classBudgets: [{ grade: 1, class_number: 1, budget: 5_000 }],
+    classBudgets: [
+      { grade: 1, class_number: 1, budget: 5_000 },
+      { grade: 1, class_number: 2, budget: 5_000 },
+    ],
     products: [{
       name: "빵",
       pricePoints: [
@@ -108,20 +117,46 @@ it("stores one response and consumes its reservation atomically", async () => {
   }, true)).rejects.toThrow("이미 응답했습니다.");
 });
 
-it("redacts foreign UID and identity even when student spoofs reveal ID", async () => {
+it("reveals same-class names while redacting foreign identities", async () => {
   const { submitResponseForUser, listResponsesForUser } = await import("@/lib/server/responses");
   const { reserveAssignmentsForUser } = await import("@/lib/server/assignments");
   const { survey, assignmentsA } = await fixture();
   const assignmentsB = await reserveAssignmentsForUser("student-b", roomName, survey.id, profileB, true);
+  const assignmentsD = await reserveAssignmentsForUser("student-d", roomName, survey.id, profileD, true);
   await submitResponseForUser("student-a", roomName, survey.id, profileA, { [Object.values(assignmentsA)[0]]: 1 }, true);
   await submitResponseForUser("student-b", roomName, survey.id, profileB, { [Object.values(assignmentsB)[0]]: 1 }, true);
-  const rows = await listResponsesForUser({ uid: "student-a", isTeacher: false }, roomName, survey.id, "student-b");
-  const foreign = rows.find((row) => row.student_name === "");
-  expect(foreign?.student_number).toBe(0);
-  expect(foreign?.response_items).toHaveLength(1);
-  expect(foreign?.response_items[0].response_id).toBe(foreign?.id);
-  expect(rows.every((row) => row.student_name === "" && row.student_number === 0)).toBe(true);
-  expect(JSON.stringify(rows)).not.toContain("student-b");
+  await submitResponseForUser("student-d", roomName, survey.id, profileD, { [Object.values(assignmentsD)[0]]: 1 }, true);
+
+  const studentRows = await listResponsesForUser(
+    { uid: "student-a", isTeacher: false },
+    roomName,
+    survey.id,
+    "student-a",
+  );
+
+  const own = studentRows.find((row) => row.id === "student-a");
+  expect(own).toMatchObject({ student_name: "학생A", student_number: 1 });
+  const sameClass = studentRows.find((row) => row.student_name === "학생B");
+  expect(sameClass?.student_number).toBe(0);
+  expect(sameClass?.id).toMatch(/^redacted-/);
+  const otherClass = studentRows.find((row) => row.class_number === 2);
+  expect(otherClass).toMatchObject({ student_name: "", student_number: 0 });
+  expect(JSON.stringify(studentRows)).not.toContain("student-b");
+  expect(JSON.stringify(studentRows)).not.toContain("student-d");
+});
+
+it("does not reveal class identities to an authenticated student without a response", async () => {
+  const { submitResponseForUser, listResponsesForUser } = await import("@/lib/server/responses");
+  const { survey, assignmentsA } = await fixture();
+  await submitResponseForUser("student-a", roomName, survey.id, profileA, { [Object.values(assignmentsA)[0]]: 1 }, true);
+
+  const rows = await listResponsesForUser(
+    { uid: "student-without-response", isTeacher: false },
+    roomName,
+    survey.id,
+  );
+
+  expect(rows.every((row) => row.student_name === "")).toBe(true);
 });
 
 it("uses collision-free opaque IDs while preserving own reveal and teacher rows", async () => {
@@ -140,8 +175,10 @@ it("uses collision-free opaque IDs while preserving own reveal and teacher rows"
   expect(own).toMatchObject({ student_name: "학생A", student_number: 1 });
   expect(own?.response_items[0].response_id).toBe("student-a");
   expect(studentRows.filter((row) => row.id !== "student-a").every((row) =>
-    row.student_name === "" && row.student_number === 0 && row.response_items.every((item) => item.response_id === row.id),
+    row.student_number === 0 && row.response_items.every((item) => item.response_id === row.id),
   )).toBe(true);
+  expect(studentRows.find((row) => row.student_name === "학생B")?.id).toMatch(/^redacted-/);
+  expect(studentRows.find((row) => row.student_name === "학생C")?.id).toMatch(/^redacted-/);
   const teacherRows = await listResponsesForUser({ uid: "teacher-a", isTeacher: true }, roomName, survey.id);
   expect(teacherRows.find((row) => row.id === "redacted-0")).toMatchObject({ student_name: "학생C", student_number: 3 });
   expect(teacherRows.find((row) => row.id === "redacted-0")?.response_items[0].response_id).toBe("redacted-0");

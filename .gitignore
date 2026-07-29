@@ -10,3 +10,5 @@ tsconfig.tsbuildinfo
 .vercel
 .superpowers/
 !.env.example
+
+.worktrees/

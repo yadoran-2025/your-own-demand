@@ -1,7 +1,7 @@
 import type { QuantityMap, StudentProfile } from "@/lib/types";
 import { jsonError, jsonOk } from "@/lib/server/http";
 
-type SubmitBody = { roomName: string; surveyId: string; profile: StudentProfile; quantities: QuantityMap };
+type SubmitBody = { roomName: string; surveyId: string; profile: StudentProfile; quantities: QuantityMap; ageConfirmed: boolean };
 
 export const dynamic = "force-dynamic";
 
@@ -27,7 +27,7 @@ export async function POST(request: Request) {
     ]);
     const token = await requireUser(request);
     const body = await request.json() as SubmitBody;
-    return jsonOk({ id: await submitResponseForUser(token.uid, body?.roomName, body?.surveyId, body?.profile, body?.quantities) }, 201);
+    return jsonOk({ id: await submitResponseForUser(token.uid, body?.roomName, body?.surveyId, body?.profile, body?.quantities, body?.ageConfirmed) }, 201);
   } catch (error) {
     return jsonError(error);
   }

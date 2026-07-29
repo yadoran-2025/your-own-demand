@@ -2,6 +2,7 @@ import { FieldValue, Timestamp } from "firebase-admin/firestore";
 import { adminDb } from "@/lib/firebase/admin";
 import type { Product, ResponseItem, StudentProfile, StudentResponse } from "@/lib/types";
 import { resolveRoom } from "@/lib/server/rooms";
+import { requireEligibleAge } from "@/lib/server/student-policy";
 
 export type QuantityMap = Record<string, number>;
 
@@ -96,8 +97,9 @@ async function surveyRoot(roomName: string, surveyId: string) {
   return { room, surveyRef: adminDb.doc(`rooms/${room.id}/surveys/${surveyId}`) };
 }
 
-export async function submitResponseForUser(uid: string, roomName: string, surveyId: string, profile: StudentProfile, quantities: QuantityMap): Promise<string> {
+export async function submitResponseForUser(uid: string, roomName: string, surveyId: string, profile: StudentProfile, quantities: QuantityMap, ageConfirmed: boolean): Promise<string> {
   requireSegment(uid, "로그인이 필요합니다.");
+  requireEligibleAge(ageConfirmed);
   validateProfile(profile);
   const { surveyRef } = await surveyRoot(roomName, surveyId);
   const reservationRef = surveyRef.collection("reservations").doc(uid);

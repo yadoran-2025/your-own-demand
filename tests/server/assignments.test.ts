@@ -44,9 +44,18 @@ async function stateRef(surveyId: string) {
 it("returns the same assignments for repeated calls by one student", async () => {
   const { reserveAssignmentsForUser } = await import("@/lib/server/assignments");
   const survey = await createSurvey();
-  const first = await reserveAssignmentsForUser("student-a", roomName, survey.id, profileA);
-  const second = await reserveAssignmentsForUser("student-a", roomName, survey.id, profileA);
+  const first = await reserveAssignmentsForUser("student-a", roomName, survey.id, profileA, true);
+  const second = await reserveAssignmentsForUser("student-a", roomName, survey.id, profileA, true);
   expect(second).toEqual(first);
+});
+
+it("rejects assignment reservation when age eligibility is not confirmed", async () => {
+  const { reserveAssignmentsForUser } = await import("@/lib/server/assignments");
+  const survey = await createSurvey();
+
+  await expect(
+    reserveAssignmentsForUser("student-a", roomName, survey.id, profileA, false),
+  ).rejects.toThrow("만 14세 미만은 이 서비스를 이용할 수 없습니다.");
 });
 
 it("round-robins each product across concurrent students", async () => {
@@ -59,7 +68,7 @@ it("round-robins each product across concurrent students", async () => {
         class_number: 1,
         student_number: index + 1,
         student_name: `학생${index + 1}`,
-      }),
+      }, true),
     ),
   );
   const selected = assignments.map((value) => value[survey.products[0].id]);
@@ -85,7 +94,7 @@ it("reissues stale, empty, and malformed cached assignments against current surv
       expiresAt: Timestamp.fromMillis(Date.now() + 60_000),
       consumedAt: null,
     });
-    await expect(reserveAssignmentsForUser(uid, roomName, survey.id, profileA)).resolves.toEqual({
+    await expect(reserveAssignmentsForUser(uid, roomName, survey.id, profileA, true)).resolves.toEqual({
       [product.id]: product.price_points[(index + 1) % 2].id,
     });
   }
@@ -104,7 +113,7 @@ it("reallocates expired and consumed reservations", async () => {
       assignments: { [product.id]: product.price_points[0].id },
       ...reservation,
     });
-    await expect(reserveAssignmentsForUser(uid, roomName, survey.id, profileA)).resolves.toEqual({
+    await expect(reserveAssignmentsForUser(uid, roomName, survey.id, profileA, true)).resolves.toEqual({
       [product.id]: product.price_points[uid === "expired" ? 0 : 1].id,
     });
   }
@@ -115,7 +124,7 @@ it("returns one reservation and increments state once for concurrent calls from 
   const { reserveAssignmentsForUser } = await import("@/lib/server/assignments");
   const survey = await createSurvey();
   const assignments = await Promise.all(
-    Array.from({ length: 4 }, () => reserveAssignmentsForUser("student-a", roomName, survey.id, profileA)),
+    Array.from({ length: 4 }, () => reserveAssignmentsForUser("student-a", roomName, survey.id, profileA, true)),
   );
   expect(new Set(assignments.map((value) => JSON.stringify(value))).size).toBe(1);
   expect((await (await stateRef(survey.id)).get()).get("nextByProduct")[survey.products[0].id]).toBe(1);

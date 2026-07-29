@@ -5,6 +5,7 @@ type ReserveBody = {
   roomName: string;
   surveyId: string;
   profile: StudentProfile;
+  ageConfirmed: boolean;
 };
 
 export const dynamic = "force-dynamic";
@@ -17,7 +18,7 @@ export async function POST(request: Request) {
     ]);
     const token = await requireUser(request);
     const body = await request.json() as ReserveBody;
-    const assignments = await reserveAssignmentsForUser(token.uid, body?.roomName, body?.surveyId, body?.profile);
+    const assignments = await reserveAssignmentsForUser(token.uid, body?.roomName, body?.surveyId, body?.profile, body?.ageConfirmed);
     return jsonOk({ assignments });
   } catch (error) {
     return jsonError(error);

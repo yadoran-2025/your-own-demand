@@ -2,6 +2,7 @@ import { FieldValue, Timestamp } from "firebase-admin/firestore";
 import { adminDb } from "@/lib/firebase/admin";
 import type { Product, StudentProfile } from "@/lib/types";
 import { resolveRoom } from "@/lib/server/rooms";
+import { requireEligibleAge } from "@/lib/server/student-policy";
 
 type AssignmentState = { nextByProduct: Record<string, number> };
 
@@ -47,10 +48,12 @@ export async function reserveAssignmentsForUser(
   roomName: string,
   surveyId: string,
   profile: StudentProfile,
+  ageConfirmed: boolean,
 ): Promise<Record<string, string>> {
   requirePathSegment(uid, "로그인이 필요합니다.");
   requireText(roomName, "방 이름을 입력해 주세요.");
   requirePathSegment(surveyId, "설문을 찾지 못했습니다.");
+  requireEligibleAge(ageConfirmed);
   validateProfile(profile);
 
   const room = await resolveRoom(roomName);

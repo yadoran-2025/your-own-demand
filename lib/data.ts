@@ -474,7 +474,8 @@ function normalizeAssignmentProfile(profile: StudentProfile): StudentProfile {
 export async function reserveAssignments(
   survey: Survey,
   profile: StudentProfile,
-  roomName?: string,
+  roomName: string | undefined,
+  ageConfirmed: boolean,
 ): Promise<AssignmentMap> {
   const cleanProfile = normalizeAssignmentProfile(profile);
 
@@ -483,6 +484,9 @@ export async function reserveAssignments(
   }
 
   if (!hasRemoteDatabase) {
+    if (ageConfirmed !== true) {
+      throw new Error("만 14세 미만은 이 서비스를 이용할 수 없습니다.");
+    }
     const storageKey = buildAssignmentStorageKey(survey.id, cleanProfile);
     const stored =
       typeof window === "undefined" ? null : window.localStorage.getItem(storageKey);
@@ -515,7 +519,7 @@ export async function reserveAssignments(
   if (!normalizedRoomName) throw new Error("방 이름을 먼저 입력해 주세요.");
   const { assignments } = await apiFetch<{ assignments: AssignmentMap }>("/api/assignments/reserve", {
     method: "POST",
-    body: JSON.stringify({ roomName: normalizedRoomName, surveyId: survey.id, profile: cleanProfile }),
+    body: JSON.stringify({ roomName: normalizedRoomName, surveyId: survey.id, profile: cleanProfile, ageConfirmed }),
   });
   return assignments;
 }
@@ -524,8 +528,13 @@ export async function submitResponse(
   survey: Survey,
   profile: StudentProfile,
   quantities: QuantityMap,
-  roomName?: string,
+  roomName: string | undefined,
+  ageConfirmed: boolean,
 ): Promise<string> {
+  if (!hasRemoteDatabase && ageConfirmed !== true) {
+    throw new Error("만 14세 미만은 이 서비스를 이용할 수 없습니다.");
+  }
+
   const hasAssignedQuantity = (pricePointId: string) =>
     Object.prototype.hasOwnProperty.call(quantities, pricePointId);
 
@@ -583,6 +592,7 @@ export async function submitResponse(
       surveyId: survey.id,
       profile,
       quantities,
+      ageConfirmed,
     }),
   });
   return id;

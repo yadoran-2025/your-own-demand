@@ -62,19 +62,30 @@ describe("data API adapter", () => {
       .mockResolvedValueOnce({ id: "student-1" });
     const { reserveAssignments, submitResponse } = await import("@/lib/data");
 
-    await expect(reserveAssignments(survey, profile, "경제 1반")).resolves.toEqual({
+    await expect(reserveAssignments(survey, profile, "경제 1반", true)).resolves.toEqual({
       "product-1": "price-1",
     });
     await expect(
-      submitResponse(survey, profile, { "price-1": 2 }, "경제 1반"),
+      submitResponse(survey, profile, { "price-1": 2 }, "경제 1반", true),
     ).resolves.toBe("student-1");
     expect(apiFetch).toHaveBeenNthCalledWith(1, "/api/assignments/reserve", {
       method: "POST",
-      body: JSON.stringify({ roomName: "경제 1반", surveyId: "survey-1", profile: { ...profile, student_number: 1 } }),
+      body: JSON.stringify({
+        roomName: "경제 1반",
+        surveyId: "survey-1",
+        profile: { ...profile, student_number: 1 },
+        ageConfirmed: true,
+      }),
     });
     expect(apiFetch).toHaveBeenNthCalledWith(2, "/api/responses", {
       method: "POST",
-      body: JSON.stringify({ roomName: "경제 1반", surveyId: "survey-1", profile, quantities: { "price-1": 2 } }),
+      body: JSON.stringify({
+        roomName: "경제 1반",
+        surveyId: "survey-1",
+        profile,
+        quantities: { "price-1": 2 },
+        ageConfirmed: true,
+      }),
     });
   });
 

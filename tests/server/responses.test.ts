@@ -42,7 +42,7 @@ async function fixture() {
       ],
     }],
   });
-  const assignmentsA = await reserveAssignmentsForUser("student-a", roomName, survey.id, profileA);
+  const assignmentsA = await reserveAssignmentsForUser("student-a", roomName, survey.id, profileA, true);
   return { survey, assignmentsA };
 }
 
@@ -57,7 +57,7 @@ async function multiFixture() {
       pricePoints: [{ description: "기본", price: 100 }, { description: "고가", price: 200 }],
     })),
   });
-  return { survey, assignments: await reserveAssignmentsForUser("student-a", roomName, survey.id, profileA) };
+  return { survey, assignments: await reserveAssignmentsForUser("student-a", roomName, survey.id, profileA, true) };
 }
 
 it("rejects items not reserved for the student", async () => {
@@ -65,7 +65,23 @@ it("rejects items not reserved for the student", async () => {
   const { survey } = await fixture();
   await expect(submitResponseForUser("student-a", roomName, survey.id, profileA, {
     "unassigned-price-point": 3,
-  })).rejects.toThrow("배정된 가격 구성이 아닙니다.");
+  }, true)).rejects.toThrow("배정된 가격 구성이 아닙니다.");
+});
+
+it("rejects response submission when age eligibility is not confirmed", async () => {
+  const { submitResponseForUser } = await import("@/lib/server/responses");
+  const { survey, assignmentsA } = await fixture();
+
+  await expect(
+    submitResponseForUser(
+      "student-a",
+      roomName,
+      survey.id,
+      profileA,
+      { [Object.values(assignmentsA)[0]]: 1 },
+      false,
+    ),
+  ).rejects.toThrow("만 14세 미만은 이 서비스를 이용할 수 없습니다.");
 });
 
 it("rejects a class-budget overrun", async () => {
@@ -74,7 +90,7 @@ it("rejects a class-budget overrun", async () => {
   const assignedPricePointId = Object.values(assignmentsA)[0];
   await expect(submitResponseForUser("student-a", roomName, survey.id, profileA, {
     [assignedPricePointId]: 100,
-  })).rejects.toThrow("예산을 초과했습니다.");
+  }, true)).rejects.toThrow("예산을 초과했습니다.");
 });
 
 it("stores one response and consumes its reservation atomically", async () => {
@@ -83,22 +99,22 @@ it("stores one response and consumes its reservation atomically", async () => {
   const { survey, assignmentsA } = await fixture();
   await expect(submitResponseForUser("student-a", roomName, survey.id, profileA, {
     [Object.values(assignmentsA)[0]]: 3,
-  })).resolves.toBe("student-a");
+  }, true)).resolves.toBe("student-a");
   const root = `rooms/${(await resolveRoom(roomName))!.id}/surveys/${survey.id}`;
   expect((await adminDb.doc(`${root}/responses/student-a`).get()).exists).toBe(true);
   expect((await adminDb.doc(`${root}/reservations/student-a`).get()).get("consumedAt")).toBeTruthy();
   await expect(submitResponseForUser("student-a", roomName, survey.id, profileA, {
     [Object.values(assignmentsA)[0]]: 3,
-  })).rejects.toThrow("이미 응답했습니다.");
+  }, true)).rejects.toThrow("이미 응답했습니다.");
 });
 
 it("redacts foreign UID and identity even when student spoofs reveal ID", async () => {
   const { submitResponseForUser, listResponsesForUser } = await import("@/lib/server/responses");
   const { reserveAssignmentsForUser } = await import("@/lib/server/assignments");
   const { survey, assignmentsA } = await fixture();
-  const assignmentsB = await reserveAssignmentsForUser("student-b", roomName, survey.id, profileB);
-  await submitResponseForUser("student-a", roomName, survey.id, profileA, { [Object.values(assignmentsA)[0]]: 1 });
-  await submitResponseForUser("student-b", roomName, survey.id, profileB, { [Object.values(assignmentsB)[0]]: 1 });
+  const assignmentsB = await reserveAssignmentsForUser("student-b", roomName, survey.id, profileB, true);
+  await submitResponseForUser("student-a", roomName, survey.id, profileA, { [Object.values(assignmentsA)[0]]: 1 }, true);
+  await submitResponseForUser("student-b", roomName, survey.id, profileB, { [Object.values(assignmentsB)[0]]: 1 }, true);
   const rows = await listResponsesForUser({ uid: "student-a", isTeacher: false }, roomName, survey.id, "student-b");
   const foreign = rows.find((row) => row.student_name === "");
   expect(foreign?.student_number).toBe(0);
@@ -112,11 +128,11 @@ it("uses collision-free opaque IDs while preserving own reveal and teacher rows"
   const { submitResponseForUser, listResponsesForUser } = await import("@/lib/server/responses");
   const { reserveAssignmentsForUser } = await import("@/lib/server/assignments");
   const { survey, assignmentsA } = await fixture();
-  const collisionAssignments = await reserveAssignmentsForUser("redacted-0", roomName, survey.id, profileC);
-  const assignmentsB = await reserveAssignmentsForUser("student-b", roomName, survey.id, profileB);
-  await submitResponseForUser("student-a", roomName, survey.id, profileA, { [Object.values(assignmentsA)[0]]: 1 });
-  await submitResponseForUser("student-b", roomName, survey.id, profileB, { [Object.values(assignmentsB)[0]]: 1 });
-  await submitResponseForUser("redacted-0", roomName, survey.id, profileC, { [Object.values(collisionAssignments)[0]]: 1 });
+  const collisionAssignments = await reserveAssignmentsForUser("redacted-0", roomName, survey.id, profileC, true);
+  const assignmentsB = await reserveAssignmentsForUser("student-b", roomName, survey.id, profileB, true);
+  await submitResponseForUser("student-a", roomName, survey.id, profileA, { [Object.values(assignmentsA)[0]]: 1 }, true);
+  await submitResponseForUser("student-b", roomName, survey.id, profileB, { [Object.values(assignmentsB)[0]]: 1 }, true);
+  await submitResponseForUser("redacted-0", roomName, survey.id, profileC, { [Object.values(collisionAssignments)[0]]: 1 }, true);
   const studentRows = await listResponsesForUser({ uid: "student-a", isTeacher: false }, roomName, survey.id, "student-a");
   expect(new Set(studentRows.map((row) => row.id)).size).toBe(studentRows.length);
   expect(JSON.stringify(studentRows)).not.toContain("redacted-0");
@@ -136,7 +152,7 @@ it("rejects missing, expired, consumed, and profile-mismatched reservations", as
   const { resolveRoom } = await import("@/lib/server/rooms");
   const { survey, assignmentsA } = await fixture();
   const quantity = { [Object.values(assignmentsA)[0]]: 1 };
-  await expect(submitResponseForUser("missing", roomName, survey.id, profileA, quantity)).rejects.toThrow("배정 시간이 만료되었습니다.");
+  await expect(submitResponseForUser("missing", roomName, survey.id, profileA, quantity, true)).rejects.toThrow("배정 시간이 만료되었습니다.");
   const root = `rooms/${(await resolveRoom(roomName))!.id}/surveys/${survey.id}`;
   for (const [uid, values] of [
     ["expired", { expiresAt: Timestamp.fromMillis(Date.now() - 1), consumedAt: null }],
@@ -146,9 +162,9 @@ it("rejects missing, expired, consumed, and profile-mismatched reservations", as
       submitterUid: uid, grade: 1, classNumber: 1, studentNumber: 1, studentName: "학생A",
       assignments: { [survey.products[0].id]: Object.values(assignmentsA)[0] }, ...values,
     });
-    await expect(submitResponseForUser(uid, roomName, survey.id, profileA, quantity)).rejects.toThrow("배정 시간이 만료되었습니다.");
+    await expect(submitResponseForUser(uid, roomName, survey.id, profileA, quantity, true)).rejects.toThrow("배정 시간이 만료되었습니다.");
   }
-  await expect(submitResponseForUser("student-a", roomName, survey.id, { ...profileA, student_name: "위조" }, quantity))
+  await expect(submitResponseForUser("student-a", roomName, survey.id, { ...profileA, student_name: "위조" }, quantity, true))
     .rejects.toThrow("학생 정보를 확인해 주세요.");
 });
 
@@ -157,7 +173,7 @@ it("rejects non-exact keys and invalid quantities", async () => {
   const { survey, assignmentsA } = await fixture();
   const id = Object.values(assignmentsA)[0];
   for (const quantities of [{}, { [id]: 1, extra: 0 }, { [id]: 1.5 }, { [id]: -1 }, { [id]: 101 }]) {
-    await expect(submitResponseForUser("student-a", roomName, survey.id, profileA, quantities)).rejects.toThrow();
+    await expect(submitResponseForUser("student-a", roomName, survey.id, profileA, quantities, true)).rejects.toThrow();
   }
 });
 
@@ -165,9 +181,9 @@ it("requires exactly one assigned price point for every product", async () => {
   const { submitResponseForUser } = await import("@/lib/server/responses");
   const { survey, assignments } = await multiFixture();
   const ids = Object.values(assignments);
-  await expect(submitResponseForUser("student-a", roomName, survey.id, profileA, { [ids[0]]: 1 }))
+  await expect(submitResponseForUser("student-a", roomName, survey.id, profileA, { [ids[0]]: 1 }, true))
     .rejects.toThrow("배정된 가격 구성이 아닙니다.");
-  await expect(submitResponseForUser("student-a", roomName, survey.id, profileA, { [ids[0]]: 1, [ids[1]]: 1, extra: 0 }))
+  await expect(submitResponseForUser("student-a", roomName, survey.id, profileA, { [ids[0]]: 1, [ids[1]]: 1, extra: 0 }, true))
     .rejects.toThrow("배정된 가격 구성이 아닙니다.");
 });
 
@@ -181,10 +197,10 @@ it("uses current Firestore prices and validates teacher updates without reservat
   await surveyRef.update({ products: [{ ...product, price_points: product.price_points.map((point) => ({
     ...point, price: point.id === pricePointId ? 6_000 : point.price,
   })) }] });
-  await expect(submitResponseForUser("student-a", roomName, survey.id, profileA, { [pricePointId]: 1 }))
+  await expect(submitResponseForUser("student-a", roomName, survey.id, profileA, { [pricePointId]: 1 }, true))
     .rejects.toThrow("예산을 초과했습니다.");
   await surveyRef.update({ products: survey.products });
-  await submitResponseForUser("student-a", roomName, survey.id, profileA, { [pricePointId]: 1 });
+  await submitResponseForUser("student-a", roomName, survey.id, profileA, { [pricePointId]: 1 }, true);
   await expect(updateTeacherResponse("teacher-a", roomName, survey.id, "student-a", profileA, { [pricePointId]: 100 }))
     .rejects.toThrow("예산을 초과했습니다.");
 });
@@ -193,7 +209,7 @@ it("isolates room and survey paths and denies non-owner teacher reads", async ()
   const { listResponsesForUser, submitResponseForUser, updateTeacherResponse, deleteTeacherResponse } = await import("@/lib/server/responses");
   const { saveTeacherSurvey } = await import("@/lib/server/surveys");
   const { survey, assignmentsA } = await fixture();
-  await submitResponseForUser("student-a", roomName, survey.id, profileA, { [Object.values(assignmentsA)[0]]: 1 });
+  await submitResponseForUser("student-a", roomName, survey.id, profileA, { [Object.values(assignmentsA)[0]]: 1 }, true);
   const other = await saveTeacherSurvey("teacher-c", "경제 2반", {
     title: "다른 방", classBudgets: [], products: [{ name: "물", pricePoints: [{ description: "기본", price: 100 }] }],
   });
@@ -209,7 +225,7 @@ it("allows only one concurrent response and writes server timestamps", async () 
   const { survey, assignmentsA } = await fixture();
   const quantity = { [Object.values(assignmentsA)[0]]: 1 };
   const results = await Promise.allSettled(Array.from({ length: 3 }, () =>
-    submitResponseForUser("student-a", roomName, survey.id, profileA, quantity),
+    submitResponseForUser("student-a", roomName, survey.id, profileA, quantity, true),
   ));
   expect(results.filter((result) => result.status === "fulfilled")).toHaveLength(1);
   const root = `rooms/${(await resolveRoom(roomName))!.id}/surveys/${survey.id}`;
@@ -223,7 +239,7 @@ it("permits only room owner to edit and delete responses", async () => {
   const { submitResponseForUser, updateTeacherResponse, deleteTeacherResponse } = await import("@/lib/server/responses");
   const { survey, assignmentsA } = await fixture();
   const quantities = { [Object.values(assignmentsA)[0]]: 1 };
-  await submitResponseForUser("student-a", roomName, survey.id, profileA, quantities);
+  await submitResponseForUser("student-a", roomName, survey.id, profileA, quantities, true);
   await expect(updateTeacherResponse("teacher-b", roomName, survey.id, "student-a", profileA, quantities))
     .rejects.toThrow("방 관리 권한이 없습니다.");
   await expect(deleteTeacherResponse("teacher-a", roomName, survey.id, "student-a")).resolves.toBeUndefined();

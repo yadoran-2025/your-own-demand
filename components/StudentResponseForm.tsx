@@ -47,6 +47,7 @@ export function StudentResponseForm({
     student_number: 1,
     student_name: "",
   });
+  const [ageConfirmed, setAgeConfirmed] = useState(false);
   const [assignments, setAssignments] = useState<AssignmentMap>({});
   const [quantities, setQuantities] = useState<QuantityMap>({});
   const [status, setStatus] = useState("");
@@ -59,6 +60,7 @@ export function StudentResponseForm({
     setAssignments({});
     setQuantities({});
     setStatus("");
+    setAgeConfirmed(false);
   }, [survey.id]);
 
   const assignedRows = useMemo(
@@ -68,6 +70,7 @@ export function StudentResponseForm({
   const hasAssignments = hasCompleteAssignments(survey, assignments);
   const hasValidProfile =
     profile.student_name.trim().length > 0 &&
+    ageConfirmed &&
     [profile.grade, profile.class_number].every(
       (value) => Number.isInteger(value) && value > 0,
     );
@@ -126,7 +129,7 @@ export function StudentResponseForm({
         student_number: 1,
         student_name: profile.student_name.trim(),
       };
-      const nextAssignments = await reserveAssignments(survey, cleanProfile, roomName);
+      const nextAssignments = await reserveAssignments(survey, cleanProfile, roomName, ageConfirmed);
 
       if (!hasCompleteAssignments(survey, nextAssignments)) {
         throw new Error("가격 배정을 완료하지 못했습니다. 새로고침 후 다시 시도해 주세요.");
@@ -183,6 +186,10 @@ export function StudentResponseForm({
   function validate() {
     if (!profile.student_name.trim()) {
       return "이름 또는 닉네임을 입력해 주세요.";
+    }
+
+    if (!ageConfirmed) {
+      return "만 14세 이상만 이용할 수 있습니다.";
     }
 
     if (
@@ -250,6 +257,7 @@ export function StudentResponseForm({
         trimmedProfile,
         assignedQuantities,
         roomName,
+        ageConfirmed,
       );
       if (typeof window !== "undefined") {
         window.localStorage.setItem(
@@ -386,10 +394,10 @@ export function StudentResponseForm({
             />
           </label>
           <label className="name-field">
-            <span className="field-label">이름 / 수업용 별명</span>
+            <span className="field-label">이름 또는 수업용 별명</span>
             <input
               className="input name-input"
-              placeholder="예: 김민지"
+              placeholder="예: 김민지 또는 학생01"
               value={profile.student_name}
               onChange={(event) =>
                 updateProfile({
@@ -398,8 +406,19 @@ export function StudentResponseForm({
                 })
               }
             />
+            <small className="field-help">
+              수업 참여 확인에 사용되며 같은 반 응답자에게 공개됩니다.
+            </small>
           </label>
         </div>
+        <label className="student-consent-row">
+          <input
+            checked={ageConfirmed}
+            onChange={(event) => setAgeConfirmed(event.target.checked)}
+            type="checkbox"
+          />
+          <span>본인은 만 14세 이상이며, 입력한 이름 또는 별명이 같은 반 학생에게 공개됨을 확인했습니다.</span>
+        </label>
       </section>
 
       <section className="student-product-section">

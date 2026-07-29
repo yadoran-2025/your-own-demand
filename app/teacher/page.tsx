@@ -33,6 +33,7 @@ import {
   useStoredRoomName,
 } from "@/lib/roomName";
 import { canAccessTeacherData } from "@/lib/teacher-access";
+import { useTeacherWorkspace } from "@/lib/teacher-workspace";
 import type { StudentResponse, Survey } from "@/lib/types";
 
 const ERROR_REPORT_URL =
@@ -57,6 +58,11 @@ function formatRelativeTime(value: string) {
 export default function TeacherPage() {
   const { roomName, ready, setRoomName } = useStoredRoomName(TEACHER_ROOM_KEY);
   const { ready: authReady, isTeacher, demoMode } = useAuth();
+  const {
+    workspace,
+    ready: workspaceReady,
+    setSelectedLessonId,
+  } = useTeacherWorkspace();
   const canUseTeacherData = canAccessTeacherData({ ready: authReady, isTeacher, demoMode });
   const [surveys, setSurveys] = useState<Survey[]>([]);
   const [responses, setResponses] = useState<StudentResponse[]>([]);
@@ -66,7 +72,9 @@ export default function TeacherPage() {
   const [qrDataUrl, setQrDataUrl] = useState("");
   const [copied, setCopied] = useState(false);
 
-  const activeSurvey = surveys[0];
+  const activeSurvey = surveys.find(
+    (survey) => survey.id === workspace.selectedLessonId,
+  );
 
   const loadDashboard = useCallback(async () => {
     if (!canUseTeacherData) return;
@@ -79,12 +87,6 @@ export default function TeacherPage() {
       await ensureRoomHasDefaultSurveys(roomName);
       const nextSurveys = await fetchSurveys(roomName, true);
       setSurveys(nextSurveys);
-
-      if (nextSurveys[0]) {
-        setResponses(await fetchResponses(nextSurveys[0].id, true, roomName));
-      } else {
-        setResponses([]);
-      }
     } catch (error) {
       setMessage(
         error instanceof Error ? error.message : "대시보드를 불러오지 못했습니다.",
@@ -101,6 +103,29 @@ export default function TeacherPage() {
   }, [canUseTeacherData, loadDashboard, roomName, ready]);
 
   useEffect(() => {
+    if (!canUseTeacherData || !activeSurvey) {
+      return;
+    }
+
+    let alive = true;
+    void fetchResponses(activeSurvey.id, true, roomName)
+      .then((nextResponses) => {
+        if (alive) setResponses(nextResponses);
+      })
+      .catch((error) => {
+        if (alive) {
+          setMessage(
+            error instanceof Error ? error.message : "응답을 불러오지 못했습니다.",
+          );
+        }
+      });
+
+    return () => {
+      alive = false;
+    };
+  }, [activeSurvey, canUseTeacherData, roomName]);
+
+  useEffect(() => {
     if (typeof window === "undefined" || !roomName) {
       setStudentUrl("");
       setQrDataUrl("");
@@ -108,7 +133,10 @@ export default function TeacherPage() {
     }
 
     const basePath = process.env.NODE_ENV === "production" ? "/your-own-demand" : "";
-    const nextStudentUrl = `${window.location.origin}${basePath}${buildStudentPath(roomName)}`;
+    const nextStudentUrl = `${window.location.origin}${basePath}${buildStudentPath(
+      roomName,
+      activeSurvey?.id,
+    )}`;
     let alive = true;
 
     setStudentUrl(nextStudentUrl);
@@ -136,7 +164,7 @@ export default function TeacherPage() {
     return () => {
       alive = false;
     };
-  }, [roomName]);
+  }, [activeSurvey?.id, roomName]);
 
   async function copyStudentUrl() {
     if (!studentUrl) {
@@ -175,8 +203,69 @@ export default function TeacherPage() {
       ready={ready}
       setRoomName={setRoomName}
       title="교사용 방 열기"
+      variant="teacher"
     >
-      <TeacherShell active="dashboard" roomName={roomName}>
+      {!workspaceReady || !activeSurvey ? (
+        <main className="teacher-workspace-gate teacher-workspace-class-gate">
+          <section className="teacher-workspace-intro">
+            <span>수요곡선 수업</span>
+            <h1>{roomName}<br />차시 선택</h1>
+            <p>진행할 차시를 선택해 대시보드를 열거나 학생 화면을 공유하세요.</p>
+          </section>
+          <section className="teacher-workspace-panel">
+            <span className="teacher-workspace-step">3 / 3 · 차시 선택</span>
+            <h2>어떤 수업을 진행할까요?</h2>
+            <p>저장된 설문이 차시로 표시됩니다.</p>
+            {message ? <p className="teacher-workspace-error">{message}</p> : null}
+            <div className="teacher-workspace-class-list">
+              {surveys.map((survey) => (
+                <article className="teacher-workspace-class-card" key={survey.id}>
+                  <strong>{survey.title}</strong>
+                  <div>
+                    <button
+                      onClick={() => {
+                        setResponses([]);
+                        setMessage("");
+                        setSelectedLessonId(survey.id);
+                      }}
+                      type="button"
+                    >
+                      대시보드
+                    </button>
+                    <Link
+                      href={buildStudentPath(roomName, survey.id)}
+                      rel="noreferrer"
+                      target="_blank"
+                    >
+                      QR 열기
+                    </Link>
+                  </div>
+                </article>
+              ))}
+            </div>
+            {loading ? <p>차시를 불러오는 중입니다.</p> : null}
+            {!loading && !surveys.length ? (
+              <Link className="teacher-workspace-action" href="/teacher/setup">
+                첫 차시 만들기
+              </Link>
+            ) : null}
+            <RoomBadge
+              label="현재 학급"
+              roomName={roomName}
+              onReset={() => setRoomName("")}
+            />
+          </section>
+        </main>
+      ) : (
+      <TeacherShell
+        active="dashboard"
+        onExit={() => {
+          setResponses([]);
+          setSelectedLessonId("");
+        }}
+        roomName={roomName}
+        selectedLessonId={activeSurvey.id}
+      >
         <TeacherPageHeader
           actions={
             <>
@@ -276,7 +365,7 @@ export default function TeacherPage() {
               </button>
               <Link
                 className="primary-button compact-button"
-                href={buildStudentPath(roomName)}
+                href={buildStudentPath(roomName, activeSurvey.id)}
                 target="_blank"
               >
                 <ExternalLink size={16} />
@@ -325,6 +414,7 @@ export default function TeacherPage() {
           </div>
         </section>
       </TeacherShell>
+      )}
       </RoomGate>
     </TeacherAuthGate>
   );

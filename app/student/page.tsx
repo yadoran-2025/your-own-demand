@@ -8,7 +8,11 @@ import { LegalFooter } from "@/components/LegalFooter";
 import { RoomBadge, RoomGate } from "@/components/RoomGate";
 import { StudentResponseForm } from "@/components/StudentResponseForm";
 import { fetchSurveys, hasRemoteDatabase } from "@/lib/data";
-import { STUDENT_ROOM_KEY, useStoredRoomName } from "@/lib/roomName";
+import {
+  resolveSurveyId,
+  STUDENT_ROOM_KEY,
+  useStoredRoomName,
+} from "@/lib/roomName";
 import { hasStoredStudentSubmission } from "@/lib/studentResultProfile";
 import { canLoadStudentData } from "@/lib/student-data-load";
 import type { Survey } from "@/lib/types";
@@ -38,11 +42,16 @@ export default function StudentPage() {
     setError("");
     try {
       const nextSurveys = await fetchSurveys(roomName);
+      const requestedSurveyId =
+        new URLSearchParams(window.location.search).get("survey") ?? "";
       setSurveys(nextSurveys);
-      setSelectedSurveyId((current) =>
-        nextSurveys.some((survey) => survey.id === current)
-          ? current
-          : nextSurveys[0]?.id || "",
+      setSelectedSurveyId(
+        (current) =>
+          resolveSurveyId(
+            nextSurveys.map((survey) => survey.id),
+            requestedSurveyId,
+            current,
+          ),
       );
     } catch (loadError) {
       setError(

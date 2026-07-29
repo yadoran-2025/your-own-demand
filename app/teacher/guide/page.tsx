@@ -20,6 +20,7 @@ import {
   TEACHER_ROOM_KEY,
   useStoredRoomName,
 } from "@/lib/roomName";
+import { useTeacherWorkspace } from "@/lib/teacher-workspace";
 
 type GuideItem = {
   id: string;
@@ -128,6 +129,7 @@ const discussionPrompts = [
 
 export default function TeacherGuidePage() {
   const { roomName, ready, setRoomName } = useStoredRoomName(TEACHER_ROOM_KEY);
+  const { workspace } = useTeacherWorkspace();
   const [selectedId, setSelectedId] = useState(guideItems[0].id);
   const [selectedPrompt, setSelectedPrompt] = useState<string | null>(null);
   const selectedItem =
@@ -144,8 +146,13 @@ export default function TeacherGuidePage() {
       ready={ready}
       setRoomName={setRoomName}
       title="교사용 방 열기"
+      variant="teacher"
     >
-      <TeacherShell active="guide" roomName={roomName}>
+      <TeacherShell
+        active="guide"
+        roomName={roomName}
+        selectedLessonId={workspace.selectedLessonId}
+      >
         <div className="guide-page-v3">
           <TeacherPageHeader
             actions={<RoomBadge roomName={roomName} onReset={() => setRoomName("")} />}
@@ -172,7 +179,7 @@ export default function TeacherGuidePage() {
                 </Link>
                 <Link
                   className="guide-v3-button"
-                  href={buildStudentPath(roomName)}
+                  href={buildStudentPath(roomName, workspace.selectedLessonId)}
                   target="_blank"
                 >
                   학생 화면 열기

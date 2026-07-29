@@ -14,11 +14,25 @@ export function normalizeRoomName(roomName: string) {
   return roomName.trim();
 }
 
-export function buildStudentPath(roomName: string) {
+export function buildStudentPath(roomName: string, surveyId = "") {
   const normalizedRoomName = normalizeRoomName(roomName);
-  return normalizedRoomName
-    ? `/student?room=${encodeURIComponent(normalizedRoomName)}`
-    : "/student";
+  if (!normalizedRoomName) return "/student";
+
+  const normalizedSurveyId = surveyId.trim();
+  const surveyParam = normalizedSurveyId
+    ? `&survey=${encodeURIComponent(normalizedSurveyId)}`
+    : "";
+  return `/student?room=${encodeURIComponent(normalizedRoomName)}${surveyParam}`;
+}
+
+export function resolveSurveyId(
+  surveyIds: string[],
+  requestedSurveyId: string,
+  currentSurveyId = "",
+) {
+  if (surveyIds.includes(requestedSurveyId)) return requestedSurveyId;
+  if (surveyIds.includes(currentSurveyId)) return currentSurveyId;
+  return surveyIds[0] ?? "";
 }
 
 export function useStoredRoomName(storageKey: string) {

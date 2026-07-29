@@ -73,6 +73,176 @@
   font-size: 14px;
 }
 
+.teacher-workspace-gate {
+  background: #f4f0e7;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(420px, 0.9fr);
+  min-height: 100vh;
+}
+
+.teacher-workspace-intro {
+  align-items: flex-start;
+  background: #184f43;
+  color: #fffaf0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: clamp(48px, 10vw, 144px);
+}
+
+.teacher-workspace-intro > span,
+.teacher-workspace-step {
+  color: #d9c46a;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+
+.teacher-workspace-intro h1 {
+  font-size: clamp(40px, 5vw, 72px);
+  letter-spacing: -0.06em;
+  line-height: 1.08;
+  margin: 18px 0;
+}
+
+.teacher-workspace-intro p {
+  color: #dbe6df;
+  font-size: 18px;
+  line-height: 1.65;
+  margin: 0;
+  max-width: 430px;
+}
+
+.teacher-workspace-panel {
+  align-content: center;
+  background: #fffdf8;
+  display: grid;
+  gap: 18px;
+  padding: clamp(32px, 7vw, 96px);
+}
+
+.teacher-workspace-panel h2,
+.teacher-workspace-panel p {
+  color: #173a32;
+  margin: 0;
+}
+
+.teacher-workspace-panel h2 {
+  font-size: 32px;
+  letter-spacing: -0.04em;
+}
+
+.teacher-workspace-panel > p {
+  color: #63736b;
+  line-height: 1.6;
+}
+
+.teacher-workspace-field {
+  display: grid;
+  gap: 8px;
+}
+
+.teacher-workspace-field > span {
+  color: #24443b;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.teacher-workspace-field input {
+  background: #fff;
+  border: 1px solid #ccd6cc;
+  border-radius: 12px;
+  color: #173a32;
+  min-height: 58px;
+  padding: 0 16px;
+}
+
+.teacher-workspace-field input:focus {
+  border-color: #19785f;
+  outline: 3px solid rgba(25, 120, 95, 0.16);
+}
+
+.teacher-workspace-action {
+  align-items: center;
+  background: #d8bd45;
+  border: 0;
+  border-radius: 14px;
+  color: #173a32;
+  display: flex;
+  font-weight: 800;
+  justify-content: center;
+  min-height: 60px;
+  padding: 0 20px;
+  text-decoration: none;
+}
+
+.teacher-workspace-action:hover {
+  background: #c7a82e;
+}
+
+.teacher-workspace-error {
+  color: #b42318 !important;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.teacher-workspace-class-list {
+  display: grid;
+  gap: 10px;
+}
+
+.teacher-workspace-class-card {
+  align-items: center;
+  border: 1px solid #d8ded5;
+  border-radius: 16px;
+  display: flex;
+  justify-content: space-between;
+  padding: 18px;
+}
+
+.teacher-workspace-class-card strong {
+  color: #173a32;
+  font-size: 18px;
+}
+
+.teacher-workspace-class-card div {
+  display: flex;
+  gap: 8px;
+}
+
+.teacher-workspace-class-card button,
+.teacher-workspace-class-card a {
+  background: transparent;
+  border: 0;
+  color: #19785f;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.teacher-workspace-class-card button:last-child:not(:first-child) {
+  color: #9e2b25;
+}
+
+.teacher-workspace-new-class {
+  display: grid;
+  gap: 12px;
+}
+
+@media (max-width: 760px) {
+  .teacher-workspace-gate {
+    grid-template-columns: 1fr;
+  }
+
+  .teacher-workspace-intro,
+  .teacher-workspace-panel {
+    padding: 40px 24px;
+  }
+
+  .teacher-workspace-intro h1 {
+    font-size: 42px;
+  }
+}
+
 * {
   box-sizing: border-box;
 }
@@ -384,6 +554,22 @@ select {
   transition:
     background 150ms ease,
     color 150ms ease;
+}
+
+.teacher-top-tab-exit {
+  border: 0;
+  border-radius: var(--radius-full);
+  background: transparent;
+  padding: 0.4375rem 0.875rem;
+  color: var(--color-text-muted);
+  font-size: 0.8125rem;
+  font-weight: var(--weight-bold);
+  white-space: nowrap;
+}
+
+.teacher-top-tab-exit:hover {
+  background: color-mix(in srgb, var(--color-primary) 8%, transparent);
+  color: var(--color-primary);
 }
 
 .teacher-top-tab-student:hover {

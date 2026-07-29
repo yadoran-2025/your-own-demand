@@ -20,8 +20,8 @@
 - Service account: vercel-firestore-api@inflation-2e38b.iam.gserviceaccount.com
 - IAM role: roles/datastore.user
 - Vercel secret values were transferred through stdin and removed locally.
-- Preview deployment: `inflation-classroom-8gwz6znz4-yadorans-projects.vercel.app` (`dpl_qccn4x9gF7xKqRWcPKeBs5hHiLFf`), READY, commit `6558bc9`.
-- Firebase Auth authorized domains: verified exact Preview hostname added; existing domains preserved.
-- Preview verification used Vercel CLI's authenticated deployment-protection bypass. Root headers passed: Content-Security-Policy, X-Frame-Options, X-Content-Type-Options, Referrer-Policy, and Permissions-Policy were live. Privacy terms passed after the `/privacy/` → `/privacy` redirect.
+- Preview deployment: `inflation-classroom-p19y89we9-yadorans-projects.vercel.app` (`dpl_8qvBpaqq7AaUsHMnTSm8EyNWEgAK`), READY, commit `e4515b4`.
+- Firebase Auth authorized domains: verified exact Preview hostname `inflation-classroom-p19y89we9-yadorans-projects.vercel.app` added through the Identity Toolkit configuration API; existing domains preserved.
+- Preview verification used Vercel CLI's authenticated deployment-protection bypass. Root headers passed: Content-Security-Policy (including `https://apis.google.com`), X-Frame-Options, X-Content-Type-Options, Referrer-Policy, and Permissions-Policy were live. Privacy terms passed after the `/privacy/` → `/privacy` redirect.
 - API boundary passed: `/api/surveys?room=test` returned HTTP 401 with exact body `{"error":"로그인이 필요합니다."}`.
-- Browser bootstrap verification is blocked by Vercel Deployment Protection in the available Chrome session: `/teacher` redirected to Vercel sign-in. Selecting the existing Vercel Google session then required passkey verification, which was not completed. No credentials, scopes, or verification action were entered or changed. Teacher Google sign-in and isolated student anonymous bootstrap remain unverified; this browser exposes no private-context capability.
+- Browser verification: Chrome reached `/teacher`; `Google로 로그인` opened Firebase's Google popup with no CSP or Firebase error. The existing account reached the Google consent screen for profile/email, which was not accepted. `/student` in a separate regular tab rendered its ready room gate without console errors; live `AuthProvider` only renders it after a Firebase user exists, so normal-context anonymous bootstrap completed before room data calls. This browser exposes no private-context capability, so isolated anonymous bootstrap remains unverified.

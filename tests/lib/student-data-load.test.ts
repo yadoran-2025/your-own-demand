@@ -35,4 +35,28 @@ describe("student remote data gate", () => {
       demoMode: true,
     })).toBe(true);
   });
+
+  it("keeps result-route remote loading unavailable until Firebase auth resolves", () => {
+    expect(canLoadStudentData({
+      roomReady: true,
+      roomName: "경제 1반",
+      authReady: false,
+      authenticated: false,
+      demoMode: false,
+    })).toBe(false);
+    expect(canLoadStudentData({
+      roomReady: true,
+      roomName: "경제 1반",
+      authReady: true,
+      authenticated: true,
+      demoMode: false,
+    })).toBe(true);
+    expect(canLoadStudentData({
+      roomReady: true,
+      roomName: "경제 1반",
+      authReady: false,
+      authenticated: false,
+      demoMode: true,
+    })).toBe(true);
+  });
 });

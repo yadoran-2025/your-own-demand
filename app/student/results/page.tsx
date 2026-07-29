@@ -2,6 +2,7 @@
 
 import { BarChart3, RefreshCw } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useAuth } from "@/components/AuthProvider";
 import { DemandChart } from "@/components/DemandChart";
 import { LegalFooter } from "@/components/LegalFooter";
 import {
@@ -16,6 +17,7 @@ import {
   readStoredStudentResultProfile,
   readStoredStudentSubmission,
 } from "@/lib/studentResultProfile";
+import { canLoadStudentData } from "@/lib/student-data-load";
 import type {
   DemandMetric,
   DemandPoint,
@@ -76,6 +78,7 @@ function addPersonalDemand(
 }
 
 export default function StudentResultsPage() {
+  const { ready: authReady, user, demoMode } = useAuth();
   const { roomName, ready, setRoomName } = useStoredRoomName(STUDENT_ROOM_KEY);
   const [surveys, setSurveys] = useState<Survey[]>([]);
   const [responses, setResponses] = useState<StudentResponse[]>([]);
@@ -88,12 +91,19 @@ export default function StudentResultsPage() {
   const [metric, setMetric] = useState<DemandMetric>("total");
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
+  const canLoad = canLoadStudentData({
+    roomReady: ready,
+    roomName,
+    authReady,
+    authenticated: Boolean(user),
+    demoMode,
+  });
 
   const selectedSurvey =
     surveys.find((survey) => survey.id === selectedSurveyId) ?? surveys[0];
 
   const loadSurveys = useCallback(async () => {
-    if (!roomName) {
+    if (!canLoad) {
       return;
     }
 
@@ -124,10 +134,10 @@ export default function StudentResultsPage() {
     } finally {
       setLoading(false);
     }
-  }, [roomName]);
+  }, [canLoad, roomName]);
 
   const loadResponses = useCallback(async (surveyId: string) => {
-    if (!surveyId) {
+    if (!canLoad || !surveyId) {
       setResponses([]);
       return;
     }
@@ -145,17 +155,19 @@ export default function StudentResultsPage() {
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "응답을 불러오지 못했습니다.");
     }
-  }, [roomName]);
+  }, [canLoad, roomName]);
 
   useEffect(() => {
-    if (ready && roomName) {
+    if (canLoad) {
       void loadSurveys();
     }
-  }, [loadSurveys, ready, roomName]);
+  }, [canLoad, loadSurveys]);
 
   useEffect(() => {
-    void loadResponses(selectedSurvey?.id ?? "");
-  }, [loadResponses, selectedSurvey?.id]);
+    if (canLoad) {
+      void loadResponses(selectedSurvey?.id ?? "");
+    }
+  }, [canLoad, loadResponses, selectedSurvey?.id]);
 
   const productCharts = useMemo(
     () => {

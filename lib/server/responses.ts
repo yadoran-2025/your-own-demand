@@ -99,6 +99,8 @@ async function surveyRoot(roomName: string, surveyId: string) {
 
 export async function submitResponseForUser(uid: string, roomName: string, surveyId: string, profile: StudentProfile, quantities: QuantityMap, ageConfirmed: boolean): Promise<string> {
   requireSegment(uid, "로그인이 필요합니다.");
+  requireText(roomName, "방 이름을 입력해 주세요.");
+  requireSegment(surveyId, "설문을 찾지 못했습니다.");
   requireEligibleAge(ageConfirmed);
   validateProfile(profile);
   const { surveyRef } = await surveyRoot(roomName, surveyId);

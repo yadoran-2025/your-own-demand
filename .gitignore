@@ -8,4 +8,5 @@ firebase-debug.log
 firestore-debug.log
 tsconfig.tsbuildinfo
 .vercel
+.superpowers/
 !.env.example

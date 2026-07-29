@@ -1,0 +1,13 @@
+{
+  "recordedAt": "2026-07-29T07:33:09Z",
+  "source": "controller observed IAB runtime text and chart state; no screenshots claimed",
+  "events": [
+    {"id":"teacher-fixture-save-reload","event":"teacherFixtureSaveReload","room":"전환검증-2026-07-28","title":"서울 전환 검증 수정"},
+    {"id":"teacher-results-four","event":"teacherResultsFourResponses","count":4},
+    {"id":"results-edit-first-poll","event":"resultsEditFirstPoll","milliseconds":30},
+    {"id":"budget-edit-first-poll","event":"budgetGroupFourResponsesAndEditFirstPoll","milliseconds":19},
+    {"id":"student4-delete","event":"student4Delete","remainingResponses":3},
+    {"id":"survey-delete","event":"surveyDelete","observed":"toast and title disappearance"},
+    {"id":"fixture-cleanup","event":"fixtureCleanup","room404":true,"lookup404":true}
+  ]
+}

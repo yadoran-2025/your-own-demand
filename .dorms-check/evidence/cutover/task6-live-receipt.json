@@ -1,0 +1,14 @@
+{
+  "timestamp": "2026-07-29T07:34:31.900Z",
+  "ownershipRejected": true,
+  "studentsSubmitted": 4,
+  "privacy": true,
+  "assignmentSplitPerProduct": [[2, 2], [2, 2]],
+  "aggregateQuantity": 8,
+  "embeddedProductsBefore": 2,
+  "embeddedPricePointsBefore": 4,
+  "descendantBefore": {"responses": 4, "reservations": 4, "assignmentStates": 1},
+  "descendantAfter": {"responses": 0, "reservations": 0, "assignmentStates": 0},
+  "surveyMissingAfterDelete": true,
+  "cleanup404": true
+}

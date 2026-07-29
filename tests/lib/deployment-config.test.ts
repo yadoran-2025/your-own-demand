@@ -4,6 +4,20 @@ import { describe, expect, it } from "vitest";
 type Header = { key: string; value: string };
 type VercelConfig = { headers: Array<{ source: string; headers: Header[] }> };
 
+const expectedCsp = {
+  "default-src": ["'self'"],
+  "script-src": ["'self'", "'unsafe-inline'", "https://apis.google.com"],
+  "style-src": ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net"],
+  "font-src": ["'self'", "https://cdn.jsdelivr.net", "data:"],
+  "img-src": ["'self'", "data:", "blob:"],
+  "connect-src": ["'self'", "https://*.googleapis.com", "https://*.firebaseapp.com", "https://securetoken.googleapis.com"],
+  "frame-src": ["'self'", "https://inflation-2e38b.firebaseapp.com"],
+  "object-src": ["'none'"],
+  "base-uri": ["'self'"],
+  "form-action": ["'self'"],
+  "frame-ancestors": ["'none'"],
+};
+
 function readVercel() {
   return JSON.parse(readFileSync("vercel.json", "utf8")) as VercelConfig;
 }
@@ -42,6 +56,12 @@ describe("deployment configuration", () => {
     expect(cspHeaders).toHaveLength(1);
 
     const directives = parseCsp(cspHeaders[0]?.value ?? "");
+    expect(Object.keys(Object.fromEntries(directives)).sort()).toEqual(
+      Object.keys(expectedCsp).sort(),
+    );
+    for (const [name, sources] of Object.entries(expectedCsp)) {
+      expect((directives.get(name) ?? "").split(/\s+/).sort()).toEqual(sources.sort());
+    }
     expect(
       allowsExternalScript(directives, "https://apis.google.com/js/api.js"),
     ).toBe(true);

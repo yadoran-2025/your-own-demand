@@ -3,24 +3,34 @@
 import { RefreshCw } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
+import { useAuth } from "@/components/AuthProvider";
 import { LegalFooter } from "@/components/LegalFooter";
 import { RoomBadge, RoomGate } from "@/components/RoomGate";
 import { StudentResponseForm } from "@/components/StudentResponseForm";
 import { fetchSurveys, hasRemoteDatabase } from "@/lib/data";
 import { STUDENT_ROOM_KEY, useStoredRoomName } from "@/lib/roomName";
 import { hasStoredStudentSubmission } from "@/lib/studentResultProfile";
+import { canLoadStudentData } from "@/lib/student-data-load";
 import type { Survey } from "@/lib/types";
 
 export default function StudentPage() {
   const router = useRouter();
+  const { ready: authReady, user, demoMode } = useAuth();
   const { roomName, ready, setRoomName } = useStoredRoomName(STUDENT_ROOM_KEY);
   const [surveys, setSurveys] = useState<Survey[]>([]);
   const [selectedSurveyId, setSelectedSurveyId] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const canLoad = canLoadStudentData({
+    roomReady: ready,
+    roomName,
+    authReady,
+    authenticated: Boolean(user),
+    demoMode,
+  });
 
   const load = useCallback(async () => {
-    if (!roomName) {
+    if (!canLoad) {
       return;
     }
 
@@ -43,13 +53,13 @@ export default function StudentPage() {
     } finally {
       setLoading(false);
     }
-  }, [roomName]);
+  }, [canLoad, roomName]);
 
   useEffect(() => {
-    if (ready && roomName) {
+    if (canLoad) {
       void load();
     }
-  }, [load, roomName, ready]);
+  }, [canLoad, load]);
 
   const selectedSurvey =
     surveys.find((survey) => survey.id === selectedSurveyId) ?? surveys[0];

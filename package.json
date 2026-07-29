@@ -9,8 +9,8 @@
     "start": "next start",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run --exclude tests/firebase/**/* --exclude tests/server/**/*",
-    "test:watch": "vitest --exclude tests/firebase/**/* --exclude tests/server/**/*",
+    "test": "vitest run --exclude tests/firebase/**/* --exclude tests/server/**/* --exclude '**/.worktrees/**/*'",
+    "test:watch": "vitest --exclude tests/firebase/**/* --exclude tests/server/**/* --exclude '**/.worktrees/**/*'",
     "test:firebase": "firebase emulators:exec --only firestore \"vitest run --no-file-parallelism tests/firebase tests/server\"",
     "audit:regression": "node scripts/check-dependency-audit.mjs"
   },

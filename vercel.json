@@ -1,4 +1,10 @@
 {
+  "crons": [
+    {
+      "path": "/api/cron/purge-student-data",
+      "schedule": "0 15 31 1 *"
+    }
+  ],
   "headers": [
     {
       "source": "/(.*)",

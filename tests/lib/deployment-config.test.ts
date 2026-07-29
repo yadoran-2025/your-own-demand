@@ -2,7 +2,10 @@ import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 
 type Header = { key: string; value: string };
-type VercelConfig = { headers: Array<{ source: string; headers: Header[] }> };
+type VercelConfig = {
+  headers: Array<{ source: string; headers: Header[] }>;
+  crons: Array<{ path: string; schedule: string }>;
+};
 
 const expectedCsp = {
   "default-src": ["'self'"],
@@ -130,5 +133,18 @@ describe("deployment configuration", () => {
     expect(readme).toMatch(
       /production Admin SDK credentials[\s\S]{0,240}FIRESTORE_EMULATOR_HOST/,
     );
+  });
+
+  it("runs the annual student-data purge on February 1 KST", () => {
+    const vercel = readVercel();
+    expect(vercel.crons).toEqual([
+      {
+        path: "/api/cron/purge-student-data",
+        schedule: "0 15 31 1 *",
+      },
+    ]);
+
+    const env = readFileSync(".env.example", "utf8");
+    expect(env).toContain("CRON_SECRET=");
   });
 });

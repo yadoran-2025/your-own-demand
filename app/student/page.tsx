@@ -13,7 +13,10 @@ import {
   STUDENT_ROOM_KEY,
   useStoredRoomName,
 } from "@/lib/roomName";
-import { hasStoredStudentSubmission } from "@/lib/studentResultProfile";
+import {
+  hasStoredStudentSubmission,
+  purgeExpiredStudentStorage,
+} from "@/lib/studentResultProfile";
 import { canLoadStudentData } from "@/lib/student-data-load";
 import type { Survey } from "@/lib/types";
 
@@ -32,6 +35,10 @@ export default function StudentPage() {
     authenticated: Boolean(user),
     demoMode,
   });
+
+  useEffect(() => {
+    purgeExpiredStudentStorage();
+  }, []);
 
   const load = useCallback(async () => {
     if (!canLoad) {

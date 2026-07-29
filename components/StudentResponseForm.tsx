@@ -12,7 +12,7 @@ import {
 import { reserveAssignments, submitResponse } from "@/lib/data";
 import {
   buildStudentResultHref,
-  STUDENT_RESULT_PROFILE_KEY,
+  writeStoredStudentResultProfile,
   writeStoredStudentSubmission,
 } from "@/lib/studentResultProfile";
 import type {
@@ -259,12 +259,7 @@ export function StudentResponseForm({
         roomName,
         ageConfirmed,
       );
-      if (typeof window !== "undefined") {
-        window.localStorage.setItem(
-          STUDENT_RESULT_PROFILE_KEY,
-          JSON.stringify(trimmedProfile),
-        );
-      }
+      writeStoredStudentResultProfile(trimmedProfile);
       if (roomName) {
         writeStoredStudentSubmission(
           roomName,

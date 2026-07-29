@@ -14,6 +14,7 @@ import { buildDemandData } from "@/lib/aggregation";
 import { fetchResponses, fetchSurveys, hasRemoteDatabase } from "@/lib/data";
 import { STUDENT_ROOM_KEY, useStoredRoomName } from "@/lib/roomName";
 import {
+  purgeExpiredStudentStorage,
   readStoredStudentResultProfile,
   readStoredStudentSubmission,
 } from "@/lib/studentResultProfile";
@@ -98,6 +99,10 @@ export default function StudentResultsPage() {
     authenticated: Boolean(user),
     demoMode,
   });
+
+  useEffect(() => {
+    purgeExpiredStudentStorage();
+  }, []);
 
   const selectedSurvey =
     surveys.find((survey) => survey.id === selectedSurveyId) ?? surveys[0];

@@ -20,8 +20,8 @@
 - Service account: vercel-firestore-api@inflation-2e38b.iam.gserviceaccount.com
 - IAM role: roles/datastore.user
 - Vercel secret values were transferred through stdin and removed locally.
-- Preview deployment: `inflation-classroom-4bb3kt6wx-yadorans-projects.vercel.app` (`dpl_GT8MfmizfpyZXzXxyGTpNP9C7kYW`), READY, commit `660eb70`.
+- Preview deployment: `inflation-classroom-8gwz6znz4-yadorans-projects.vercel.app` (`dpl_qccn4x9gF7xKqRWcPKeBs5hHiLFf`), READY, commit `6558bc9`.
 - Firebase Auth authorized domains: verified exact Preview hostname added; existing domains preserved.
 - Preview verification used Vercel CLI's authenticated deployment-protection bypass. Root headers passed: Content-Security-Policy, X-Frame-Options, X-Content-Type-Options, Referrer-Policy, and Permissions-Policy were live. Privacy terms passed after the `/privacy/` → `/privacy` redirect.
-- API boundary failed: `/api/surveys?room=test` returned HTTP 400, not expected 401. Firebase Admin could not load `jwks-rsa` because its CommonJS require reached ESM-only `jose` (`ERR_REQUIRE_ESM`).
-- Browser bootstrap verification is blocked by Vercel Deployment Protection: in-app Browser reached Vercel sign-in before the teacher app. No separate Vercel sign-in was initiated.
+- API boundary passed: `/api/surveys?room=test` returned HTTP 401 with exact body `{"error":"로그인이 필요합니다."}`.
+- Browser bootstrap verification is blocked by Vercel Deployment Protection in the available Chrome session: `/teacher` redirected to Vercel sign-in. Selecting the existing Vercel Google session then required passkey verification, which was not completed. No credentials, scopes, or verification action were entered or changed. Teacher Google sign-in and isolated student anonymous bootstrap remain unverified; this browser exposes no private-context capability.

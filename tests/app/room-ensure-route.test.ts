@@ -45,3 +45,21 @@ it("ensures teacher ownership and returns the room's surveys", async () => {
     expect.objectContaining({ id: "survey-1", title: "저장된 설문" }),
   ]);
 });
+
+it("does not load surveys when the room belongs to another teacher", async () => {
+  ensureTeacherRoom.mockRejectedValue(
+    new Error("이미 다른 교사가 사용 중인 방 이름입니다."),
+  );
+  const { POST } = await import("@/app/api/rooms/ensure/route");
+  const response = await POST(new Request("http://localhost/api/rooms/ensure", {
+    method: "POST",
+    headers: { Authorization: "Bearer token" },
+    body: JSON.stringify({ name: "경제 1반" }),
+  }));
+
+  expect(response.status).toBe(403);
+  expect(listSurveys).not.toHaveBeenCalled();
+  await expect(response.json()).resolves.toEqual({
+    error: "이미 다른 교사가 사용 중인 방 이름입니다.",
+  });
+});

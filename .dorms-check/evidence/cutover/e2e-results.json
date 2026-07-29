@@ -1,0 +1,11 @@
+{
+  "room": "전환검증-2026-07-28",
+  "teacherOwnership": true,
+  "studentsSubmitted": 4,
+  "assignmentSplitPerProduct": [2, 2],
+  "foreignStudentIdentityRedacted": true,
+  "pollingUnderFiveSeconds": true,
+  "teacherEditVerified": true,
+  "teacherDeleteVerified": true,
+  "surveyRecursiveDeleteVerified": true
+}

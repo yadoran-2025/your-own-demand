@@ -16,6 +16,7 @@ type TeacherShellProps = {
   children: ReactNode;
   onExit?: () => void;
   roomName?: string;
+  selectedLessonId?: string;
 };
 
 const navItems = [
@@ -42,6 +43,7 @@ export function TeacherShell({
   children,
   onExit,
   roomName = "",
+  selectedLessonId = "",
 }: TeacherShellProps) {
   const [isReviewPromptVisible, setIsReviewPromptVisible] = useState(false);
 
@@ -59,7 +61,10 @@ export function TeacherShell({
           </Link>
         ))}
         <span className="teacher-top-tab-divider" />
-        <Link className="teacher-top-tab-student" href={buildStudentPath(roomName)}>
+        <Link
+          className="teacher-top-tab-student"
+          href={buildStudentPath(roomName, selectedLessonId)}
+        >
           학생 화면 →
         </Link>
         {onExit ? (

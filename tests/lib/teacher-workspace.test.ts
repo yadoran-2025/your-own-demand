@@ -2,7 +2,9 @@ import { expect, it } from "vitest";
 import {
   addClass,
   createRoomKey,
+  normalizeTeacherWorkspace,
   removeClass,
+  selectLesson,
   validateSchoolDetails,
 } from "@/lib/teacher-workspace";
 
@@ -11,6 +13,8 @@ const workspace = {
   school: "통합사회고",
   grade: "3학년",
   classes: [],
+  selectedClass: "",
+  selectedLessonId: "",
 };
 
 it("builds a room key from school details and class", () => {
@@ -37,4 +41,28 @@ it("rebuilds the selected class room key after a class change", () => {
   const classes = addClass(["1반"], "2반").classes;
   expect(createRoomKey({ ...workspace, classes: removeClass(classes, "1반") }, "2반"))
     .toBe("서울 / 통합사회고 / 3학년 / 2반");
+});
+
+it("hydrates legacy workspaces with empty class and lesson selections", () => {
+  expect(normalizeTeacherWorkspace({
+    region: "서울",
+    school: "통합사회고",
+    grade: "3학년",
+    classes: ["1반"],
+  })).toEqual({
+    region: "서울",
+    school: "통합사회고",
+    grade: "3학년",
+    classes: ["1반"],
+    selectedClass: "",
+    selectedLessonId: "",
+  });
+});
+
+it("persists and clears only the selected lesson", () => {
+  expect(selectLesson(workspace, "survey-2")).toEqual({
+    ...workspace,
+    selectedLessonId: "survey-2",
+  });
+  expect(selectLesson({ ...workspace, selectedLessonId: "survey-2" }, "")).toEqual(workspace);
 });

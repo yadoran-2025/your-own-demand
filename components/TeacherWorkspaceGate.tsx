@@ -5,6 +5,7 @@ import {
   addClass,
   createRoomKey,
   removeClass,
+  selectClass,
   useTeacherWorkspace,
   validateSchoolDetails,
 } from "@/lib/teacher-workspace";
@@ -110,9 +111,23 @@ export function TeacherWorkspaceGate({
             <article className="teacher-workspace-class-card" key={value}>
               <strong>{value}</strong>
               <div>
-                <button onClick={() => setRoomName(createRoomKey(workspace, value))} type="button">이 학급으로 입장</button>
                 <button onClick={() => {
-                  if (window.confirm(`${value}을(를) 삭제할까요?`)) setWorkspace({ ...workspace, classes: removeClass(workspace.classes, value) });
+                  setWorkspace(selectClass(workspace, value));
+                  setRoomName(createRoomKey(workspace, value));
+                }} type="button">이 학급으로 입장</button>
+                <button onClick={() => {
+                  if (window.confirm(`${value}을(를) 삭제할까요?`)) {
+                    setWorkspace({
+                      ...workspace,
+                      classes: removeClass(workspace.classes, value),
+                      selectedClass: workspace.selectedClass === value
+                        ? ""
+                        : workspace.selectedClass,
+                      selectedLessonId: workspace.selectedClass === value
+                        ? ""
+                        : workspace.selectedLessonId,
+                    });
+                  }
                 }} type="button">삭제</button>
               </div>
             </article>

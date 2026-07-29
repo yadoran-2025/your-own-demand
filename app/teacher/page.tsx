@@ -33,6 +33,7 @@ import {
   useStoredRoomName,
 } from "@/lib/roomName";
 import { canAccessTeacherData } from "@/lib/teacher-access";
+import { useTeacherWorkspace } from "@/lib/teacher-workspace";
 import type { StudentResponse, Survey } from "@/lib/types";
 
 const ERROR_REPORT_URL =
@@ -57,17 +58,23 @@ function formatRelativeTime(value: string) {
 export default function TeacherPage() {
   const { roomName, ready, setRoomName } = useStoredRoomName(TEACHER_ROOM_KEY);
   const { ready: authReady, isTeacher, demoMode } = useAuth();
+  const {
+    workspace,
+    ready: workspaceReady,
+    setSelectedLessonId,
+  } = useTeacherWorkspace();
   const canUseTeacherData = canAccessTeacherData({ ready: authReady, isTeacher, demoMode });
   const [surveys, setSurveys] = useState<Survey[]>([]);
   const [responses, setResponses] = useState<StudentResponse[]>([]);
-  const [selectedLessonId, setSelectedLessonId] = useState("");
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
   const [studentUrl, setStudentUrl] = useState("");
   const [qrDataUrl, setQrDataUrl] = useState("");
   const [copied, setCopied] = useState(false);
 
-  const activeSurvey = surveys.find((survey) => survey.id === selectedLessonId);
+  const activeSurvey = surveys.find(
+    (survey) => survey.id === workspace.selectedLessonId,
+  );
 
   const loadDashboard = useCallback(async () => {
     if (!canUseTeacherData) return;
@@ -126,7 +133,10 @@ export default function TeacherPage() {
     }
 
     const basePath = process.env.NODE_ENV === "production" ? "/your-own-demand" : "";
-    const nextStudentUrl = `${window.location.origin}${basePath}${buildStudentPath(roomName)}`;
+    const nextStudentUrl = `${window.location.origin}${basePath}${buildStudentPath(
+      roomName,
+      activeSurvey?.id,
+    )}`;
     let alive = true;
 
     setStudentUrl(nextStudentUrl);
@@ -154,7 +164,7 @@ export default function TeacherPage() {
     return () => {
       alive = false;
     };
-  }, [roomName]);
+  }, [activeSurvey?.id, roomName]);
 
   async function copyStudentUrl() {
     if (!studentUrl) {
@@ -195,7 +205,7 @@ export default function TeacherPage() {
       title="교사용 방 열기"
       variant="teacher"
     >
-      {!selectedLessonId || !activeSurvey ? (
+      {!workspaceReady || !activeSurvey ? (
         <main className="teacher-workspace-gate teacher-workspace-class-gate">
           <section className="teacher-workspace-intro">
             <span>수요곡선 수업</span>
@@ -223,7 +233,7 @@ export default function TeacherPage() {
                       대시보드
                     </button>
                     <Link
-                      href={buildStudentPath(roomName)}
+                      href={buildStudentPath(roomName, survey.id)}
                       rel="noreferrer"
                       target="_blank"
                     >
@@ -254,6 +264,7 @@ export default function TeacherPage() {
           setSelectedLessonId("");
         }}
         roomName={roomName}
+        selectedLessonId={activeSurvey.id}
       >
         <TeacherPageHeader
           actions={
@@ -354,7 +365,7 @@ export default function TeacherPage() {
               </button>
               <Link
                 className="primary-button compact-button"
-                href={buildStudentPath(roomName)}
+                href={buildStudentPath(roomName, activeSurvey.id)}
                 target="_blank"
               >
                 <ExternalLink size={16} />

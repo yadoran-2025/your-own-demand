@@ -21,11 +21,17 @@ import {
 } from "@/lib/data";
 import { TEACHER_ROOM_KEY, useStoredRoomName } from "@/lib/roomName";
 import { canAccessTeacherData } from "@/lib/teacher-access";
+import { useTeacherWorkspace } from "@/lib/teacher-workspace";
 import type { Survey } from "@/lib/types";
 
 export default function TeacherSetupPage() {
   const { roomName, ready, setRoomName } = useStoredRoomName(TEACHER_ROOM_KEY);
   const { ready: authReady, isTeacher, demoMode } = useAuth();
+  const {
+    workspace,
+    ready: workspaceReady,
+    setSelectedLessonId: setWorkspaceLessonId,
+  } = useTeacherWorkspace();
   const canUseTeacherData = canAccessTeacherData({ ready: authReady, isTeacher, demoMode });
   const [surveys, setSurveys] = useState<Survey[]>([]);
   const [selectedSurveyId, setSelectedSurveyId] = useState("");
@@ -56,18 +62,26 @@ export default function TeacherSetupPage() {
         nextSurveys.find((survey) => survey.id === preferredSurveyId) ??
         nextSurveys[0];
       setSelectedSurveyId(nextSurvey?.id ?? "");
+      setWorkspaceLessonId(nextSurvey?.id ?? "");
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "설문을 불러오지 못했습니다.");
     } finally {
       setLoading(false);
     }
-  }, [canUseTeacherData, roomName]);
+  }, [canUseTeacherData, roomName, setWorkspaceLessonId]);
 
   useEffect(() => {
-    if (canUseTeacherData && ready && roomName) {
-      void loadSurveys();
+    if (canUseTeacherData && ready && roomName && workspaceReady) {
+      void loadSurveys(workspace.selectedLessonId);
     }
-  }, [canUseTeacherData, loadSurveys, roomName, ready]);
+  }, [
+    canUseTeacherData,
+    loadSurveys,
+    roomName,
+    ready,
+    workspace.selectedLessonId,
+    workspaceReady,
+  ]);
 
   async function handleSaveSurvey(draft: Parameters<typeof saveSurvey>[0]) {
     if (!canUseTeacherData) return;
@@ -110,7 +124,11 @@ export default function TeacherSetupPage() {
       title="교사용 방 열기"
       variant="teacher"
     >
-    <TeacherShell active="setup" roomName={roomName}>
+    <TeacherShell
+      active="setup"
+      roomName={roomName}
+      selectedLessonId={selectedSurvey?.id ?? workspace.selectedLessonId}
+    >
       <TeacherPageHeader
         actions={
           <>
@@ -171,7 +189,10 @@ export default function TeacherSetupPage() {
                 className="survey-list-item"
                 data-active={survey.id === selectedSurveyId}
                 key={survey.id}
-                onClick={() => setSelectedSurveyId(survey.id)}
+                onClick={() => {
+                  setSelectedSurveyId(survey.id);
+                  setWorkspaceLessonId(survey.id);
+                }}
                 type="button"
               >
                 <span className="survey-item-dot" />

@@ -34,6 +34,7 @@ import {
 } from "@/lib/data";
 import { TEACHER_ROOM_KEY, useStoredRoomName } from "@/lib/roomName";
 import { canAccessTeacherData } from "@/lib/teacher-access";
+import { useTeacherWorkspace } from "@/lib/teacher-workspace";
 import { startPolling } from "@/lib/polling";
 import type {
   BudgetDemandGroup,
@@ -504,6 +505,11 @@ function BudgetComparisonChart({
 export default function TeacherBudgetResultsPage() {
   const { roomName, ready, setRoomName } = useStoredRoomName(TEACHER_ROOM_KEY);
   const { ready: authReady, isTeacher, demoMode } = useAuth();
+  const {
+    workspace,
+    ready: workspaceReady,
+    setSelectedLessonId: setWorkspaceLessonId,
+  } = useTeacherWorkspace();
   const canUseTeacherData = canAccessTeacherData({ ready: authReady, isTeacher, demoMode });
   const [surveys, setSurveys] = useState<Survey[]>([]);
   const [responses, setResponses] = useState<StudentResponse[]>([]);
@@ -537,6 +543,7 @@ export default function TeacherBudgetResultsPage() {
           nextSurveys.find((survey) => survey.id === preferredSurveyId) ??
           nextSurveys[0];
         setSelectedSurveyId(nextSurvey?.id ?? "");
+        setWorkspaceLessonId(nextSurvey?.id ?? "");
         setSelectedProductId(nextSurvey?.products[0]?.id ?? "");
         setSelectedBudgetGroupId("");
       } catch (error) {
@@ -549,7 +556,7 @@ export default function TeacherBudgetResultsPage() {
         setLoading(false);
       }
     },
-    [canUseTeacherData, roomName],
+    [canUseTeacherData, roomName, setWorkspaceLessonId],
   );
 
   const loadResponses = useCallback(async (surveyId: string) => {
@@ -569,10 +576,17 @@ export default function TeacherBudgetResultsPage() {
   }, [canUseTeacherData, roomName]);
 
   useEffect(() => {
-    if (canUseTeacherData && ready && roomName) {
-      void loadSurveys();
+    if (canUseTeacherData && ready && roomName && workspaceReady) {
+      void loadSurveys(workspace.selectedLessonId);
     }
-  }, [canUseTeacherData, loadSurveys, roomName, ready]);
+  }, [
+    canUseTeacherData,
+    loadSurveys,
+    roomName,
+    ready,
+    workspace.selectedLessonId,
+    workspaceReady,
+  ]);
 
   useEffect(() => {
     if (!canUseTeacherData) return;
@@ -639,7 +653,11 @@ export default function TeacherBudgetResultsPage() {
       title="교사용 방 열기"
       variant="teacher"
     >
-      <TeacherShell active="budget-results" roomName={roomName}>
+      <TeacherShell
+        active="budget-results"
+        roomName={roomName}
+        selectedLessonId={selectedSurvey?.id}
+      >
         <TeacherPageHeader
           actions={
             <>
@@ -684,6 +702,7 @@ export default function TeacherBudgetResultsPage() {
                     (survey) => survey.id === event.target.value,
                   );
                   setSelectedSurveyId(event.target.value);
+                  setWorkspaceLessonId(event.target.value);
                   setSelectedProductId(nextSurvey?.products[0]?.id ?? "");
                   setSelectedBudgetGroupId("");
                 }}

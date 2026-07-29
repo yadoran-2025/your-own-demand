@@ -278,6 +278,66 @@
           "edzip.4-1"
         ]
       }
+    },
+    {
+      "n": 16,
+      "at": "2026-07-29T13:58:01.028Z",
+      "security": {
+        "score": 100,
+        "grade": "A+",
+        "eligible": true,
+        "blocking": []
+      },
+      "edzip": {
+        "eligible": false,
+        "unmet": [
+          "edzip.1-1",
+          "edzip.3-1",
+          "edzip.4-1"
+        ]
+      }
+    },
+    {
+      "n": 17,
+      "at": "2026-07-29T13:59:03.648Z",
+      "security": {
+        "score": 100,
+        "grade": "A+",
+        "eligible": true,
+        "blocking": []
+      },
+      "edzip": {
+        "eligible": true,
+        "unmet": []
+      }
+    },
+    {
+      "n": 18,
+      "at": "2026-07-29T14:01:57.954Z",
+      "security": {
+        "score": 100,
+        "grade": "A+",
+        "eligible": true,
+        "blocking": []
+      },
+      "edzip": {
+        "eligible": true,
+        "unmet": []
+      }
+    },
+    {
+      "n": 19,
+      "at": "2026-07-29T14:04:27.719Z",
+      "security": {
+        "score": 100,
+        "grade": "A+",
+        "eligible": true,
+        "blocking": []
+      },
+      "edzip": {
+        "eligible": true,
+        "unmet": []
+      }
     }
   ],
   "items": {
@@ -414,9 +474,9 @@
       "regressed": false
     },
     "perf.ttfb": {
-      "status": "pass",
+      "status": "info",
       "firstFailRound": 14,
-      "fixedRound": 15,
+      "fixedRound": 17,
       "regressed": false
     },
     "perf.page-size": {
@@ -492,9 +552,9 @@
       "regressed": false
     },
     "edzip.1-1": {
-      "status": "fail",
+      "status": "pass",
       "firstFailRound": 2,
-      "fixedRound": 4,
+      "fixedRound": 17,
       "regressed": false
     },
     "edzip.1-2": {
@@ -516,15 +576,15 @@
       "regressed": false
     },
     "edzip.3-1": {
-      "status": "fail",
+      "status": "pass",
       "firstFailRound": 2,
-      "fixedRound": 4,
+      "fixedRound": 17,
       "regressed": false
     },
     "edzip.4-1": {
-      "status": "fail",
+      "status": "pass",
       "firstFailRound": 2,
-      "fixedRound": 4,
+      "fixedRound": 17,
       "regressed": false
     },
     "edzip.5-1": {
@@ -548,7 +608,7 @@
   },
   "passed": {
     "security": true,
-    "edzip": false
+    "edzip": true
   },
   "submitted": {}
 }

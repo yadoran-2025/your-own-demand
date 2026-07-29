@@ -6,63 +6,63 @@
     "at": "2026-07-18T06:47:03.479Z"
   },
   "edzip.1-1": {
-    "status": "fail",
-    "evidence": "반별·전체 수요곡선 제공 목적(app/privacy/page.tsx:31-51)인데도 이름/별명을 필수 입력으로 강제하고(components/StudentResponseForm.tsx:69-73), 실명 예시를 제시한다(components/StudentResponseForm.tsx:388-400). 입력값은 외부 Firestore에 그대로 저장된다(lib/server/assignments.ts:91-101, lib/server/responses.ts:123-132).",
+    "status": "pass",
+    "evidence": "수업 참여 여부 확인 목적과 학년·반·이름 또는 교사가 허용한 수업용 별명 사용이 공개되어 있다(app/privacy/page.tsx:42-48). UI도 이름 또는 수업용 별명 입력과 참여 확인·같은 반 공개 목적을 함께 안내한다(components/StudentResponseForm.tsx:391-406).",
     "by": "teacher-assistant",
-    "at": "2026-07-29T09:58:17.928Z"
+    "at": "2026-07-29T14:04:22.329Z"
   },
   "edzip.1-2": {
     "status": "pass",
-    "evidence": "개인정보처리방침에 교사 인증·수업방 관리, 학생 참여·응답 중복 방지·수요곡선 제공, 서비스 보호 목적과 처리 근거가 구체적으로 적혀 있다(app/privacy/page.tsx:31-51).",
+    "evidence": "개인정보처리방침에 교사 인증·수업방 관리, 학생 참여·응답 중복 방지·수요곡선 제공, 서비스 보호 목적과 처리 근거가 구체적으로 적혀 있다(app/privacy/page.tsx:31-59).",
     "by": "teacher-assistant",
-    "at": "2026-07-29T09:58:17.929Z"
+    "at": "2026-07-29T14:04:22.330Z"
   },
   "edzip.1-3": {
     "status": "pass",
-    "evidence": "수집 항목은 교사·학생·자동 생성 정보·브라우저 저장소로 구분되어 있고(app/privacy/page.tsx:55-86), 수업방·설문·응답, 가격 배정 예약, Firebase 인증, Vercel 로그, 브라우저 저장소의 실제 보유 상태와 자동 삭제 부재가 명시되어 있다(app/privacy/page.tsx:90-120).",
+    "evidence": "방침은 학생 응답·가격 배정 예약을 매년 2월 1일 자동 파기하고, 학생 브라우저 사본도 다음 접속 시 삭제한다고 공개한다(app/privacy/page.tsx:109-120). 구현은 2월 1일 00:00 KST 절단시각을 계산한다(lib/retention.ts:3-17), Vercel cron 설정과 인증 route가 파기 함수를 호출한다(vercel.json:1-7; app/api/cron/purge-student-data/route.ts:6-13), 그 함수가 이전 responses·reservations를 삭제한다(lib/server/retention.ts:7-35), 클라이언트도 이전 local 응답을 정리한다(lib/data.ts:131-137).",
     "by": "teacher-assistant",
-    "at": "2026-07-29T09:58:17.929Z"
+    "at": "2026-07-29T14:04:22.330Z"
   },
   "edzip.2-1": {
     "status": "pass",
-    "evidence": "Firestore 직접 접근은 전부 거부된다(firestore.rules:1-8). 서버 API는 Firebase ID 토큰을 검증하고 교사 작업에서 익명 사용자를 차단한다(lib/server/auth.ts:5-23). 학생 결과 목록에서는 본인 응답 외 식별정보를 가린다(lib/server/responses.ts:138-161). 방침에도 같은 조치가 명시되어 있다(app/privacy/page.tsx:241-249).",
+    "evidence": "Firestore 직접 접근은 전부 거부된다(firestore.rules:1-8). 서버 API는 Firebase ID 토큰을 검증하고 교사 작업에서 익명 사용자를 차단한다(lib/server/auth.ts:5-23). 학생 결과 목록에서는 본인 응답 외 식별정보를 가린다(lib/server/responses.ts:142-172). 방침에도 같은 조치가 명시되어 있다(app/privacy/page.tsx:258-265).",
     "by": "teacher-assistant",
-    "at": "2026-07-29T09:58:17.929Z"
+    "at": "2026-07-29T14:04:22.330Z"
   },
   "edzip.3-1": {
-    "status": "fail",
-    "evidence": "방침은 열람·정정·삭제·처리정지 요청 방법을 안내하지만(app/privacy/page.tsx:207-219), 교사의 개별 삭제는 responses 문서만 삭제한다(lib/server/responses.ts:192-202). 같은 학생 이름이 든 reservations 문서(lib/server/assignments.ts:91-101)와 학생 기기 localStorage 사본(lib/studentResultProfile.ts:63-80)은 함께 삭제되지 않는다.",
+    "status": "pass",
+    "evidence": "방침은 학생의 직접 열람, 수업방 소유 교사만의 수정·삭제, 학생·보호자의 교사 또는 개인정보 보호책임자 요청 경로를 공개한다(app/privacy/page.tsx:227-236). API DELETE는 requireTeacher를 사용한다(app/api/responses/[responseId]/route.ts:22-33). 소유권을 확인한 서버 삭제는 response와 같은 UID reservation을 한 트랜잭션에서 함께 삭제한다(lib/server/responses.ts:205-217).",
     "by": "teacher-assistant",
-    "at": "2026-07-29T09:58:17.929Z"
+    "at": "2026-07-29T14:04:22.330Z"
   },
   "edzip.4-1": {
-    "status": "fail",
-    "evidence": "설정은 C형(외부 전송 전 가명처리)이지만 앱은 실명 입력을 허용·유도하고(components/StudentResponseForm.tsx:388-400) 입력값을 외부 Firestore 예약·응답 문서에 그대로 저장한다(lib/server/assignments.ts:91-101, lib/server/responses.ts:123-132). 법정대리인 동의 기능도 없으며 방침 역시 학교·교사의 사전 절차에 의존한다고 명시한다(app/privacy/page.tsx:223-229).",
+    "status": "pass",
+    "evidence": "UI는 만 14세 이상 확인 없이는 참여 조건을 충족하지 못하게 하고(components/StudentResponseForm.tsx:71-76), 미확인 시 안내 문구를 반환한다(components/StudentResponseForm.tsx:186-193). 서버도 ageConfirmed가 true가 아니면 거부한다(lib/server/student-policy.ts:1-5). 방침은 14세 미만 미제공을 공개하고(app/privacy/page.tsx:23-32,241-245), Firebase·Vercel의 외부 처리위탁 업무를 구체적으로 공개한다(app/privacy/page.tsx:155-186).",
     "by": "teacher-assistant",
-    "at": "2026-07-29T09:58:17.929Z"
+    "at": "2026-07-29T14:04:22.330Z"
   },
   "edzip.5-1": {
     "status": "pass",
-    "evidence": "개인정보 보호책임자 역할과 열람·정정·삭제·처리정지 및 보안 문의 링크, 외부 신고·분쟁조정 연락처가 공개되어 있다(app/privacy/page.tsx:252-263).",
+    "evidence": "개인정보 보호책임자 역할과 열람·정정·삭제·처리정지 및 보안 문의 링크, 외부 신고·분쟁조정 연락처가 공개되어 있다(app/privacy/page.tsx:269-279).",
     "by": "teacher-assistant",
-    "at": "2026-07-29T09:58:17.929Z"
+    "at": "2026-07-29T14:04:22.330Z"
   },
   "edzip.5-2": {
     "status": "pass",
-    "evidence": "개인정보 판매·제3자 제공 금지와 법령상 예외, 처리위탁·국외 처리와 제3자 제공의 구분이 명시되어 있다(app/privacy/page.tsx:135-142).",
+    "evidence": "개인정보 판매·제3자 제공 금지와 법령상 예외, 처리위탁·국외 처리와 제3자 제공의 구분이 명시되어 있다(app/privacy/page.tsx:155-160).",
     "by": "teacher-assistant",
-    "at": "2026-07-29T09:58:17.929Z"
+    "at": "2026-07-29T14:04:22.330Z"
   },
   "edzip.5-3": {
     "status": "pass",
-    "evidence": "Google Firebase와 Vercel의 구체적 위탁 업무, 재수탁자 확인 경로가 명시되어 있고(app/privacy/page.tsx:145-168), Firebase Authentication 미국 처리, Firestore 서울 리전, Vercel 미국·전 세계 인프라 처리와 국외 처리 근거·거부 방법이 공개되어 있다(app/privacy/page.tsx:171-204).",
+    "evidence": "Google Firebase와 Vercel의 구체적 위탁 업무, 재수탁자 확인 경로가 명시되어 있고(app/privacy/page.tsx:165-186), Firebase Authentication 미국 처리, Firestore 서울 리전, Vercel 미국·전 세계 인프라 처리와 국외 처리 근거·거부 방법이 공개되어 있다(app/privacy/page.tsx:191-223).",
     "by": "teacher-assistant",
-    "at": "2026-07-29T09:58:17.929Z"
+    "at": "2026-07-29T14:04:22.330Z"
   },
   "code.endpoint.unauth": {
     "status": "pass",
-    "evidence": "현재 JSON API 경로는 application data 반환 전 Firebase 토큰을 요구한다(app/api/surveys/route.ts:8-17, app/api/responses/route.ts:8-19, app/api/rooms/ensure/route.ts:5-15, app/api/assignments/reserve/route.ts:12-23, lib/server/auth.ts:5-14). 기존 라이브 프리플라이트 증빙은 미인증 /api/surveys 요청의 HTTP 401을 기록한다(.dorms-check/evidence/cutover/PREFLIGHT.md).",
+    "evidence": "학생·교사 데이터의 네 핵심 API는 application data 반환 전 Firebase 토큰을 요구한다(app/api/surveys/route.ts:8-17, app/api/responses/route.ts:8-19, app/api/rooms/ensure/route.ts:5-15, app/api/assignments/reserve/route.ts:12-23, lib/server/auth.ts:5-14). 별도 파기 cron은 bearer CRON_SECRET을 요구한다(app/api/cron/purge-student-data/route.ts:6-13). 기존 라이브 프리플라이트 증빙은 미인증 /api/surveys 요청의 HTTP 401을 기록한다(.dorms-check/evidence/cutover/PREFLIGHT.md).",
     "by": "teacher-assistant",
-    "at": "2026-07-29T09:58:17.929Z"
+    "at": "2026-07-29T14:04:22.330Z"
   }
 }

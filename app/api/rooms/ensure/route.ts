@@ -16,7 +16,7 @@ export async function POST(request: Request) {
     const teacher = await requireTeacher(request);
     const { name } = (await request.json()) as { name: string };
     const room = await ensureTeacherRoom(teacher.uid, name);
-    return jsonOk(await listSurveys(room.name), 201);
+    return jsonOk(await listSurveys(room.name, room.roomId), 201);
   } catch (error) {
     return jsonError(error);
   }

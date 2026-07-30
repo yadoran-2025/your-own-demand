@@ -5,6 +5,7 @@ type Header = { key: string; value: string };
 type VercelConfig = {
   headers: Array<{ source: string; headers: Header[] }>;
   crons: Array<{ path: string; schedule: string }>;
+  regions: string[];
 };
 
 const expectedCsp = {
@@ -45,6 +46,10 @@ function allowsExternalScript(directives: Map<string, string>, resource: string)
 }
 
 describe("deployment configuration", () => {
+  it("runs server functions beside the Seoul Firestore database", () => {
+    expect(readVercel().regions).toEqual(["icn1"]);
+  });
+
   it("allows Firebase Google popup bootstrap while retaining script restrictions", () => {
     const rawVercel = readFileSync("vercel.json", "utf8");
     const vercel = readVercel();

@@ -43,8 +43,8 @@ function toSurvey(id: string, data: Record<string, unknown>, teacherPin: string)
   };
 }
 
-export async function listSurveys(roomName: string): Promise<Survey[]> {
-  const room = await resolveRoom(roomName);
+export async function listSurveys(roomName: string, roomId?: string): Promise<Survey[]> {
+  const room = roomId ? { id: roomId, name: roomName } : await resolveRoom(roomName);
   if (!room) throw new Error("방을 찾지 못했습니다.");
   const snapshots = await adminDb.collection(`rooms/${room.id}/surveys`).orderBy("createdAt", "desc").get();
   return snapshots.docs.map((snapshot) => toSurvey(snapshot.id, snapshot.data(), room.name));

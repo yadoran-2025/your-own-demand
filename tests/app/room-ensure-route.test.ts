@@ -40,7 +40,7 @@ it("ensures teacher ownership and returns the room's surveys", async () => {
   expect(response.status).toBe(201);
   expect(requireTeacher).toHaveBeenCalledTimes(1);
   expect(ensureTeacherRoom).toHaveBeenCalledWith("teacher-a", " 경제 1반 ");
-  expect(listSurveys).toHaveBeenCalledWith("경제 1반");
+  expect(listSurveys).toHaveBeenCalledWith("경제 1반", "room-1");
   await expect(response.json()).resolves.toEqual([
     expect.objectContaining({ id: "survey-1", title: "저장된 설문" }),
   ]);

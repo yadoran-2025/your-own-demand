@@ -16,7 +16,7 @@ import {
   YAxis,
 } from "recharts";
 import { DemandMetricToggle, SituationTabs } from "@/components/ResultControls";
-import { RoomBadge, RoomGate } from "@/components/RoomGate";
+import { RoomGate } from "@/components/RoomGate";
 import {
   StatusBadge,
   TeacherPageHeader,
@@ -670,7 +670,6 @@ export default function TeacherBudgetResultsPage() {
         <TeacherPageHeader
           actions={
             <>
-              <RoomBadge roomName={roomName} onReset={() => setRoomName("")} />
               <StatusBadge tone="green">
                 <span className="live-dot" />
                 실시간
@@ -686,8 +685,8 @@ export default function TeacherBudgetResultsPage() {
             </>
           }
           description="같은 예산을 가진 학급들을 그룹으로 묶어 예산별 수요곡선을 확인합니다."
-          eyebrow="대시보드 / 예산별 결과"
-          title="예산별 결과"
+          eyebrow="대시보드 / 예산별 수요곡선"
+          title="예산별 수요곡선"
         />
 
         {!hasRemoteDatabase ? (
@@ -778,7 +777,7 @@ export default function TeacherBudgetResultsPage() {
           <section className="teacher-card empty-state">
             <h2>예산 그룹이 없습니다.</h2>
             <p>
-              학급별 예산을 설정하거나 학생 응답이 들어오면 예산별 결과가
+              학급별 예산을 설정하거나 학생 응답이 들어오면 예산별 수요곡선이
               표시됩니다.
             </p>
             <Link

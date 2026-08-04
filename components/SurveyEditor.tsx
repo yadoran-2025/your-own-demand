@@ -3,7 +3,7 @@
 import { Plus, Save, Trash2, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { createDefaultDraft } from "@/lib/data";
-import type { SurveyDraft } from "@/lib/types";
+import type { ClassBudget, SurveyDraft } from "@/lib/types";
 import { formatWon } from "@/lib/utils";
 
 type SurveyEditorProps = {
@@ -57,16 +57,40 @@ function normalizeDraft(draft?: SurveyDraft) {
   };
 }
 
+export function createNextClassBudget(classBudgets: ClassBudget[]): ClassBudget {
+  const grade = classBudgets.at(-1)?.grade || 3;
+  const classNumber = Math.max(
+    0,
+    ...classBudgets
+      .filter((classBudget) => classBudget.grade === grade)
+      .map((classBudget) => classBudget.class_number),
+  ) + 1;
+
+  return { grade, class_number: classNumber, budget: 20000 };
+}
+
 export function SurveyEditor({ initialDraft, onSave }: SurveyEditorProps) {
+  const isNewSurvey = !initialDraft?.id;
   const [draft, setDraft] = useState<SurveyDraft>(
     normalizeDraft(initialDraft),
   );
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [step, setStep] = useState(isNewSurvey ? 1 : 3);
+  const canEditSurvey = draft.classBudgets.some(
+    ({ grade, class_number, budget }) => grade > 0 && class_number > 0 && budget > 0,
+  );
 
   useEffect(() => {
     setDraft(normalizeDraft(initialDraft));
+    setStep(initialDraft?.id ? 3 : 1);
   }, [initialDraft]);
+
+  function cancelNewSurvey() {
+    setDraft(normalizeDraft());
+    setError("");
+    setStep(1);
+  }
 
   function updateClassBudget(
     budgetIndex: number,
@@ -89,14 +113,7 @@ export function SurveyEditor({ initialDraft, onSave }: SurveyEditorProps) {
   function addClassBudget() {
     setDraft((current) => ({
       ...current,
-      classBudgets: [
-        ...current.classBudgets,
-        {
-          grade: 3,
-          class_number: 1,
-          budget: 20000,
-        },
-      ],
+      classBudgets: [...current.classBudgets, createNextClassBudget(current.classBudgets)],
     }));
   }
 
@@ -230,44 +247,39 @@ export function SurveyEditor({ initialDraft, onSave }: SurveyEditorProps) {
   }
 
   return (
-    <div className="survey-editor">
-      <div className="editor-title-row">
-        <label>
-          <span className="field-label">설문 제목</span>
-          <input
-            className="input"
-            value={draft.title}
-            onChange={(event) =>
-              setDraft((current) => ({ ...current, title: event.target.value }))
-            }
-          />
-        </label>
-        <button className="primary-button" disabled={saving} onClick={handleSave}>
-          <Save size={18} />
-          {saving ? "저장 중" : "저장"}
-        </button>
-      </div>
+    <div className="survey-editor" data-new-survey={isNewSurvey}>
+      {isNewSurvey ? (
+        <ol aria-label="새 설문 만들기 단계" className="survey-stepper">
+          {["학급별 예산", "설문 정보", "상황과 가격"].map((label, index) => {
+            const stepNumber = index + 1;
+            return (
+              <li
+                aria-current={step === stepNumber ? "step" : undefined}
+                data-state={step === stepNumber ? "active" : step > stepNumber ? "done" : "waiting"}
+                key={label}
+              >
+                <span>{stepNumber}</span>
+                <strong>{label}</strong>
+              </li>
+            );
+          })}
+        </ol>
+      ) : null}
 
       {error ? <div className="teacher-alert" data-tone="error">{error}</div> : null}
 
-      <section className="class-budget-card">
+      {!isNewSurvey || step === 1 ? <section className="class-budget-card">
         <div className="class-budget-header">
           <div>
-            <h3>학급별 예산</h3>
+            <h3>{isNewSurvey ? "1단계. 학급별 예산" : "학급별 예산"}</h3>
             <p>학생은 자기 학년·반에 설정된 예산 안에서 모든 상황에 돈을 나눠 씁니다.</p>
+            {isNewSurvey ? <p>먼저 학급(학년·반)별 기본 예산을 설정해 주세요.</p> : null}
           </div>
-          <button
-            className="secondary-button compact-button"
-            onClick={addClassBudget}
-            type="button"
-          >
-            <Plus size={16} />
-            예산 추가
-          </button>
         </div>
 
         {draft.classBudgets.length ? (
           <div className="class-budget-list">
+            {isNewSurvey ? <h4>예산 목록</h4> : null}
             <div className="class-budget-row class-budget-row-head">
               <span>학년</span>
               <span>반</span>
@@ -307,8 +319,9 @@ export function SurveyEditor({ initialDraft, onSave }: SurveyEditorProps) {
                     )
                   }
                 />
-                <label>
+                <label className="class-budget-input-with-unit">
                   <input
+                    aria-label={`${classBudget.grade}학년 ${classBudget.class_number}반 예산`}
                     className="input compact-input price-input-num"
                     inputMode="numeric"
                     min={1}
@@ -320,7 +333,7 @@ export function SurveyEditor({ initialDraft, onSave }: SurveyEditorProps) {
                       updateClassBudget(budgetIndex, "budget", event.target.value)
                     }
                   />
-                  <span>{classBudget.budget ? formatWon(classBudget.budget) : ""}</span>
+                  <span aria-hidden="true">원</span>
                 </label>
                 <button
                   aria-label="예산 삭제"
@@ -332,15 +345,66 @@ export function SurveyEditor({ initialDraft, onSave }: SurveyEditorProps) {
                 </button>
               </div>
             ))}
+            <button
+              className="secondary-button compact-button class-budget-add-row"
+              onClick={addClassBudget}
+              type="button"
+            >
+              <Plus size={16} />
+              예산 행 추가
+            </button>
           </div>
         ) : (
           <div className="class-budget-empty">
-            예산을 추가하지 않으면 모든 학급이 제한 없이 제출할 수 있습니다.
+            <strong>등록된 학급별 예산이 없습니다.</strong>
+            <span>학생들이 사용할 기본 예산을 먼저 설정해 주세요.</span>
+            <button className="primary-button compact-button" onClick={addClassBudget} type="button">
+              <Plus size={16} />
+              예산 추가
+            </button>
           </div>
         )}
-      </section>
+      </section> : null}
 
-      <div className="product-list">
+      {!isNewSurvey && !canEditSurvey ? (
+        <div className="teacher-alert">학급별 예산을 먼저 설정해 주세요.</div>
+      ) : null}
+
+      {isNewSurvey && step === 1 ? (
+        <div className="survey-step-actions">
+          <button className="secondary-button compact-button" onClick={cancelNewSurvey} type="button">
+            취소
+          </button>
+          <button
+            className="primary-button compact-button"
+            disabled={!canEditSurvey}
+            onClick={() => setStep(2)}
+            type="button"
+          >
+            다음 단계로 →
+          </button>
+        </div>
+      ) : null}
+
+      {!isNewSurvey || step > 1 ? <fieldset className="survey-details-fields" disabled={!canEditSurvey}>
+        {!isNewSurvey || step === 2 ? <div className="editor-title-row">
+          <label>
+            <span className="field-label">설문 제목</span>
+            <input
+              className="input"
+              value={draft.title}
+              onChange={(event) =>
+                setDraft((current) => ({ ...current, title: event.target.value }))
+              }
+            />
+          </label>
+          {!isNewSurvey ? <button className="primary-button" disabled={saving} onClick={handleSave}>
+            <Save size={18} />
+            {saving ? "저장 중" : "저장"}
+          </button> : null}
+        </div> : null}
+
+        {!isNewSurvey || step === 3 ? <><div className="product-list">
         {draft.products.map((product, productIndex) => (
           <article
             className="product-card"
@@ -439,14 +503,41 @@ export function SurveyEditor({ initialDraft, onSave }: SurveyEditorProps) {
             </div>
           </article>
         ))}
-      </div>
+        </div>
 
-      <button className="secondary-button add-product-button" onClick={addProduct} type="button">
-        <Plus size={18} />
-        상황 추가
-      </button>
+        <button className="secondary-button add-product-button" onClick={addProduct} type="button">
+          <Plus size={18} />
+          상황 추가
+        </button></> : null}
+
+        {isNewSurvey && step === 2 ? (
+          <div className="survey-step-actions">
+            <button className="secondary-button compact-button" onClick={() => setStep(1)} type="button">
+              ← 이전
+            </button>
+            <button
+              className="primary-button compact-button"
+              disabled={!draft.title.trim()}
+              onClick={() => setStep(3)}
+              type="button"
+            >
+              다음 단계로 →
+            </button>
+          </div>
+        ) : null}
+
+        {isNewSurvey && step === 3 ? (
+          <div className="survey-step-actions">
+            <button className="secondary-button compact-button" onClick={() => setStep(2)} type="button">
+              ← 이전
+            </button>
+            <button className="primary-button compact-button" disabled={saving} onClick={handleSave} type="button">
+              <Save size={18} />
+              {saving ? "저장 중" : "설문 저장"}
+            </button>
+          </div>
+        ) : null}
+      </fieldset> : null}
     </div>
   );
 }
-
-

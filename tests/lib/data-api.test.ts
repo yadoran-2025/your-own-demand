@@ -105,28 +105,19 @@ describe("data API adapter", () => {
     });
   });
 
-  it("creates one default only when the ensured remote room is empty", async () => {
+  it("keeps an ensured remote room empty until the teacher saves a survey", async () => {
     const { apiFetch } = await import("@/lib/api-client");
-    vi.mocked(apiFetch)
-      .mockResolvedValueOnce([])
-      .mockResolvedValueOnce(survey);
+    vi.mocked(apiFetch).mockResolvedValueOnce([]);
     const { ensureRoomHasDefaultSurveys } = await import("@/lib/data");
 
     await expect(
       ensureRoomHasDefaultSurveys("경제 1반"),
-    ).resolves.toEqual([survey]);
+    ).resolves.toEqual([]);
 
-    expect(apiFetch).toHaveBeenCalledTimes(2);
-    const [savePath, saveInit] = vi.mocked(apiFetch).mock.calls[1];
-    expect(savePath).toBe("/api/surveys");
-    expect(saveInit).toMatchObject({ method: "POST" });
-    expect(JSON.parse(saveInit?.body as string)).toMatchObject({
-      roomName: "경제 1반",
-      draft: {
-        title: "2026 경제 수요설문",
-        classBudgets: [],
-        products: expect.any(Array),
-      },
+    expect(apiFetch).toHaveBeenCalledTimes(1);
+    expect(apiFetch).toHaveBeenCalledWith("/api/rooms/ensure", {
+      method: "POST",
+      body: JSON.stringify({ name: "경제 1반" }),
     });
   });
 

@@ -2,7 +2,7 @@
 
 import { ReactNode } from "react";
 import { TeacherWorkspaceGate } from "./TeacherWorkspaceGate";
-import { RoomBadge, RoomGate as StudentRoomGate } from "./PinGate";
+import { RoomGate as StudentRoomGate } from "./PinGate";
 
 type RoomGateProps = {
   children: ReactNode;
@@ -18,5 +18,3 @@ export function RoomGate({ variant = "student", ...props }: RoomGateProps) {
   if (variant === "teacher") return <TeacherWorkspaceGate {...props} />;
   return <StudentRoomGate {...props} />;
 }
-
-export { RoomBadge };

@@ -9,7 +9,7 @@ import {
   DemandMetricToggle,
   DemandScopeToggle,
 } from "@/components/ResultControls";
-import { RoomBadge, RoomGate } from "@/components/RoomGate";
+import { RoomGate } from "@/components/RoomGate";
 import { buildDemandData } from "@/lib/aggregation";
 import { fetchResponses, fetchSurveys, hasRemoteDatabase } from "@/lib/data";
 import { STUDENT_ROOM_KEY, useStoredRoomName } from "@/lib/roomName";
@@ -238,7 +238,6 @@ export default function StudentResultsPage() {
                 {selectedSurvey?.title ?? "수요곡선 결과"}
               </h1>
             </div>
-            <RoomBadge label="입장 방" roomName={roomName} onReset={() => setRoomName("")} />
           </header>
 
           {!hasRemoteDatabase ? (

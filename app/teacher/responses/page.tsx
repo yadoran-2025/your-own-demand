@@ -4,7 +4,7 @@ import { RefreshCw, Save, Trash2 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { TeacherAuthGate } from "@/components/TeacherAuthGate";
 import { useAuth } from "@/components/AuthProvider";
-import { RoomBadge, RoomGate } from "@/components/RoomGate";
+import { RoomGate } from "@/components/RoomGate";
 import {
   TeacherPageHeader,
   TeacherShell,
@@ -319,7 +319,6 @@ export default function TeacherResponsesPage() {
         <TeacherPageHeader
           actions={
             <>
-              <RoomBadge roomName={roomName} onReset={() => setRoomName("")} />
               <button
                 className="secondary-button compact-button"
                 onClick={() => void loadResponses(selectedSurvey?.id ?? "")}

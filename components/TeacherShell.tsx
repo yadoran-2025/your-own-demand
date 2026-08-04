@@ -23,8 +23,8 @@ const navItems = [
   { id: "dashboard", href: "/teacher", label: "대시보드" },
   { id: "setup", href: "/teacher/setup", label: "설문 세팅" },
   { id: "responses", href: "/teacher/responses", label: "응답 관리" },
-  { id: "results", href: "/teacher/results", label: "결과 확인" },
-  { id: "budget-results", href: "/teacher/budget-results", label: "예산별 결과" },
+  { id: "results", href: "/teacher/results", label: "곡선 확인" },
+  { id: "budget-results", href: "/teacher/budget-results", label: "예산별 수요곡선" },
   { id: "guide", href: "/teacher/guide", label: "활용 안내" },
 ] as const;
 

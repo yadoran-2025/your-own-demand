@@ -295,11 +295,7 @@ export async function ensureRoomHasDefaultSurveys(roomName?: string): Promise<Su
       })
     : await fetchSurveys(normalizedRoomName);
 
-  if (existingSurveys.length) {
-    return existingSurveys;
-  }
-
-  return [await saveSurvey(createDefaultDraft(), normalizedRoomName)];
+  return existingSurveys;
 }
 
 export async function saveSurvey(draft: SurveyDraft, roomName?: string): Promise<Survey> {

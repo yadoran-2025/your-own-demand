@@ -1,6 +1,6 @@
 ﻿"use client";
 
-import { Plus, RefreshCw, Trash2 } from "lucide-react";
+import { FileText, Plus, RefreshCw, Trash2 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { TeacherAuthGate } from "@/components/TeacherAuthGate";
 import { useAuth } from "@/components/AuthProvider";
@@ -9,7 +9,7 @@ import {
   TeacherPageHeader,
   TeacherShell,
 } from "@/components/TeacherShell";
-import { RoomBadge, RoomGate } from "@/components/RoomGate";
+import { RoomGate } from "@/components/RoomGate";
 import { SurveyEditor } from "@/components/SurveyEditor";
 import {
   deleteSurvey,
@@ -34,6 +34,7 @@ export default function TeacherSetupPage() {
   const canUseTeacherData = canAccessTeacherData({ ready: authReady, isTeacher, demoMode });
   const [surveys, setSurveys] = useState<Survey[]>([]);
   const [selectedSurveyId, setSelectedSurveyId] = useState("");
+  const [deleteConfirmationId, setDeleteConfirmationId] = useState("");
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
   const automaticallyLoadedRoomRef = useRef("");
@@ -41,6 +42,7 @@ export default function TeacherSetupPage() {
   const selectedSurvey = selectedSurveyId
     ? surveys.find((survey) => survey.id === selectedSurveyId)
     : undefined;
+  const confirmingDelete = selectedSurvey?.id === deleteConfirmationId;
 
   const editorDraft = useMemo(
     () => (selectedSurvey ? surveyToDraft(selectedSurvey) : undefined),
@@ -105,16 +107,9 @@ export default function TeacherSetupPage() {
       return;
     }
 
-    const confirmed = window.confirm(
-      `"${selectedSurvey.title}" 설문을 삭제할까요? 학생 응답도 함께 삭제됩니다.`,
-    );
-
-    if (!confirmed) {
-      return;
-    }
-
     try {
       await deleteSurvey(selectedSurvey.id, roomName);
+      setDeleteConfirmationId("");
       setMessage("설문이 삭제되었습니다.");
       setSelectedSurveyId("");
       await loadSurveys();
@@ -141,7 +136,6 @@ export default function TeacherSetupPage() {
       <TeacherPageHeader
         actions={
           <>
-            <RoomBadge roomName={roomName} onReset={() => setRoomName("")} />
             <button
               className="secondary-button compact-button"
               onClick={() => void loadSurveys(selectedSurvey?.id)}
@@ -149,17 +143,6 @@ export default function TeacherSetupPage() {
             >
               <RefreshCw size={16} />
               새로고침
-            </button>
-            <button
-              className="primary-button compact-button"
-              onClick={() => {
-                setSelectedSurveyId("");
-                setMessage("새 설문을 작성합니다. 저장하면 설문 목록에 추가됩니다.");
-              }}
-              type="button"
-            >
-              <Plus size={16} />
-              새 설문
             </button>
           </>
         }
@@ -210,8 +193,14 @@ export default function TeacherSetupPage() {
               </button>
             ))}
             {!surveys.length ? (
-              <div className="empty-state compact-empty">
-                <p>저장된 설문이 없습니다.</p>
+              <div className="survey-list-empty">
+                <FileText aria-hidden="true" size={24} />
+                <strong>저장된 설문이 없습니다.</strong>
+                <span>새 설문을 만들어 보세요.</span>
+                <ul>
+                  <li>설문은 3단계로 구성됩니다.</li>
+                  <li>예산 → 설문 정보 → 상황과 가격 순서로 진행됩니다.</li>
+                </ul>
               </div>
             ) : null}
           </div>
@@ -220,18 +209,17 @@ export default function TeacherSetupPage() {
         <section className="teacher-card editor-panel">
           <div className="editor-header">
             <div>
-              <span>편집 중</span>
-              <h2>{selectedSurvey?.title ?? "새 설문"}</h2>
+              {selectedSurvey ? <span>편집 중</span> : null}
+              <h2>{selectedSurvey?.title ?? "새 설문 만들기"}</h2>
             </div>
-            <button
+            {selectedSurvey ? <button
               className="danger-button compact-button"
-              disabled={!selectedSurvey}
-              onClick={() => void handleDeleteSurvey()}
+              onClick={() => setDeleteConfirmationId(selectedSurvey.id)}
               type="button"
             >
               <Trash2 size={16} />
               설문 삭제
-            </button>
+            </button> : null}
           </div>
           <SurveyEditor
             initialDraft={editorDraft}
@@ -240,6 +228,36 @@ export default function TeacherSetupPage() {
           />
         </section>
       </div>
+
+      {confirmingDelete ? (
+        <div className="teacher-review-backdrop" role="presentation">
+          <section
+            aria-labelledby="delete-survey-title"
+            aria-modal="true"
+            className="teacher-review-dialog"
+            role="dialog"
+          >
+            <h2 id="delete-survey-title">정말 삭제하시겠습니까?</h2>
+            <p>설문과 관련된 모든 학생 답변이 영구적으로 삭제됩니다.</p>
+            <div className="teacher-review-actions">
+              <button
+                className="danger-button compact-button"
+                onClick={() => void handleDeleteSurvey()}
+                type="button"
+              >
+                삭제
+              </button>
+              <button
+                className="secondary-button compact-button"
+                onClick={() => setDeleteConfirmationId("")}
+                type="button"
+              >
+                취소
+              </button>
+            </div>
+          </section>
+        </div>
+      ) : null}
     </TeacherShell>
       </RoomGate>
     </TeacherAuthGate>

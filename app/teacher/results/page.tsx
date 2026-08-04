@@ -11,7 +11,7 @@ import {
   DemandScopeToggle,
   SituationTabs,
 } from "@/components/ResultControls";
-import { RoomBadge, RoomGate } from "@/components/RoomGate";
+import { RoomGate } from "@/components/RoomGate";
 import {
   StatusBadge,
   TeacherPageHeader,
@@ -174,7 +174,6 @@ export default function TeacherResultsPage() {
       <TeacherPageHeader
         actions={
           <>
-            <RoomBadge roomName={roomName} onReset={() => setRoomName("")} />
             <StatusBadge tone="green">
               <span className="live-dot" />
               실시간
@@ -190,8 +189,8 @@ export default function TeacherResultsPage() {
           </>
         }
         description="반별 또는 학교 전체 수요곡선을 선택해 확인합니다. 응답은 실시간으로 업데이트됩니다."
-        eyebrow="대시보드 / 결과 확인"
-        title="결과 확인"
+        eyebrow="대시보드 / 곡선 확인"
+        title="곡선 확인"
       />
 
       {!hasRemoteDatabase ? (

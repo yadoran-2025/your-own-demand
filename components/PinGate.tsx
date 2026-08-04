@@ -68,24 +68,4 @@ export function RoomGate({
   );
 }
 
-export function RoomBadge({
-  label = "현재 방",
-  roomName,
-  onReset,
-}: {
-  label?: string;
-  roomName: string;
-  onReset: () => void;
-}) {
-  return (
-    <div className="pin-badge">
-      <span>{label}</span>
-      <strong>{roomName}</strong>
-      <button className="secondary-button compact-button" onClick={onReset} type="button">
-        방 변경
-      </button>
-    </div>
-  );
-}
-
-export { RoomBadge as PinBadge, RoomGate as PinGate };
+export { RoomGate as PinGate };

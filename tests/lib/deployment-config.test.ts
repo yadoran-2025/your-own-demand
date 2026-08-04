@@ -114,7 +114,7 @@ describe("deployment configuration", () => {
     expect(layout).not.toContain("yadoran-2025.github.io");
     expect(layout).not.toContain("/your-own-demand/");
     expect(env).toContain(
-      "NEXT_PUBLIC_SITE_URL=https://inflation-classroom.vercel.app",
+      "NEXT_PUBLIC_SITE_URL=https://our-own-demand.vercel.app",
     );
   });
 

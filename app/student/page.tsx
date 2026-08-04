@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { useAuth } from "@/components/AuthProvider";
 import { LegalFooter } from "@/components/LegalFooter";
-import { RoomBadge, RoomGate } from "@/components/RoomGate";
+import { RoomGate } from "@/components/RoomGate";
 import { StudentResponseForm } from "@/components/StudentResponseForm";
 import { fetchSurveys, hasRemoteDatabase } from "@/lib/data";
 import {
@@ -144,7 +144,6 @@ export default function StudentPage() {
               {selectedSurvey?.title ?? "학생 응답 제출"}
             </h1>
           </div>
-          <RoomBadge label="입장 방" roomName={roomName} onReset={() => setRoomName("")} />
         </header>
 
         {!hasRemoteDatabase ? (

@@ -4675,6 +4675,73 @@ select {
   margin: 0.55rem 0 0;
 }
 
+.dashboard-guide-card {
+  align-items: center;
+  background: linear-gradient(110deg, #effaf7, #f8fcfb);
+  border: 1px solid #b9e3d9;
+  border-radius: 1.125rem;
+  color: var(--dashboard-navy);
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  margin-bottom: 1rem;
+  padding: 1rem 1.25rem;
+  text-decoration: none;
+  transition: border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
+}
+
+.dashboard-guide-card:hover {
+  border-color: var(--dashboard-teal);
+  box-shadow: 0 10px 24px rgba(8, 127, 120, 0.12);
+  transform: translateY(-2px);
+}
+
+.dashboard-guide-card:focus-visible {
+  outline: 3px solid rgba(8, 127, 120, 0.28);
+  outline-offset: 3px;
+}
+
+.dashboard-guide-card-icon {
+  align-items: center;
+  background: #d7f0e9;
+  border-radius: 0.875rem;
+  color: var(--dashboard-teal);
+  display: inline-flex;
+  height: 3rem;
+  justify-content: center;
+  width: 3rem;
+}
+
+.dashboard-guide-card-copy {
+  display: grid;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
+.dashboard-guide-card-copy .dashboard-section-kicker {
+  color: var(--dashboard-teal);
+  margin: 0;
+}
+
+.dashboard-guide-card-copy strong {
+  font-size: 1rem;
+  line-height: 1.35;
+}
+
+.dashboard-guide-card-copy > span:last-child {
+  color: #66758b;
+  font-size: 0.8125rem;
+}
+
+.dashboard-guide-card > svg {
+  color: var(--dashboard-teal);
+  transition: transform 160ms ease;
+}
+
+.dashboard-guide-card:hover > svg {
+  transform: translateX(3px);
+}
+
 .dashboard-lesson-actions {
   align-items: center;
   display: flex;

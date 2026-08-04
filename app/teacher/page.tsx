@@ -215,10 +215,6 @@ export default function TeacherPage() {
         <TeacherPageHeader
           actions={
             <>
-              <Link className="secondary-button compact-button" href="/teacher/guide">
-                <BookOpen size={16} />
-                활용 안내
-              </Link>
               <Link
                 className="error-report-button compact-button"
                 href={ERROR_REPORT_URL}
@@ -241,6 +237,18 @@ export default function TeacherPage() {
           </div>
         ) : null}
         {message ? <div className="teacher-alert">{message}</div> : null}
+
+        <Link className="dashboard-guide-card" href="/teacher/guide">
+          <span className="dashboard-guide-card-icon">
+            <BookOpen size={22} />
+          </span>
+          <span className="dashboard-guide-card-copy">
+            <span className="dashboard-section-kicker">활용 안내</span>
+            <strong>교사용·학생용 영상을 보고 수업 흐름을 한눈에 확인하세요</strong>
+            <span>수업 준비부터 응답 제출과 수요곡선 결과까지 안내합니다.</span>
+          </span>
+          <ArrowRight aria-hidden="true" size={22} />
+        </Link>
 
         <section className="dashboard-lesson-hero">
           <div className="dashboard-lesson-copy">

@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useAuth } from "@/components/AuthProvider";
 
 export function TeacherAuthGate({ children }: { children: React.ReactNode }) {
@@ -102,6 +103,11 @@ export function TeacherAuthGate({ children }: { children: React.ReactNode }) {
               <span>Google 계정으로 계속하기</span>
               <span aria-hidden="true" className="teacher-login-arrow">→</span>
             </button>
+
+            <Link className="teacher-login-guide" href="/teacher/guide">
+              <span>활용 안내 영상 보기</span>
+              <span aria-hidden="true">→</span>
+            </Link>
 
             <div className="teacher-login-trust">
               <svg aria-hidden="true" viewBox="0 0 24 24">

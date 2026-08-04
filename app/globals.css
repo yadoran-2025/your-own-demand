@@ -660,6 +660,32 @@ select {
   outline-offset: 4px;
 }
 
+.teacher-login-guide {
+  align-items: center;
+  border: 1px solid rgba(8, 127, 120, 0.26);
+  border-radius: 14px;
+  color: var(--login-teal);
+  display: flex;
+  font-size: 14px;
+  font-weight: 800;
+  justify-content: space-between;
+  min-height: 52px;
+  padding: 0 18px;
+  text-decoration: none;
+  transition: background-color 180ms ease, border-color 180ms ease, transform 180ms ease;
+}
+
+.teacher-login-guide:hover {
+  background: #eef8f6;
+  border-color: rgba(8, 127, 120, 0.5);
+  transform: translateY(-2px);
+}
+
+.teacher-login-guide:focus-visible {
+  outline: 3px solid rgba(8, 127, 120, 0.3);
+  outline-offset: 4px;
+}
+
 .teacher-login-trust {
   align-items: flex-start;
   border-top: 1px solid #e7eaee;

@@ -215,6 +215,10 @@ export default function TeacherPage() {
         <TeacherPageHeader
           actions={
             <>
+              <Link className="secondary-button compact-button" href="/teacher/guide">
+                <BookOpen size={16} />
+                활용 안내
+              </Link>
               <Link
                 className="error-report-button compact-button"
                 href={ERROR_REPORT_URL}

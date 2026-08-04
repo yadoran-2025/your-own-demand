@@ -104,11 +104,6 @@ export function TeacherAuthGate({ children }: { children: React.ReactNode }) {
               <span aria-hidden="true" className="teacher-login-arrow">→</span>
             </button>
 
-            <Link className="teacher-login-guide" href="/teacher/guide">
-              <span>활용 안내 영상 보기</span>
-              <span aria-hidden="true">→</span>
-            </Link>
-
             <div className="teacher-login-trust">
               <svg aria-hidden="true" viewBox="0 0 24 24">
                 <path d="M12 3 5.5 5.6v5.8c0 4.1 2.7 7.9 6.5 9.6 3.8-1.7 6.5-5.5 6.5-9.6V5.6L12 3Z" />
@@ -116,6 +111,11 @@ export function TeacherAuthGate({ children }: { children: React.ReactNode }) {
               </svg>
               <p><strong>교사 전용 공간</strong><br />로그인 정보는 수업 관리에만 사용됩니다.</p>
             </div>
+
+            <Link className="teacher-login-guide" href="/teacher/guide">
+              <span>활용 안내 영상 보기</span>
+              <span aria-hidden="true">→</span>
+            </Link>
           </section>
         </div>
       </main>
